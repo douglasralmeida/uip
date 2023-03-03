@@ -59,6 +59,14 @@ class Tarefa:
         """Informa que a tarefa possui dados básicos coletados'."""
         self.base_dados.alterar_atributo(self.pos, 'tem_dadosbasicos', '1')
 
+    def concluir_fase_exigencia(self):
+        """Informa que a tarefa está aguardando cumprimento de exigência."""
+        self.base_dados.alterar_atributo(self.pos, "tem_exigencia", "1")
+        if self.checar_atributo_nulo('tem_prim_exigencia'):
+            self.base_dados.alterar_atributo(self.pos, "tem_prim_exigencia", "1")
+            self.base_dados.alterar_atributo(self.pos, "data_exigencia", pd.to_datetime('today'))
+            self.base_dados.alterar_atributo(self.pos, "vencim_exigencia", pd.to_datetime('today') + pd.TimedeltaIndex(35, unit='D'))
+
     def concluir_fase_conclusao(self):
         """Informa que a tarefa está concluída e altera a data de conclusão para hoje."""
         self.base_dados.alterar_atributo(self.pos, 'concluida', '1')
@@ -84,15 +92,19 @@ class Tarefa:
 
     def obter_fase_dadoscoletados(self):
         """Indica se a tarefa possui dados básicos coletados."""
-        return self.base_dados.checa_atributo_verdadeiro(self.pos, 'tem_dadosbasicos')
+        return self.base_dados.checar_atributo_verdadeiro(self.pos, 'tem_dadosbasicos')
 
     def obter_fase_analise_beninacumulavel(self):
         """Indica se a tarefa possui análise de acumulação de benefícios."""
-        return self.base_dados.checa_atributo_naonulo(self.pos, 'possui_ben_inacumulavel')
+        return self.base_dados.checar_atributo_naonulo(self.pos, 'possui_ben_inacumulavel')
+    
+    def obter_fase_exigencia(self):
+        """Indica se a tarefa teve exigência gerada."""
+        return self.base_dados.checar_atributo_naonulo(self.pos, "tem_exigencia")
 
     def obter_fase_conclusao(self):
         """Indica se a tarefa foi concluída."""
-        return self.base_dados.checa_atributo_verdadeiro(self.pos, 'concluida')
+        return self.base_dados.checar_atributo_verdadeiro(self.pos, 'concluida')
 
     def obter_data_conclusao(self):
         """Retorna a data de conclusão da tarefa."""
@@ -124,20 +136,20 @@ class Tarefa:
     
     def tem_arquivopdfresumo(self):
         """Indica se a tarefa possui arquivo PDF de resumo para anexo ao GET."""
-        return self.base_dados.checa_atributo_verdadeiro(self.pos, "arquivopdfresumo")
+        return self.base_dados.checar_atributo_verdadeiro(self.pos, "arquivopdfresumo")
 
     def tem_ben_inacumulavel(self):
         """Indica se o requerente possui benefício inacumulável."""
-        return self.base_dados.checa_atributo_verdadeiro(self.pos, 'possui_ben_inacumulavel')
+        return self.base_dados.checar_atributo_verdadeiro(self.pos, 'possui_ben_inacumulavel')
 
     def tem_dadosbasicos(self):
         """Indica se a XXX tem dados básicos."""
-        return self.base_dados.checa_atributo_verdadeiro(self.pos, 'tem_dadosbasicos')
+        return self.base_dados.checar_atributo_verdadeiro(self.pos, 'tem_dadosbasicos')
 
     def tem_documentacao(self):
          """Indica se a tarefa possui documentação para análise."""
-         return self.base_dados.checa_atributo_verdadeiro(self.pos, "tem_documentacao")
+         return self.base_dados.checar_atributo_verdadeiro(self.pos, "tem_documentacao")
     
     def tem_exigencia(self):
         """Indica se a tarefa possui exigência para o requerente."""
-        return self.base_dados.checa_atributo_naonulo(self.pos, "data_exigencia")
+        return self.base_dados.checar_atributo_naonulo(self.pos, "data_exigencia")
