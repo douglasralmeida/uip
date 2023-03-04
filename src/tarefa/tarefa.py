@@ -49,6 +49,10 @@ class Tarefa:
         """Altera a data de entrada do requerimento."""
         self.base_dados.alterar_atributo(self.pos, 'der', der)
 
+    def alterar_impedimento(self, impedimento_id: str) -> None:
+        """Adiciona um impedimento à tarefa."""
+        self.base_dados.alterar_atributo(self.pos, 'impedimentos', impedimento_id)
+
     def alterar_nit(self, nit: str) -> None:
         """Altera o NIT."""
         self.base_dados.alterar_atributo(self.pos, 'nit', nit)
@@ -76,7 +80,7 @@ class Tarefa:
      
     def marcar_pdfresumo(self) -> None:
         """Ativa o indicador da tarefa que possui arquivo PDF com resumo da análise."""
-        self.base_dados.alterar_atributo(self.pos, 'arquivopdfresumo', '1')
+        self.base_dados.alterar_atributo(self.pos, 'tem_pdfresumoanexo', '1')
 
     def obter_beneficio(self) -> str:
         """Retorna o número do benefício."""
@@ -120,6 +124,10 @@ class Tarefa:
         """Retorna o índice da tarefa na base de dados."""
         return self.pos
     
+    def obter_impedimento(self) -> str:
+         """Retorna o impedimento da tarefa."""
+         return self.base_dados.obter_atributo(self.pos, "impedimentos")
+    
     def obter_nit(self) -> str:
         """Retorna o NIT."""
         return self.base_dados.obter_atributo(self.pos, 'nit')
@@ -136,9 +144,13 @@ class Tarefa:
         """Retorna a data do vencimento da exigência."""
         return self.base_dados.obter_atributo(self.pos, 'vencim_exigencia')
     
+    def remover_impedimento(self) -> None:
+        """Remove o impedimento da tarefa."""
+        self.base_dados.remover_atributo(self.pos, 'impedimentos')
+    
     def tem_arquivopdfresumo(self) -> str:
         """Indica se a tarefa possui arquivo PDF de resumo para anexo ao GET."""
-        return self.base_dados.checar_atributo_verdadeiro(self.pos, "arquivopdfresumo")
+        return self.base_dados.checar_atributo_verdadeiro(self.pos, "tem_pdfresumoanexo")
 
     def tem_ben_inacumulavel(self) -> str:
         """Indica se o requerente possui benefício inacumulável."""
@@ -155,3 +167,7 @@ class Tarefa:
     def tem_exigencia(self) -> bool:
         """Indica se a tarefa possui exigência para o requerente."""
         return self.base_dados.checar_atributo_naonulo(self.pos, "data_exigencia")
+    
+    def tem_impedimento(self) -> bool:
+         """Indica se a tarefa possui impedimento para conclusão da análise."""
+         return self.base_dados.checar_atributo_naonulo(self.pos, "impedimentos")
