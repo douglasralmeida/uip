@@ -34,6 +34,9 @@ class Tarefa:
             resultado += 'Benefício inacumulável: não informado\n'
         resultado += f'Tem exigência: {self.tem_exigencia()}\n'
         resultado += f'Data do vencimento da exigência: {self.obter_vencimento_exigencia()}\n'
+        resultado += f'Sobrestado: {bool_tostring(self.tem_sobrestamento())}\n'
+        if self.tem_sobrestamento():
+            resultado += f'Nº da subtarefa de sobrestamento: {self.obter_sub_sobrestado()}\n'
 
         return resultado
     
@@ -60,6 +63,10 @@ class Tarefa:
     def alterar_resultado(self, resultado: str) -> None:
         """Altera o resultado da análise."""
         self.base_dados.alterar_atributo(self.pos, 'resultado', resultado)
+
+    def alterar_sub_sobrestado(self, subtarefa: str) -> None:
+        """Altera a subtarefa de sobrestado."""
+        self.base_dados.alterar_atributo(self.pos, 'sub_sobrestado', subtarefa)
 
     def concluir_fase_dadoscoletados(self) -> None:
         """Informa que a tarefa possui dados básicos coletados'."""
@@ -140,6 +147,10 @@ class Tarefa:
         """Retorna o resultado da análise."""
         return self.base_dados.obter_atributo(self.pos, 'resultado')
     
+    def obter_sub_sobrestado(self) -> str:
+        """Retorna o protocolo da subtarefa de sobrestamento."""
+        return self.base_dados.obter_atributo(self.pos, 'sub_sobrestado')
+    
     def obter_vencimento_exigencia(self) -> str:
         """Retorna a data do vencimento da exigência."""
         return self.base_dados.obter_atributo(self.pos, 'vencim_exigencia')
@@ -167,6 +178,10 @@ class Tarefa:
     def tem_exigencia(self) -> bool:
         """Indica se a tarefa possui exigência para o requerente."""
         return self.base_dados.checar_atributo_naonulo(self.pos, "data_exigencia")
+    
+    def tem_sobrestamento(self) -> bool:
+         """Indica se a tarefa está sobrestada."""
+         return self.base_dados.checar_atributo_naonulo(self.pos, "sub_sobrestado")
     
     def tem_impedimento(self) -> bool:
          """Indica se a tarefa possui impedimento para conclusão da análise."""
