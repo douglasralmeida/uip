@@ -18,6 +18,7 @@ class Tarefa:
 
     def __str__(self) -> str:
         resultado = f'Protocolo: {self.obter_protocolo()}\n'
+        resultado += f'Tarefa conclusa: {bool_tostring(self.obter_fase_concluso())}\n'
         resultado += f'Tarefa concluída: {bool_tostring(self.obter_fase_conclusao())}\n'
         resultado += f'Dados coletados: {bool_tostring(self.obter_fase_dadoscoletados())}\n'
         resultado += f'CPF: {valor_tostring(self.obter_cpf())}\n'
@@ -80,6 +81,10 @@ class Tarefa:
             self.base_dados.alterar_atributo(self.pos, "data_exigencia", pd.to_datetime('today'))
             self.base_dados.alterar_atributo(self.pos, "vencim_exigencia", pd.to_datetime('today') + pd.TimedeltaIndex(35, unit='D'))
 
+    def concluir_fase_concluso(self) -> None:
+        """Informa que a tarefa está pronta para ser concluída'."""
+        self.base_dados.alterar_atributo(self.pos, 'concluso', '1')
+
     def concluir_fase_conclusao(self) -> None:
         """Informa que a tarefa está concluída e altera a data de conclusão para hoje."""
         self.base_dados.alterar_atributo(self.pos, 'concluida', '1')
@@ -114,6 +119,10 @@ class Tarefa:
     def obter_fase_exigencia(self) -> bool:
         """Indica se a tarefa teve exigência gerada."""
         return self.base_dados.checar_atributo_naonulo(self.pos, "tem_exigencia")
+
+    def obter_fase_concluso(self) -> bool:
+        """Indica se a tarefa está pronta para ser concluída."""
+        return self.base_dados.checar_atributo_verdadeiro(self.pos, 'concluso')
 
     def obter_fase_conclusao(self) -> bool:
         """Indica se a tarefa foi concluída."""
