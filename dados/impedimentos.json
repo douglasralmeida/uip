@@ -1,0 +1,14 @@
+{
+    "impLibdup": {
+        "desc": "Necessário processamento de LIBDUP."
+    },
+    "impSubPMComProfissional": {
+        "desc": "Subtarefa PM com profissional alocado, impossível cancelar."
+    },
+    "impB36ReverEspeciePrecedido": {
+        "desc": "Necessário revisão de espécie de Auxílio por Incapacidade precedido para B91."
+    },
+    "impSubParecerTecnico": {
+        "desc": "Problemas técnicos no processamento via Prisma, com subtarefa de Parecer."
+    }
+}
