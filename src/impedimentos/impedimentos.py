@@ -46,12 +46,7 @@ class Impedimentos:
         """Carrega a lista de impedimentos do arquivo CSV."""
         nome_arquivo = path.join(self.vars.obter_pasta_dados(), ARQUIVO_DADOS)
         with open(nome_arquivo, 'r', encoding='utf8') as arquivo:
-            for codigo, item in json.load(arquivo).items():
-                self.lista.append(Impedimento(codigo, item['desc']))
-
-    def existe(self, valor: str) -> bool:
-        """Verifica se um impedimento existe na lista de impedimentos."""
-        return self.obter(valor) is not None
+            self.lista = [Impedimento(codigo, item['desc']) for codigo, item in json.load(arquivo).items()]
     
     def obter(self, valor: str) -> Impedimento:
         """Retorna um impedimento conforme o ID especificado;"""
