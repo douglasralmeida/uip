@@ -78,8 +78,8 @@ class Tarefa:
         self.base_dados.alterar_atributo(self.pos, "tem_exigencia", "1")
         if self.checar_atributo_nulo('tem_prim_exigencia'):
             self.base_dados.alterar_atributo(self.pos, "tem_prim_exigencia", "1")
-            self.base_dados.alterar_atributo(self.pos, "data_exigencia", pd.to_datetime('today'))
-            self.base_dados.alterar_atributo(self.pos, "vencim_exigencia", pd.to_datetime('today') + pd.TimedeltaIndex(35, unit='D'))
+        self.base_dados.alterar_atributo(self.pos, "data_exigencia", pd.to_datetime('today'))
+        self.base_dados.alterar_atributo(self.pos, "vencim_exigencia", pd.to_datetime('today') + pd.TimedeltaIndex(35, unit='D'))
 
     def concluir_fase_concluso(self) -> None:
         """Informa que a tarefa está pronta para ser concluída'."""
@@ -89,6 +89,11 @@ class Tarefa:
         """Informa que a tarefa está concluída e altera a data de conclusão para hoje."""
         self.base_dados.alterar_atributo(self.pos, 'concluida', '1')
         self.base_dados.alterar_atributo(self.pos, 'data_conclusao', pd.to_datetime('today').date())        
+
+    def cumprir_exigencia(self) -> None:
+        """Cumpre a exigência."""
+        self.base_dados.alterar_atributo(self. pos, 'tem_exigencia', '0')
+        self.base_dados.alterar_atributo(self. pos, 'tem_documentacao', '1')
      
     def marcar_pdfresumo(self) -> None:
         """Ativa o indicador da tarefa que possui arquivo PDF com resumo da análise."""
