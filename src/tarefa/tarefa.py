@@ -99,6 +99,14 @@ class Tarefa:
         """Ativa o indicador da tarefa que possui arquivo PDF com resumo da análise."""
         self.base_dados.alterar_atributo(self.pos, 'tem_pdfresumoanexo', '1')
 
+    def marcar_naopossui_beninacum(self) -> None:
+        """Marca a tarefa como não possui benefício inacumulável"""
+        self.base_dados.alterar_atributo(self.pos, 'possui_ben_inacumulavel', '0')
+
+    def marcar_tem_documentacao(self) -> None:
+        """Marca a tarefa como possui documentação."""
+        self.base_dados.alterar_atributo(self.pos, 'tem_documentacao', '1')
+
     def obter_beneficio(self) -> str:
         """Retorna o número do benefício."""
         return self.base_dados.obter_atributo(self.pos, 'beneficio')        
