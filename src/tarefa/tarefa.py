@@ -4,6 +4,7 @@
 
 import pandas as pd
 from .utils import bool_tostring, valor_tostring
+from agendamento import Agendamento
 from basedados import BaseDados
 from datetime import date
 
@@ -110,6 +111,16 @@ class Tarefa:
     def marcar_tem_documentacao(self) -> None:
         """Marca a tarefa como possui documentação."""
         self.base_dados.alterar_atributo(self.pos, 'tem_documentacao', '1')
+
+    def obter_agendamento(self) -> Agendamento:
+        """Retorna as informações do agendamento de PM."""
+        da = self.base_dados.obter_atributo(self.pos, 'dataagendamento')
+        ha = self.base_dados.obter_atributo(self.pos, 'horaagendamento')
+        la = self.base_dados.obter_atributo(self.pos, 'localagendamento')
+        if pd.isna(da) | pd.isna(ha) | pd.isna(la):
+            return None
+        else:
+            return Agendamento(da, ha, la)
 
     def obter_beneficio(self) -> str:
         """Retorna o número do benefício."""
