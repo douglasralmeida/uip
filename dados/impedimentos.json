@@ -10,5 +10,8 @@
     },
     "impSubParecerTecnico": {
         "desc": "Problemas técnicos no processamento via Prisma, com subtarefa de Parecer."
+    },
+    "impMigraDARF": {
+        "desc": "Aguarda migração de DARF quitada para o CNIS."
     }
 }
