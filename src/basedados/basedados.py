@@ -34,8 +34,7 @@ class BaseDados:
     def alterar_atributos(self, protocolo: str, atributos: str, valores: str) -> None:
         """Altera múltiplos atributos do registro."""
         num_atributos = len(atributos)
-        idx = self.pesquisar_indice(protocolo)
-        if idx is None:
+        if (idx := self.pesquisar_indice(protocolo)) is None:
             print(f'Tarefa {protocolo} não foi encontrada.')
             return False
         for i in range(num_atributos):
@@ -99,7 +98,7 @@ class BaseDados:
         """Retorna o valor de um atributo."""
         return self.dados.iloc[idx][atributo]
         
-    def obter_dados(self, filtro) -> str:
+    def obter_dados(self, filtro):
         """Retorna um conjunto de valores filtrados."""
         return self.dados[filtro]
 
@@ -108,20 +107,22 @@ class BaseDados:
         resultado = ''
 
         with pd.option_context('mode.chained_assignment', None):
-            dados_obtidos = self.dados[listagem["filtro"]]
-            quant = len(dados_obtidos)
-            if quant > 0:
-                dados_obtidos.sort_values(by=listagem["ordenacao"], ascending=listagem["ordem_crescente"], inplace=True)
-                resultado = dados_obtidos[listagem["colunas"]].to_string(index=False)
+            df = self.dados[listagem["filtro"]]
+            if (quant := len(df)) > 0:
+                df.sort_values(by=listagem["ordenacao"], ascending=listagem["ordem_crescente"], inplace=True)
+                resultado = df[listagem["colunas"]].to_string(index=False)
         return (quant, resultado)
        
     def pesquisar_indice(self, protocolo: str):
         """Retorna o índice do protocolo especificado.""" 
-        dd = self.dados.loc[self.dados['protocolo'] == protocolo]
-        if dd.empty:
+        if (df := self.dados.loc[self.dados['protocolo'] == protocolo]).empty:
             return None
         else:
-            return dd.index[0]
+            return df.index[0]
+        
+    def remover_atributo(self, idx: int, atributo: str) -> None:
+        """Exclui o valor do atributo especificado."""
+        self.dados.loc[idx, atributo] = pd.NA
     
     def salvar_emarquivo(self) -> None:
         """Salva a base de dados no arquivo CSV."""
