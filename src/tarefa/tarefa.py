@@ -93,7 +93,11 @@ class Tarefa:
     def cumprir_exigencia(self) -> None:
         """Cumpre a exigência."""
         self.base_dados.alterar_atributo(self. pos, 'tem_exigencia', '0')
-        self.base_dados.alterar_atributo(self. pos, 'tem_documentacao', '1')
+        self.base_dados.alterar_atributo(self. pos, 'tem_documentacao', pd.NA)
+
+    def desmarcar_pdfresumo(self) -> None:
+        """Ativa o indicador da tarefa que não possui arquivo PDF com resumo da análise."""
+        self.base_dados.alterar_atributo(self.pos, 'tem_pdfresumoanexo', '0')
      
     def marcar_pdfresumo(self) -> None:
         """Ativa o indicador da tarefa que possui arquivo PDF com resumo da análise."""
