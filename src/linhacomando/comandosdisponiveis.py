@@ -39,6 +39,16 @@ class ComandosDisponiveis:
                 'requer_pmfagenda': False,
                 'requer_protocolo': False,
             },
+            'adicionar': {
+                'funcao': sistema.adicionar_tarefas,
+                'argsmin': 1,
+                'desc': 'Adiciona uma lista de tarefas na base de dados.',
+                'requer_subcomando': False,
+                'requer_get': False,
+                'requer_processador': True,
+                'requer_pmfagenda': False,
+                'requer_protocolo': True,
+            },
             'agendapm': {
                 'funcao': sistema.mostrar_agenda_pm,
                 'argsmin': 0,
