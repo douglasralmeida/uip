@@ -8,6 +8,13 @@ def bool_tostring(valor: bool) -> str:
         return 'Sim'
     else:
         return 'Não'
+    
+def bool_tobit(valor: bool) -> str:
+    """Converte um valor booleano para 0 ou 1."""
+    if valor:
+        return '1'
+    else:
+        return '0'
 
 def valor_tostring(valor) -> str:
     """Converte um valor da base de dados para string."""
