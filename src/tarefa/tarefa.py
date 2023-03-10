@@ -86,13 +86,14 @@ class Tarefa:
         """Informa que a tarefa possui dados básicos coletados'."""
         self.base_dados.alterar_atributo(self.pos, 'tem_dadosbasicos', '1')
 
-    def concluir_fase_exigencia(self) -> None:
+    def concluir_fase_exigencia(self, registrar_data: bool) -> None:
         """Informa que a tarefa está aguardando cumprimento de exigência."""
         self.base_dados.alterar_atributo(self.pos, "tem_exigencia", "1")
-        if self.checar_atributo_nulo('tem_prim_exigencia'):
+        if self.base_dados.checar_atributo_nulo(self.pos, 'tem_prim_exigencia'):
             self.base_dados.alterar_atributo(self.pos, "tem_prim_exigencia", "1")
-        self.base_dados.alterar_atributo(self.pos, "data_exigencia", pd.to_datetime('today'))
-        self.base_dados.alterar_atributo(self.pos, "vencim_exigencia", pd.to_datetime('today') + pd.TimedeltaIndex(35, unit='D'))
+        if registrar_data:
+            self.base_dados.alterar_atributo(self.pos, "data_exigencia", pd.to_datetime('today'))
+            self.base_dados.alterar_atributo(self.pos, "vencim_exigencia", pd.to_datetime('today') + pd.TimedeltaIndex(35, unit='D'))
 
     def concluir_fase_concluso(self) -> None:
         """Informa que a tarefa está pronta para ser concluída'."""
@@ -101,7 +102,15 @@ class Tarefa:
     def concluir_fase_conclusao(self) -> None:
         """Informa que a tarefa está concluída e altera a data de conclusão para hoje."""
         self.base_dados.alterar_atributo(self.pos, 'concluida', '1')
-        self.base_dados.alterar_atributo(self.pos, 'data_conclusao', pd.to_datetime('today').date())        
+        self.base_dados.alterar_atributo(self.pos, 'data_conclusao', pd.to_datetime('today').date())
+
+    def marcar_japossui_exigencia(self) -> None:
+        """Informa que a tarefa já possui exigência anterior."""
+        self.base_dados.alterar_atributo(self.pos, "tem_prim_exigencia", "0")
+
+    def marcar_japossui_subtarefa(self) -> None:
+        """Informa que a tarefa já possui subtarefa criada anteriormente."""
+        self.base_dados.alterar_atributo(self.pos, "tem_prim_subtarefa", "0")
 
     def cumprir_exigencia(self) -> None:
         """Cumpre a exigência."""
