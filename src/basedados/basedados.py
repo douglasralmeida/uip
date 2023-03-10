@@ -23,6 +23,16 @@ class BaseDados:
         #Configuração com os tipos de valores de cada coluna da base de dados.
         self.tipo_colunas = None
 
+    def adicionar_registros(self, protocolos: list[str]) -> None:
+        novos_registros = []
+        colunas = list(self.dados)
+        for p in protocolos:
+            novo_registro = ['' for _ in colunas]
+            novo_registro[0] = p
+            novos_registros.append(novo_registro)
+        df = pd.DataFrame(novos_registros, columns=list(self.dados))
+        self.dados = pd.concat([self.dados, df])
+
     def alterar_atributo(self, idx: int, atributo: str, valor: str) -> None:
         """Altera o atributo especificado do regsitro."""
         self.dados.loc[idx, atributo] = valor
