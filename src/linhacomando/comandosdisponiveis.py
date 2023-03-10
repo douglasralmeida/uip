@@ -241,6 +241,16 @@ class ComandosDisponiveis:
                 'requer_pmfagenda': False,
                 'requer_protocolo': True,
             },
+            'puxar': {
+                'funcao': sistema.puxar_tarefa,
+                'argsmin': 0,
+                'desc': 'Puxa uma tarefa no GET.',
+                'requer_subcomando': True,
+                'requer_get': True,
+                'requer_processador': False,
+                'requer_pmfagenda': False,
+                'requer_protocolo': False,
+            },
             'usarintranet': {
                 'funcao': sistema.usar_intranet,
                 'argsmin': 0,
