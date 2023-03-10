@@ -3,7 +3,7 @@
 """Tarefa do GET"""
 
 import pandas as pd
-from .utils import bool_tostring, valor_tostring
+from .utils import bool_tostring, bool_tobit, valor_tostring
 from agendamento import Agendamento
 from basedados import BaseDados
 from datetime import date
@@ -21,7 +21,7 @@ class Tarefa:
         resultado = f'Protocolo: {self.obter_protocolo()}\n'
         resultado += f'Tarefa conclusa: {bool_tostring(self.obter_fase_concluso())}\n'
         resultado += f'Tarefa concluída: {bool_tostring(self.obter_fase_conclusao())}\n'
-        resultado += f'Dados coletados: {bool_tostring(self.obter_fase_dadoscoletados())}\n'
+        resultado += f'Dados coletados: {bool_tostring(self.tem_dadosbasicos())}\n'
         resultado += f'CPF: {valor_tostring(self.obter_cpf())}\n'
         resultado += f'NIT: {valor_tostring(self.obter_nit())}\n'
         resultado += f'DER: {valor_tostring(self.obter_der())}\n'
@@ -46,6 +46,10 @@ class Tarefa:
         """Altera o número do benefício."""
         self.base_dados.alterar_atributo(self.pos, 'beneficio', novo_beneficio)
 
+    def alterar_beninacumluavel(self, valor: bool) -> None:
+        """Ativa ou desativa o indicador de benefício inacumulável."""
+        self.base_dados.alterar_atributo(self.pos, 'possui_ben_inacumulavel', bool_tobit(valor))
+
     def alterar_cpf(self, cpf: str) -> None:
         """Altera o CPF."""
         self.base_dados.alterar_atributo(self.pos, 'cpf', cpf)   
@@ -61,14 +65,22 @@ class Tarefa:
     def alterar_nit(self, nit: str) -> None:
         """Altera o NIT."""
         self.base_dados.alterar_atributo(self.pos, 'nit', nit)
+
+    def alterar_pdfresumo(self, valor: bool) -> None:
+        """Ativa ou desativa o indicador da tarefa que não possui arquivo PDF com resumo da análise."""
+        self.base_dados.alterar_atributo(self.pos, 'tem_pdfresumoanexo', bool_tobit(valor))
         
-    def alterar_resultado(self, resultado: str) -> None:
+    def alterar_resultado(self, resultado_id: str) -> None:
         """Altera o resultado da análise."""
-        self.base_dados.alterar_atributo(self.pos, 'resultado', resultado)
+        self.base_dados.alterar_atributo(self.pos, 'resultado', resultado_id)
 
     def alterar_sub_sobrestado(self, subtarefa: str) -> None:
         """Altera a subtarefa de sobrestado."""
         self.base_dados.alterar_atributo(self.pos, 'sub_sobrestado', subtarefa)
+
+    def alterar_temdoc(self, valor: bool) -> None:
+        """Ativa ou desativa o indicador possui documentação."""
+        self.base_dados.alterar_atributo(self.pos, 'tem_documentacao', bool_tobit(valor))
 
     def concluir_fase_dadoscoletados(self) -> None:
         """Informa que a tarefa possui dados básicos coletados'."""
@@ -96,22 +108,6 @@ class Tarefa:
         self.base_dados.alterar_atributo(self. pos, 'tem_exigencia', '0')
         self.base_dados.alterar_atributo(self. pos, 'tem_documentacao', pd.NA)
 
-    def desmarcar_pdfresumo(self) -> None:
-        """Ativa o indicador da tarefa que não possui arquivo PDF com resumo da análise."""
-        self.base_dados.alterar_atributo(self.pos, 'tem_pdfresumoanexo', '0')
-     
-    def marcar_pdfresumo(self) -> None:
-        """Ativa o indicador da tarefa que possui arquivo PDF com resumo da análise."""
-        self.base_dados.alterar_atributo(self.pos, 'tem_pdfresumoanexo', '1')
-
-    def marcar_naopossui_beninacum(self) -> None:
-        """Marca a tarefa como não possui benefício inacumulável"""
-        self.base_dados.alterar_atributo(self.pos, 'possui_ben_inacumulavel', '0')
-
-    def marcar_tem_documentacao(self) -> None:
-        """Marca a tarefa como possui documentação."""
-        self.base_dados.alterar_atributo(self.pos, 'tem_documentacao', '1')
-
     def obter_agendamento(self) -> Agendamento:
         """Retorna as informações do agendamento de PM."""
         da = self.base_dados.obter_atributo(self.pos, 'dataagendamento')
@@ -136,18 +132,10 @@ class Tarefa:
         """Retorna o CPF."""
         return self.base_dados.obter_atributo(self.pos, 'cpf')
 
-    def obter_fase_dadoscoletados(self) -> bool:
-        """Indica se a tarefa possui dados básicos coletados."""
-        return self.base_dados.checar_atributo_verdadeiro(self.pos, 'tem_dadosbasicos')
-
     def obter_fase_analise_beninacumulavel(self) -> bool:
         """Indica se a tarefa possui análise de acumulação de benefícios."""
         return self.base_dados.checar_atributo_naonulo(self.pos, 'possui_ben_inacumulavel')
     
-    def obter_fase_exigencia(self) -> bool:
-        """Indica se a tarefa teve exigência gerada."""
-        return self.base_dados.checar_atributo_naonulo(self.pos, "tem_exigencia")
-
     def obter_fase_concluso(self) -> bool:
         """Indica se a tarefa está pronta para ser concluída."""
         return self.base_dados.checar_atributo_verdadeiro(self.pos, 'concluso')
@@ -214,7 +202,7 @@ class Tarefa:
     
     def tem_exigencia(self) -> bool:
         """Indica se a tarefa possui exigência para o requerente."""
-        return self.base_dados.checar_atributo_naonulo(self.pos, "data_exigencia")
+        return self.base_dados.checar_atributo_verdadeiro(self.pos, "tem_exigencia")
     
     def tem_sobrestamento(self) -> bool:
          """Indica se a tarefa está sobrestada."""
