@@ -39,6 +39,16 @@ class ComandosDisponiveis:
                 'requer_pmfagenda': False,
                 'requer_protocolo': False,
             },
+            'agendapm': {
+                'funcao': sistema.mostrar_agenda_pm,
+                'argsmin': 0,
+                'desc': 'Executa o programa \'Exibir Agenda PM\' do processador.',
+                'requer_subcomando': False,
+                'requer_get': False,
+                'requer_processador': True,
+                'requer_pmfagenda': False,
+                'requer_protocolo': True,
+            },
             'agendarpm': {
                 'funcao': sistema.agendar_pm,
                 'argsmin': 0,
