@@ -189,6 +189,10 @@ class Tarefa:
         """Retorna a data do vencimento da exigência."""
         return self.base_dados.obter_atributo(self.pos, 'vencim_exigencia')
     
+    def registrar_desistencia(self) -> None:
+        """Marca a tarefa com desistência do requerente."""
+        self.base_dados.alterar_atributo(self.pos, 'resultado', 'desistencia')
+    
     def remover_impedimento(self) -> None:
         """Remove o impedimento da tarefa."""
         self.base_dados.remover_atributo(self.pos, 'impedimentos')
