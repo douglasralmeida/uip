@@ -55,7 +55,7 @@ class Puxador:
         drv.aguardar_telaprocessamento
 
         ##Aguarda abertura da tarefa
-        drv.aguardar_visibilidade_elemento('panel-title')
+        drv.aguardar_visibilidade_elemento('classe:panel-title')
 
         #Coleta o número da tarefa
         protocolo = drv.coletar_numero_porclasse('panel-title')
