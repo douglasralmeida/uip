@@ -9,6 +9,18 @@ class ComandosDisponiveis:
     def __init__(self, sistema: Sistema):
         #Comandos disponíveis para o usuário.
         self._lista = {
+            'abrircnis': {
+                'funcao': sistema.abrir_cnis,
+                'argsmin': 0,
+                'desc': 'Abre o navegador Edge e vai para o site do Portal CNIS.',
+                'requer_subcomando': False,
+                'requer_cnis': False,
+				'requer_get': False,
+                'requer_processador': False,
+                'requer_pmfagenda': False,
+                'requer_protocolo': False,
+                'requer_sibe': False
+            },            
             'abrirget': {
                 'funcao': sistema.abrir_get,
                 'argsmin': 0,
@@ -41,6 +53,18 @@ class ComandosDisponiveis:
                 'requer_cnis': False,
 				'requer_get': False,
                 'requer_processador': False,
+                'requer_pmfagenda': False,
+                'requer_protocolo': False,
+                'requer_sibe': False
+            },
+            'acumulaben': {
+                'funcao': sistema.acumula_ben,
+                'argsmin': 0,
+                'desc': 'Analisa a acumulação de benefícios',
+                'requer_subcomando': False,
+                'requer_cnis': True,
+				'requer_get': False,
+                'requer_processador': True,
                 'requer_pmfagenda': False,
                 'requer_protocolo': False,
                 'requer_sibe': False
