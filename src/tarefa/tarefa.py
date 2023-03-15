@@ -93,7 +93,7 @@ class Tarefa:
             self.base_dados.alterar_atributo(self.pos, "tem_prim_exigencia", "1")
         if registrar_data:
             self.base_dados.alterar_atributo(self.pos, "data_exigencia", pd.to_datetime('today'))
-            self.base_dados.alterar_atributo(self.pos, "vencim_exigencia", pd.to_datetime('today') + pd.TimedeltaIndex(35, unit='D'))
+            self.base_dados.alterar_atributo(self.pos, "vencim_exigencia", pd.to_datetime('today') + pd.TimedeltaIndex([35], unit='D'))
 
     def concluir_fase_concluso(self) -> None:
         """Informa que a tarefa está pronta para ser concluída'."""
