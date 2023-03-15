@@ -104,6 +104,15 @@ class BaseDados:
         else:
             self.colunas_data += colsdata
 
+    def limpar_atributos(self, idx: int) -> None:
+        """Limpa todos os atributos do registro, exceto o protocolo."""
+        colunas = self.dados.columns.tolist()
+        lista = 'protocolo;cpf;der;nit;tem_prim_subtarefa;data_subtarefa;tem_prim_exigencia;data_exigencia'.split(';')
+        for item in lista:
+            colunas.remove(item)
+        for coluna in colunas:
+            self.dados.loc[idx, coluna] = pd.NA
+
     def obter_atributo(self, idx: int, atributo: str) -> str:
         """Retorna o valor de um atributo."""
         return self.dados.iloc[idx][atributo]
