@@ -115,7 +115,7 @@ class Tarefa:
     def cumprir_exigencia(self) -> None:
         """Cumpre a exigência."""
         self.base_dados.alterar_atributo(self. pos, 'tem_exigencia', '0')
-        self.base_dados.alterar_atributo(self. pos, 'tem_documentacao', pd.NA)
+        self.base_dados.alterar_atributo(self. pos, 'tem_documentacao', pd.NA)      
 
     def obter_agendamento(self) -> Agendamento:
         """Retorna as informações do agendamento de PM."""
@@ -191,6 +191,7 @@ class Tarefa:
     
     def registrar_desistencia(self) -> None:
         """Marca a tarefa com desistência do requerente."""
+        self.base_dados.limpar_atributos(self.pos)
         self.base_dados.alterar_atributo(self.pos, 'resultado', 'desistencia')
     
     def remover_impedimento(self) -> None:
