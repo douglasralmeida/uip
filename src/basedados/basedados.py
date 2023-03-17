@@ -35,11 +35,11 @@ class BaseDados:
 
     def alterar_atributo(self, idx: int, atributo: str, valor: str) -> None:
         """Altera o atributo especificado do regsitro."""
-        self.dados[idx, atributo] = valor
+        self.dados.loc[idx, atributo] = valor
 
     def alterar_atributo_paraverdadeiro(self, idx: int, atributo: str) -> None:
         """Altera o atributo especificado do regsitro para verdadeiro, com valor igual a 1."""
-        self.dados[idx, atributo] = '1'
+        self.dados.loc[idx, atributo] = '1'
 
     def alterar_atributos(self, protocolo: str, atributos: str, valores: str) -> None:
         """Altera múltiplos atributos do registro."""
@@ -111,7 +111,7 @@ class BaseDados:
         for item in lista:
             colunas.remove(item)
         for coluna in colunas:
-            self.dados[idx, coluna] = pd.NA
+            self.dados.loc[idx, coluna] = pd.NA
 
     def obter_atributo(self, idx: int, atributo: str) -> str:
         """Retorna o valor de um atributo."""
@@ -141,7 +141,7 @@ class BaseDados:
         
     def remover_atributo(self, idx: int, atributo: str) -> None:
         """Exclui o valor do atributo especificado."""
-        self.dados[idx, atributo] = pd.NA
+        self.dados.loc[idx, atributo] = pd.NA
     
     def salvar_emarquivo(self) -> None:
         """Salva a base de dados no arquivo CSV."""
