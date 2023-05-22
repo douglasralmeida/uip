@@ -1,0 +1,101 @@
+{
+    "auxacidente_rjceab": {
+        "nome": "Auxílio Acidente (CEAB RJ)",
+        "id": "aa",
+        "codigo": "17.150.521",
+        "valor_exigencia": 0.05,
+        "valor_subtarefa": 0.0,
+        "valor_conclusao": 0.33,
+        "ativa": 1
+    },
+    "auxacidente_samb": {
+        "nome": "Auxílio Acidente (SAMB)",
+        "id": "aa",
+        "codigo": "0",
+        "valor_exigencia": 0.05,
+        "valor_subtarefa": 0.0,
+        "valor_conclusao": 0.33,
+        "ativa": 1
+    },
+    "auxacidente_sman": {
+        "nome": "Auxílio Acidente (SMAN)",
+        "id": "aa",
+        "codigo": "0",
+        "valor_exigencia": 0.05,
+        "valor_subtarefa": 0.0,
+        "valor_conclusao": 0.33,
+        "ativa": 0
+    },
+    "auxinacp_samb": {
+        "nome": "Auxílio por Incapacidade (SAMB)",
+        "id": "ai",
+        "codigo": "0",
+        "valor_exigencia": 0.20,
+        "valor_subtarefa": 0.0,
+        "valor_conclusao": 0.33,
+        "ativa": 1
+    },
+    "auxincap_sman": {
+        "nome": "Auxílio por Incapacidade (SMAN)",
+        "id": "ai",
+        "codigo": "0",
+        "valor_exigencia": 0.20,
+        "valor_subtarefa": 0.0,
+        "valor_conclusao": 0.33,
+        "ativa": 1
+    },
+    "prorrogsm_samb": {
+        "nome": "Auxílio Acidente (SAMB)",
+        "id": "psm",
+        "codigo": "0",
+        "valor_exigencia": 0.05,
+        "valor_subtarefa": 0.0,
+        "valor_conclusao": 0.20,
+        "ativa": 1
+    },
+    "prorrogsm_sman": {
+        "nome": "Auxílio Acidente (SMAN)",
+        "id": "psm",
+        "codigo": "0",
+        "valor_exigencia": 0.05,
+        "valor_subtarefa": 0.0,
+        "valor_conclusao": 0.20,
+        "ativa": 1
+    },
+    "reunioes_sman": {
+        "nome": "Reuniões da GEX",
+        "id": "reub",
+        "codigo": "0",
+        "valor_exigencia": 0.0,
+        "valor_subtarefa": 0.0,
+        "valor_conclusao": 2.1,
+        "ativa": 1
+    },
+    "ctc_ceab2": {
+        "nome": "CTC (CEAB SR Sudeste II)",
+        "id": "ctc",
+        "codigo": "0",
+        "valor_exigencia": 0.20,
+        "valor_subtarefa": 0.20,
+        "valor_conclusao": 1.17,
+        "ativa": 1
+    },
+    "revctc_ceab2": {
+        "nome": "Revisão de CTC (CEAB SR Sudeste II)",
+        "id": "revctc",
+        "codigo": "0",
+        "valor_exigencia": 1.45,
+        "valor_subtarefa": 0.20,
+        "valor_conclusao": 0.20,
+        "ativa": 1
+    },
+    "rev_ceab2": {
+        "nome": "Revisão (CEAB SR Sudeste II)",
+        "id": "rev",
+        "codigo": "0",
+        "valor_exigencia": 1.45,
+        "valor_subtarefa": 0.20,
+        "valor_conclusao": 0.20,
+        "ativa": 1
+    }
+}
