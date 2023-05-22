@@ -13,5 +13,8 @@
     },
     "impMigraDARF": {
         "desc": "Aguarda migração de DARF quitada para o CNIS."
+    },
+    "imoAguardaOutraTarefa": {
+        "desc": "Aguarda a conclusão de outra tarefa GET."
     }
 }
