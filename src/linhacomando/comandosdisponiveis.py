@@ -225,6 +225,18 @@ class ComandosDisponiveis:
                 'requer_protocolo': False,
                 'requer_sibe': False
             },
+            'filas': {
+                'funcao': sistema.exibir_filas,
+                'argsmin': 0,
+                'desc': 'Exibe as filas cadastradas no UIP.',
+                'requer_subcomando': False,
+                'requer_cnis': False,
+				'requer_get': False,
+                'requer_processador': False,
+                'requer_pmfagenda': False,
+                'requer_protocolo': False,
+                'requer_sibe': False
+            },
             'gerarsub': {
                 'funcao': sistema.gerar_subtarefa,
                 'argsmin': 0,
