@@ -41,7 +41,8 @@ class TarefaAuxilioAcidente(Tarefa):
 
     def alterar_agendamento(self, agendamento: Agendamento) -> None:
         """Altera os dados do agendamento da PM"""
-        self.base_dados.alterar_atributo(self.pos, 'dataagendamento', agendamento.data)
+        data = pd.to_datetime(agendamento.data, dayfirst=True, format='%d/%m/%Y')
+        self.base_dados.alterar_atributo(self.pos, 'dataagendamento', data)
         self.base_dados.alterar_atributo(self.pos, 'horaagendamento', agendamento.hora)
         self.base_dados.alterar_atributo(self.pos, 'localagendamento', agendamento.local)
 
@@ -55,7 +56,7 @@ class TarefaAuxilioAcidente(Tarefa):
 
     def alterar_subtarefa(self, subtarefa: str) -> None:
         """Altera o número da subtarefa."""
-        self.base_dados.alterar_atributo(self.pos, "subtarefa", subtarefa)
+        self.base_dados.alterar_atributo(self.pos, "subtarefa", str(subtarefa))
 
     def concluir_fase_subtarefa(self) -> None:
         """Informa que a tarefa já possui subtarefa gerada."""
