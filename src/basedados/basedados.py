@@ -78,7 +78,7 @@ class BaseDados:
             raise Exception()
         if self.tipo_colunas is None:
             raise Exception()
-        self.dados = pd.read_csv(self.arquivo_dados, sep=';', dayfirst=True, dtype=self.tipo_colunas, parse_dates=self.colunas_data)
+        self.dados = pd.read_csv(self.arquivo_dados, sep=';', dtype=self.tipo_colunas, parse_dates=self.colunas_data)
         self._tamanho = len(self.dados)
 
     def checar_atributo_nulo(self, idx: int, atributo: str) -> bool:
