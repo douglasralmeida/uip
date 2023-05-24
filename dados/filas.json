@@ -8,73 +8,82 @@
         "valor_conclusao": 0.33,
         "ativa": 1
     },
-    "auxacidente_samb": {
-        "nome": "Auxílio Acidente (SAMB)",
+    "auxacidente_duquecaxias": {
+        "nome": "Auxílio Acidente (SARD Duque de Caxias)",
         "id": "aa",
-        "codigo": "0",
+        "codigo": "17.022.4",
         "valor_exigencia": 0.05,
         "valor_subtarefa": 0.0,
         "valor_conclusao": 0.33,
         "ativa": 1
     },
-    "auxacidente_sman": {
-        "nome": "Auxílio Acidente (SMAN)",
+    "auxacidente_sambbh": {
+        "nome": "Auxílio Acidente (SAMB GEX BH)",
         "id": "aa",
-        "codigo": "0",
+        "codigo": "11.001.3",
+        "valor_exigencia": 0.05,
+        "valor_subtarefa": 0.0,
+        "valor_conclusao": 0.33,
+        "ativa": 1
+    },
+    "auxacidente_smanbh": {
+        "nome": "Auxílio Acidente (SMAN GEX BH)",
+        "id": "aa",
+        "codigo": "11.501.14",
         "valor_exigencia": 0.05,
         "valor_subtarefa": 0.0,
         "valor_conclusao": 0.33,
         "ativa": 0
     },
-    "auxinacp_samb": {
-        "nome": "Auxílio por Incapacidade (SAMB)",
+    "auxinacp_sambbh": {
+        "nome": "Auxílio por Incapacidade (SAMB GEX BH)",
         "id": "ai",
-        "codigo": "0",
+        "codigo": "11.001.3",
         "valor_exigencia": 0.20,
         "valor_subtarefa": 0.0,
         "valor_conclusao": 0.33,
         "ativa": 1
     },
-    "auxincap_sman": {
-        "nome": "Auxílio por Incapacidade (SMAN)",
+    "auxincap_smanbh": {
+        "nome": "Auxílio por Incapacidade (SMAN GEX BH)",
         "id": "ai",
-        "codigo": "0",
+        "codigo": "11.501.14",
         "valor_exigencia": 0.20,
         "valor_subtarefa": 0.0,
         "valor_conclusao": 0.33,
-        "ativa": 1
+        "ativa": 0
     },
-    "prorrogsm_samb": {
-        "nome": "Auxílio Acidente (SAMB)",
+    "prorrogsm_sambbh": {
+        "nome": "Auxílio Acidente (SAMB GEX BH)",
         "id": "psm",
-        "codigo": "0",
+        "codigo": "11.001.3",
         "valor_exigencia": 0.05,
         "valor_subtarefa": 0.0,
         "valor_conclusao": 0.20,
         "ativa": 1
     },
-    "prorrogsm_sman": {
-        "nome": "Auxílio Acidente (SMAN)",
+    "prorrogsm_smanbh": {
+        "nome": "Auxílio Acidente (SMAN GEX BH)",
         "id": "psm",
-        "codigo": "0",
+        "codigo": "11.501.14",
         "valor_exigencia": 0.05,
         "valor_subtarefa": 0.0,
         "valor_conclusao": 0.20,
-        "ativa": 1
+        "ativa": 0
     },
     "reunioes_sman": {
-        "nome": "Reuniões da GEX",
+        "nome": "Reuniões da GEX BH",
         "id": "reub",
         "codigo": "0",
         "valor_exigencia": 0.0,
         "valor_subtarefa": 0.0,
         "valor_conclusao": 2.1,
-        "ativa": 1
+        "ativa": 0
     },
     "ctc_ceab2": {
         "nome": "CTC (CEAB SR Sudeste II)",
         "id": "ctc",
-        "codigo": "0",
+        "codigo": "11.150.521",
         "valor_exigencia": 0.20,
         "valor_subtarefa": 0.20,
         "valor_conclusao": 1.17,
@@ -83,7 +92,7 @@
     "revctc_ceab2": {
         "nome": "Revisão de CTC (CEAB SR Sudeste II)",
         "id": "revctc",
-        "codigo": "0",
+        "codigo": "11.150.521",
         "valor_exigencia": 1.45,
         "valor_subtarefa": 0.20,
         "valor_conclusao": 0.20,
@@ -92,10 +101,55 @@
     "rev_ceab2": {
         "nome": "Revisão (CEAB SR Sudeste II)",
         "id": "rev",
-        "codigo": "0",
+        "codigo": "11.150.521",
         "valor_exigencia": 1.45,
         "valor_subtarefa": 0.20,
         "valor_conclusao": 0.20,
+        "ativa": 1
+    },
+    "iir_sambrio": {
+        "nome": "Isenção de IR (SAMB GEX RJ)",
+        "id": "iir",
+        "codigo": "17.001.3",
+        "valor_exigencia": 0.05,
+        "valor_subtarefa": 0.0,
+        "valor_conclusao": 0.33,
+        "ativa": 1
+    },
+    "iir_sambniteroi": {
+        "nome": "Isenção de IR (SAMB GEX Niterói)",
+        "id": "iir",
+        "codigo": "17.023.3",
+        "valor_exigencia": 0.05,
+        "valor_subtarefa": 0.0,
+        "valor_conclusao": 0.33,
+        "ativa": 1
+    },
+    "iir_sambpetro": {
+        "nome": "Isenção de IR (SAMB GEX Petrópolis)",
+        "id": "iir",
+        "codigo": "17.024.3",
+        "valor_exigencia": 0.05,
+        "valor_subtarefa": 0.0,
+        "valor_conclusao": 0.33,
+        "ativa": 1
+    },
+    "iir_sambvr": {
+        "nome": "Isenção de IR (SAMB GEX Volta Redonda)",
+        "id": "iir",
+        "codigo": "17.025.3",
+        "valor_exigencia": 0.05,
+        "valor_subtarefa": 0.0,
+        "valor_conclusao": 0.33,
+        "ativa": 1
+    },
+    "iir_apssfita": {
+        "nome": "Isenção de IR (APS Sao Francisco de Itabapoana RJ)",
+        "id": "iir",
+        "codigo": "17.021.190",
+        "valor_exigencia": 0.05,
+        "valor_subtarefa": 0.0,
+        "valor_conclusao": 0.33,
         "ativa": 1
     }
 }
