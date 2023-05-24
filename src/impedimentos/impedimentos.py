@@ -2,7 +2,7 @@
 ## Março de 2023
 """Impedimentos da conclusão de análise"""
 
-import json
+from arquivo import carregar_dados
 from dataclasses import dataclass
 from os import path
 from variaveis import Variaveis
@@ -30,24 +30,20 @@ class Impedimento:
 @dataclass
 class Impedimentos:
     """Classe para a lista dos impedimentos da conclusão da análise."""
-    
+
     #Lista de impedimentos
     lista: list[Impedimento]
-
-    #Variáveis do Sistema
-    vars: Variaveis      
 
     def __str__(self) -> str:
         """Descrição de Impedimentos"""
         resultado = '\n'.join(f'\t{impedimento!r} - {impedimento!s}' for impedimento in self.lista)
         return 'Impedimentos disponíveis:\n' + resultado
-    
+
     def carregar(self) -> None:
-        """Carrega a lista de impedimentos do arquivo CSV."""
-        nome_arquivo = path.join(self.vars.obter_pasta_dados(), ARQUIVO_DADOS)
-        with open(nome_arquivo, 'r', encoding='utf8') as arquivo:
-            self.lista = [Impedimento(codigo, item['desc']) for codigo, item in json.load(arquivo).items()]
-    
+        """Carrega a lista de impedimentos do arquivo JSON."""
+        with carregar_dados(ARQUIVO_DADOS) as dados:
+            self.lista = [Impedimento(codigo, item['desc']) for codigo, item in dados]
+
     def obter(self, valor: str) -> Impedimento:
         """Retorna um impedimento conforme o ID especificado;"""
         for impedimento in self.lista:
