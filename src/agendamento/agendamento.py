@@ -2,8 +2,6 @@
 ## Março de 2023
 """Agendamento"""
 
-import pandas as pd
-
 class Agendamento:
     """Classe para Agendamento"""
     def __init__(self, novadata, novahora, novolocal) -> None:
