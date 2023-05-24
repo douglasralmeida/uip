@@ -107,46 +107,10 @@
         "valor_conclusao": 0.20,
         "ativa": 1
     },
-    "iir_sambrio": {
-        "nome": "Isenção de IR (SAMB GEX RJ)",
+    "iir_rjceab": {
+        "nome": "Isenção de IR (CEAB RJ)",
         "id": "iir",
-        "codigo": "17.001.3",
-        "valor_exigencia": 0.05,
-        "valor_subtarefa": 0.0,
-        "valor_conclusao": 0.33,
-        "ativa": 1
-    },
-    "iir_sambniteroi": {
-        "nome": "Isenção de IR (SAMB GEX Niterói)",
-        "id": "iir",
-        "codigo": "17.023.3",
-        "valor_exigencia": 0.05,
-        "valor_subtarefa": 0.0,
-        "valor_conclusao": 0.33,
-        "ativa": 1
-    },
-    "iir_sambpetro": {
-        "nome": "Isenção de IR (SAMB GEX Petrópolis)",
-        "id": "iir",
-        "codigo": "17.024.3",
-        "valor_exigencia": 0.05,
-        "valor_subtarefa": 0.0,
-        "valor_conclusao": 0.33,
-        "ativa": 1
-    },
-    "iir_sambvr": {
-        "nome": "Isenção de IR (SAMB GEX Volta Redonda)",
-        "id": "iir",
-        "codigo": "17.025.3",
-        "valor_exigencia": 0.05,
-        "valor_subtarefa": 0.0,
-        "valor_conclusao": 0.33,
-        "ativa": 1
-    },
-    "iir_apssfita": {
-        "nome": "Isenção de IR (APS Sao Francisco de Itabapoana RJ)",
-        "id": "iir",
-        "codigo": "17.021.190",
+        "codigo": "17.150.522",
         "valor_exigencia": 0.05,
         "valor_subtarefa": 0.0,
         "valor_conclusao": 0.33,
