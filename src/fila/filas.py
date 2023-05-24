@@ -3,11 +3,9 @@
 
 """Filas cadastradas no UIP."""
 
-import json
 from .fila import Fila
+from arquivo import carregar_dados
 from dataclasses import dataclass
-from os import path
-from variaveis import Variaveis
 
 ARQUIVO_DADOS = 'filas.json'
 
@@ -18,9 +16,6 @@ class Filas:
     #Lista de filas
     lista: list[Fila]
 
-    #Variáveis do Sistema
-    vars: Variaveis
-
     def __str__(self) -> str:
         """Descrição das filas"""
         resultado = '\n'.join(f'\t{fila!r} - {fila!s}' for fila in self.lista if fila.ativa)
@@ -28,8 +23,7 @@ class Filas:
     
     def carregar(self) -> None:
         """Carrega a lista de filas do arquivo JSON."""
-        nome_arquivo = path.join(self.vars.obter_pasta_dados(), ARQUIVO_DADOS)
-        with open(nome_arquivo, 'r', encoding='utf8') as arquivo:
+        with carregar_dados(ARQUIVO_DADOS) as dados:
             self.lista = [Fila(codigo,
                                item['nome'], 
                                item['id'], 
@@ -37,7 +31,7 @@ class Filas:
                                item['valor_exigencia'], 
                                item['valor_subtarefa'], 
                                item['valor_conclusao'],
-                               item['ativa'] == 1) for codigo, item in json.load(arquivo).items()]    
+                               item['ativa'] == 1) for codigo, item in dados]
 
     def obter(self, valor: str) -> Fila:
         """Retorna uma fila conforme o ID especificado"""
