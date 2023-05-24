@@ -16,6 +16,7 @@ class TarefaAuxilioAcidente(Tarefa):
     def __str__(self) -> str:
         """Descrição da tarefa de auxílio-acidente."""
         resultado = super().__str__()
+        resultado += f'OL Mantenedor: {self.obter_olm()}\n'
         resultado += f'Subtarefa PM: {self.obter_subtarefa()}\n'
         resultado += f'Perícia agendada: {bool_tostring(self.obter_fase_agendapm())}\n'
         if self.obter_fase_agendapm():
@@ -49,6 +50,10 @@ class TarefaAuxilioAcidente(Tarefa):
     def alterar_arquivopdf_pericia(self, valor: bool) -> None:
         """Grava na tarefa se o relatório da perícia em PDF foi gerado."""
         self.base_dados.alterar_atributo(self.pos, "arquivopdfpericia", bool_tobit(valor))
+
+    def alterar_olm(self, valor: str) -> None:
+        """Grava na tarefa a APS Mantenedora do benefício."""
+        self.base_dados.alterar_atributo(self.pos, "olm", valor)
     
     def alterar_pericia_realizada(self, valor: bool) -> None:
         """Grava na tarefe se a PM foi realizada."""
@@ -149,6 +154,10 @@ class TarefaAuxilioAcidente(Tarefa):
     def obter_fase_beneficio_despachado(self) -> bool:
         """Retorna se o benefício já foi despachado."""
         return self.base_dados.checar_atributo_verdadeiro(self.pos, "beneficiodespachado")
+    
+    def obter_olm(self) -> str:
+        """Retorna o OL da APS Mantenedora."""
+        return self.base_dados.obter_atributo(self.pos, 'olm')
 
     def obter_subtarefa(self) -> str:
         """Retorna o número da subtarefa."""
