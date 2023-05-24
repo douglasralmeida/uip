@@ -14,7 +14,7 @@ ARQUIVO_DADOS = 'filas.json'
 @dataclass
 class Filas:
     '''Classe para as filas de tarefas cadastradas no UIP.'''
-           
+
     #Lista de filas
     lista: list[Fila]
 
@@ -23,7 +23,7 @@ class Filas:
 
     def __str__(self) -> str:
         """Descrição das filas"""
-        resultado = '\n'.join(f'\t{fila!r} - {fila!s}' for fila in self.lista)
+        resultado = '\n'.join(f'\t{fila!r} - {fila!s}' for fila in self.lista if fila.ativa)
         return 'Filas disponíveis:\n' + resultado
     
     def carregar(self) -> None:
