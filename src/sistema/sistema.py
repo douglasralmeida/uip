@@ -54,7 +54,7 @@ class Sistema:
 
         self.processador = None
 
-        self.usarintranet = False
+        self.usarintranet = True
 
     def abrir_cnis(self, subcomando: str, lista: list[str]) -> None:
         """Abre o navegador Edge e vai para o site do Portal CNIS."""
