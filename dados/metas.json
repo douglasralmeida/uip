@@ -1,0 +1,32 @@
+{
+    "01/2023": {
+        "dias_uteis": 22,
+        "abono_sistemas": 11.83,
+        "dias_ferias": 2,
+        "dias_licenca": 0
+    },
+    "02/2023": {
+        "dias_uteis": 17.5,
+        "abono_sistemas": 15.40,
+        "dias_ferias": 3,
+        "dias_licenca": 0
+    },
+    "03/2023": {
+        "dias_uteis": 23,
+        "abono_sistemas": 13.77,
+        "dias_ferias": 0,
+        "dias_licenca": 0
+    },
+    "04/2023": {
+        "dias_uteis": 9.67,
+        "abono_sistemas": 1.22,
+        "dias_ferias": 0,
+        "dias_licenca": 0
+    },
+    "05/2023": {
+        "dias_uteis": 7.33,
+        "abono_sistemas": 0,
+        "dias_ferias": 0,
+        "dias_licenca": 0
+    }
+}
