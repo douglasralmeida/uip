@@ -1,0 +1,10 @@
+{
+    "dados": {
+        "agendamentoPM": {
+            "texto": "Assunto: Comparecimento para realização de Perícia Médica\n\nPrezado(a) Senhor(a),\n\nPara dar andamento no seu requerimento de benefício, solicitamos comparecer na data e local descritos abaixo:\n\n------------------------------------------------------------------------\nPERÍCIA MÉDICA NO DIA {}\n\nEndereço:\n{}\n------------------------------------------------------------------------\n\nInformamos ainda que na impossibilidade de comparecimento no dia acima indicado, deverá ser solicitada a remarcação pelo telefone 135, no prazo máximo de 07 dias da data do agendamento."
+        },
+        "documentacaoPSM": {
+            "texto": "Prezado(a) Senhor(a),\n\nPara dar andamento ao seu requerimento, solicitamos o envio eletrônico dos documentos descritos abaixo:\n\n\t> Relatório Médico justificando a necessidade de aumento de repouso após o parto. Ele deve conter o nome do médico e CRM legível, especificando a condição da mulher e/ou da criança e o diagnóstico.\n\nA documentação deverá ser digitalizada na forma colorida e legível e enviada pelo aplicativo/serviço Meu INSS (meu.inss.gov.br).\n\nO não envio de toda a documentação solicitada ou agendamento para cumprimento de exigências no prazo de 30 dias a contar da data do envio desta comunicação acarretará o indeferimento desta solicitação."
+        }
+    }
+}
