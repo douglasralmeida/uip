@@ -115,5 +115,14 @@
         "valor_subtarefa": 0.0,
         "valor_conclusao": 0.33,
         "ativa": 1
+    },
+    "sm_srsud3": {
+        "nome": "Salário Maternidade da SR Sudeste III",
+        "id": "sm",
+        "codigo": "17.150",
+        "valor_exigencia": 0.00,
+        "valor_subtarefa": 0.00,
+        "valor_conclusao": 0.00,
+        "ativa": 1
     }
 }
