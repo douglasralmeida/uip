@@ -63,6 +63,10 @@ class TarefaAuxilioAcidente(Tarefa):
         """Altera o número da subtarefa."""
         self.base_dados.alterar_atributo(self.pos, "subtarefa", str(subtarefa))
 
+    def alterar_subtarefa_coletada(self, valor: bool) -> None:
+        """Grava na tarefe se a subtarefa foi coletada."""
+        self.base_dados.alterar_atributo(self.pos, "subtarefa_coletada", bool_tobit(valor))
+
     def concluir_fase_subtarefa(self) -> None:
         """Informa que a tarefa já possui subtarefa gerada."""
         self.base_dados.alterar_atributo(self.pos, 'tem_subtarefa', "1")
@@ -93,11 +97,6 @@ class TarefaAuxilioAcidente(Tarefa):
     def concluir_fase_benef_despachado(self) -> None:
         """Informa que o benefício foi desapachado no Prisma."""
         self.base_dados.alterar_atributo(self.pos, "beneficiodespachado", "1")
-
-    def concluir_fase_concluida(self) -> None:
-        """Informa que a tarefa foi concluída"""
-        self.base_dados.alterar_atributo(self.pos, "data_conclusao", pd.to_datetime('today'))
-        self.base_dados.alterar_atributo(self.pos, "concluida", "1")
 
     def marcar_pm_naocompareceu(self) -> None:
         """Grava na tarefa as informações relativas ao não comparecimento à PM."""
@@ -179,3 +178,7 @@ class TarefaAuxilioAcidente(Tarefa):
     def tem_pdfpericia(self) -> bool:
         """Retorna se há relatório de PM para lançar."""
         return self.base_dados.checar_atributo_verdadeiro(self.pos, "arquivopdfpericia")
+    
+    def subtarefa_foicoletada(self) -> bool:
+        """Retorna se a subtarefa foi gerada ou coletada."""
+        return self.base_dados.checar_atributo_verdadeiro(self.pos, "subtarefa_coletada")
