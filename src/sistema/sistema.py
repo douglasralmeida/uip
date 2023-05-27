@@ -10,13 +10,15 @@ from processador import ProcessadorAuxAcidente
 from processador import ProcessadorAuxIncapacidade
 from processador import ProcessadorProrrogSalMaternidade
 from processador import ProcessadorIsencaoIR
+from processador import ProcessadorSalMaternidade
 from variaveis import Variaveis
 
 perfis_disponiveis = {
     'aa': ProcessadorAuxAcidente,
     'psm': ProcessadorProrrogSalMaternidade,
     'ai': ProcessadorAuxIncapacidade,
-    'iir': ProcessadorIsencaoIR
+    'iir': ProcessadorIsencaoIR,
+    'sm': ProcessadorSalMaternidade
 }
 
 class Sistema:
