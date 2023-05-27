@@ -291,6 +291,17 @@ class Get(Navegador):
             item_id = item_id + 1
         self.irpara_iniciotela()
         return resultado
+    
+    def coletar_status(self) -> str:
+        """Coleta o status da tarefa"""
+        drv = self.driver
+        status = ''
+
+        campo = drv.find_element(By.ID, 'formTarefas:gridTarefa_data')
+        campo = campo.find_elements(By.TAG_NAME, 'td')[9]
+        status = campo.find_element(By.TAG_NAME, 'span').text
+
+        return status
 
     def concluir_tarefa(self, numero: str, texto: str) -> dict:
         """Conclui a tarefa especificada no GET."""
@@ -441,7 +452,7 @@ class Get(Navegador):
                         return False
         return True
 
-    def gerar_subtarefa(self, servico: str, tipo_sub: str, dados) -> str:
+    def gerar_subtarefa(self, servico: str, tipo_sub: str, dados) -> tuple[int, bool]:
         """Gera uma subtarefa no GET e retorna seu número."""
         drv = self.driver
         
@@ -449,6 +460,13 @@ class Get(Navegador):
         atalho = drv.find_element(By.XPATH, "//a[@href='#formDetalharTarefa:detalheTarefaTabView:tabSubtarefas']")
         atalho.click()
         self.aguardar_telaprocessamento()
+
+        #coleta a subtarefa, se existir
+        subs = self.coletar_subtarefas('', servico, False)
+        if len(subs) > 0:
+            return (int(subs[len(subs)-1][0]), True)
+
+        self.irpara_iniciotela()
         
         #Clica no botao Nova Subtarefa
         botao = drv.find_element(By.ID, value="formDetalharTarefa:detalheTarefaTabView:btnIncluirServicoSubTarefa")
@@ -526,7 +544,7 @@ class Get(Navegador):
             self.clicar_botao('formNovaTarefa:btCancelarTarefa')
             self.espera.until(EC.visibility_of_element_located((By.ID, 'formTarefas:gridTarefa:0:cmdLinkDetalharTarefa')))
         
-        return numsub[0]
+        return (numsub[0], False)
     
     def irpara_guia(self, nome: str) -> None:
         """Clica na guia do GET especificada."""
