@@ -29,10 +29,11 @@ class Cnis(Navegador):
         #drv = form
         drv = self.driver
 
+        cpf_completo = cpf.rjust(11, '0')
         WebDriverWait(self.driver, timeout=7).until(EC.visibility_of_element_located((By.ID, 'formNovo:opcoesConsulta:inputNumeroConsulta')))
         campo = drv.find_element(By.ID, 'formNovo:opcoesConsulta:inputNumeroConsulta')
         campo.click()
-        campo.send_keys(cpf)
+        campo.send_keys(cpf_completo)
         drv.find_element(By.ID, 'formNovo:acaoPesquisar').click()
         self.aguardar_processamento()
         try:
@@ -47,6 +48,50 @@ class Cnis(Navegador):
         espera = WebDriverWait(self.driver, 60, poll_frequency=1)
         #Aguarda pela invisibilidade do elemento
         espera.until(EC.invisibility_of_element((By.CLASS_NAME, 'blockUI')))
+
+    def coletar_beneficios(self, cpf, especies):
+        """Coleta os benefícios de uma determinada lista de espécie."""
+        drv = self.driver
+        lista_beneficio = []
+        lista_dib = []
+        lista_status = []
+        lista_especie = []
+        resultado = {}
+
+        resultado['quantidade'] = 0
+        #Clicar no menu e reabrir a tela de pesquisa.
+        drv.find_element(By.ID, 'itemMenuConsultasDoSistema').click()
+        drv.find_element(By.ID, 'formMenu:historicoBeneficio').click()
+
+        #Pesuisar o CPF especificado.
+        self.abrir_cpf(cpf)
+        try:
+            WebDriverWait(self.driver, timeout=4).until(EC.presence_of_element_located((By.ID, 'exibirHistoricoBeneficios')))
+        except:
+            if len((campos := drv.find_elements(By.CLASS_NAME, 'ui-messages-error-detail'))) > 0:
+                if campos[0].text == 'Filiado sem benefícios':
+                    return resultado
+                
+        #Raspagem no histórico de benefícios
+        form = drv.find_element(By.ID, 'exibirHistoricoBeneficios')           
+        campo = form.find_element(By.ID, 'exibirHistoricoBeneficios:list:tbody_element')
+        resultado['quantidade'] = len(campo.find_elements(By.TAG_NAME, 'tr'))
+        for item in campo.find_elements(By.TAG_NAME, 'tr'):
+            nb = item.find_elements(By.TAG_NAME, 'td')[0].text.strip()
+            dib = item.find_elements(By.TAG_NAME, 'td')[1].text.strip()
+            status = item.find_elements(By.TAG_NAME, 'td')[3].text.strip()[:1]
+            especie = item.find_elements(By.TAG_NAME, 'td')[4].text.strip()[:2]
+            if len(especies) == 0 or especie in especies:
+                resultado['quantidade'] += 1
+                lista_beneficio.append(nb)
+                lista_dib.append(dib)
+                lista_status.append(status)
+                lista_especie.append(especie)
+        resultado['beneficio'] = ' '.join(lista_beneficio)
+        resultado['dib'] = ' '.join(lista_dib)
+        resultado['status'] = ' '.join(lista_status)
+        resultado['especie'] = ' '.join(lista_especie)
+        return resultado
 
     def pesquisar_nit_decpf(self, protocolo: str, cpf: str) -> str:
         """Retorna um NIT relacionado ao CPF informado."""
