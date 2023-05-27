@@ -135,10 +135,10 @@ class ProcessadorIsencaoIR(Processador):
             'valor': (df['tem_exigencia'] == '1') & (df['vencim_exigencia'] < pd.to_datetime('today'))
         }
         self.filtros['geracaosub'] = {
-            'valor': (df['tem_documentacao'] == '1') & df['tem_subtarefa'].isna() & (df['impedimentos'].isna())
+            'valor': (df['tem_exigencia'] == '0') & (df['tem_documentacao'] == '1') & df['tem_subtarefa'].isna() & (df['impedimentos'].isna())
         }
         self.filtros['aguardapm'] = {
-            'valor': (df['tem_subtarefa'] == '1') & df['subtarefaconcluida'].isna() & (df['impedimentos'].isna())
+            'valor': (df['tem_exigencia'] == '0') & (df['tem_subtarefa'] == '1') & df['subtarefaconcluida'].isna() & (df['impedimentos'].isna())
         }
         self.filtros['convocapm'] = {
             'valor': (df['subtarefaconcluida'] == '1') & (df['convocarpm'] == '1') & (df['impedimentos'].isna())

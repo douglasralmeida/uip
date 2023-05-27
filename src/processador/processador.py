@@ -37,9 +37,7 @@ colunas_padrao = {'protocolo': 'string',
                   'obs': 'string'
               }
 
-#datas_padrao = ['der', 'data_subtarefa', 'data_exigencia', 'data_conclusao', 'vencim_exigencia']
-
-datas_padrao = []
+datas_padrao = ['der', 'data_subtarefa', 'data_exigencia', 'data_conclusao', 'vencim_exigencia']
 
 class Processador:
     """Classe base para o processador do UIP."""
