@@ -15,6 +15,12 @@ ARQUIVO_EXIGENCIAS = 'exigencias.json'
 
 ARQUIVO_DESPACHOS = 'despachos.json'
 
+RES_SUBTAREFA_ERRO = 0
+
+RES_SUBTAREFA_GERADA = 1
+
+RES_SUBTAREFA_COLETADA = 2
+
 colunas_padrao = {'protocolo': 'string',
                   'tem_dadosbasicos': 'string',
                   'cpf': 'string',
@@ -298,12 +304,15 @@ class Processador:
             return
 
     def gerar_subtarefa(self, tarefa: Tarefa, dados_adicionais: dict) -> tuple[bool, bool]:
-        """Gera a subtarefa obrigatória da tarefa especificada."""
+        """
+        Gera a subtarefa obrigatória da tarefa especificada.
+        Primeiro valor booleano indica que a subtarefa foi coletada ou gerada.
+        Segundo valor booleano indica que a subtrarefa foi coletada.
+        """
         (numsub, sub_coletada) = self.get.gerar_subtarefa(self.nome_subservico, self.id_subtarefa, dados_adicionais)
         if numsub > 0:
             tarefa.alterar_subtarefa_coletada(sub_coletada)
             tarefa.alterar_subtarefa(numsub)
-            print(f'Subtarefa gerada no. {numsub}.')
             tarefa.concluir_fase_subtarefa()
             return (True, sub_coletada)
         return (False, False)
@@ -622,6 +631,20 @@ class Processador:
             cont =+ 1
         self.salvar_emarquivo()
         self.pos_processar(cont)
+
+    def processar_status(self, t: Tarefa) -> bool:
+        """
+        Coleta o status da tarefa pesquisada e registra a conclusão se concluída/cancelada.
+        Retorna True se concluída/cancelada.
+        """
+        nav = self.get
+
+        status = nav.coletar_status()
+        if status in ['Cancelada', 'Concluída']:
+            t.concluir_fase_concluso()
+            t.concluir_fase_conclusao()
+            return True
+        return False
 
     def salvar_emarquivo(self) -> None:
         """Salva a base de dados."""
