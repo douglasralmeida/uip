@@ -101,7 +101,7 @@ class Processador:
         resultados = []
 
         nav.irpara_iniciotela()
-        nav.irpara_guia('Anexos')
+        nav.abrir_guia('Anexos')
         nav.irpara_finaltela()
         for arquivo in arquivos:
             arquivopdf = path.join(Variaveis.obter_pasta_pdf(), arquivo)
@@ -139,7 +139,7 @@ class Processador:
         """Coleta as subtarefas no GET."""
         nav = self.get
 
-        nav.irpara_guia('Subtarefas')
+        nav.abrir_guia('Subtarefas')
         nav.irpara_finaltela()
         return nav.coletar_subtarefas(protocolo, self.nome_subservico, imprimirpdf)
 
@@ -163,7 +163,7 @@ class Processador:
         for p in protocolos:
             if self.get.pesquisar_tarefa(p):
                 self.get.abrir_tarefa()
-                self.get.irpara_guia('Subtarefas')
+                self.get.abrir_guia('Subtarefas')
                 cont = self.get.contar_subtarefas()
                 self.get.fechar_tarefa()
                 print(f'Tarefa {p:<12} {cont}')
@@ -557,7 +557,7 @@ class Processador:
                         print('Erro ao anexar arquivo.')
                         continue
                     self.get.irpara_iniciotela()
-                    self.get.irpara_guia("DadosBasicos")
+                    self.get.abrir_guia("DadosBasicos")
                 self.get.irpara_finaltela()
                 texto = self.obter_textodespacho(t.obter_idx(), t.obter_resultado())
                 self.get.adicionar_despacho(texto)

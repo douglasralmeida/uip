@@ -228,12 +228,12 @@ class Get(Navegador):
             res = True
             while res:
                 ##clica em CNIS
-                self.irpara_guia('Cnis')
+                self.abrir_guia('CNIS')
                 self.aguardar_telaprocessamento()
                 res, texto = self.obter_erro()
                 if res:
                     print(f'Erro: {texto}. Tentando novamente...')
-                    self.irpara_guia('Subtarefas')
+                    self.abrir_guia('Subtarefas')
                     self.aguardar_telaprocessamento()
     
             ##pega o nit
@@ -251,7 +251,7 @@ class Get(Navegador):
             self.irpara_iniciotela()
             
             #Clica em Subtarefa
-            self.irpara_guia('Subtarefas')
+            self.abrir_guia('Subtarefas')
 
             #coleta todas as subtarefas
             subs = self.coletar_subtarefas(tarefa, nome_servico, 'pm' in atributos)
@@ -270,7 +270,7 @@ class Get(Navegador):
             self.irpara_iniciotela()
 
             #Clica em Histórico
-            self.irpara_guia('Historico')
+            self.abrir_guia('Historico')
 
             #Coleta a informação de Transferência
             campo = drv.find_element(By.ID, value="formDetalharTarefa:detalheTarefaTabView:dtblHistorico_data")
@@ -628,7 +628,7 @@ class Get(Navegador):
         drv = self.driver
 
         #Clica em Anexos
-        self.irpara_guia('Anexos')
+        self.abrir_guia('Anexos')
         tem_tabela = len(campo := drv.find_elements(By.ID, 'formDetalharTarefa:detalheTarefaTabView:dtbltodosAnexos_data')) > 0
         if tem_tabela:
             tem_linha_unica = len(campo := campo[0].find_elements(By.TAG_NAME, 'tr')) == 1
