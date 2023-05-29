@@ -19,7 +19,31 @@ URL_GET_INTERNET = 'https://geridinss.dataprev.gov.br:8443/cas/login?service=htt
 URL_DOMINIOS_INTRANET = 'https://www-tarefas/tarefas/pages/comum/domainSelection.xhtml'
 URL_DOMINIOS_INTERNET = 'https://www.tarefas.inss.gov.br/tarefasinternet/pages/comum/domainSelection.xhtml'
 
+tabs = {
+    'Detalhes': {
+        'index': 0,
+        'nome': 'DadosBasicos'
+    },
+    'Anexos': {
+        'index': 1,
+        'nome': 'Anexos'
+    },
+    'Subtarefas': {
+        'index': 2,
+        'nome': 'Subtarefas'
+    },
+    'CNIS': {
+        'index': 3,
+        'nome': 'Cnis'
+    },
+    'Historico': {
+        'index': 4,
+        'nome': 'Historico'
+    }
+}
+
 class Get(Navegador):
+
     """Classe do Automatizador do GET."""
     def __init__(self, criarsub_modolinha) -> None:
         super().__init__()
@@ -40,6 +64,20 @@ class Get(Navegador):
             self.driver.get(URL_DOMINIOS_INTRANET)
         else:
             self.driver.get(URL_DOMINIOS_INTERNET)
+
+    def abrir_guia(self, nome_guia) -> None:
+        """Abre uma guia do GET."""
+        nav = self.driver
+        id_elemento = tabs[nome_guia]['index']
+        nome_elemento = tabs[nome_guia]['nome']
+
+        self.irpara_iniciotela()
+        tabela = nav.find_element(By.ID, 'formDetalharTarefa:detalheTarefaTabView')
+        lista = tabela.find_elements(By.TAG_NAME, 'li')[id_elemento]
+        if not 'ui-tabs-selected' in lista.get_dom_attribute('class').split(' '):
+            botao = nav.find_element(By.XPATH, f"//a[@href='#formDetalharTarefa:detalheTarefaTabView:tab{nome_elemento}']")
+            botao.click()
+            self.aguardar_telaprocessamento()
 
     def abrir_tarefa(self) -> None:
         """Abre a primeira tarefa da lsita de tarefas exibidas."""
@@ -302,6 +340,20 @@ class Get(Navegador):
         status = campo.find_element(By.TAG_NAME, 'span').text
 
         return status
+    
+    def coletar_subtarefa(self, servico: str) -> int:
+        """Coleta o número da subtarefa do serviço informado"""
+        nav = self.driver
+
+        #Clica em Subtarefa
+        self.abrir_guia('Subtarefas')
+
+        #coleta a subtarefa, se existir
+        subs = self.coletar_subtarefas('', servico, False)
+        if len(subs) > 0:
+            return (int(subs[len(subs)-1][0]), True)
+        else:
+            return 0
 
     def concluir_tarefa(self, numero: str, texto: str) -> dict:
         """Conclui a tarefa especificada no GET."""
@@ -437,123 +489,95 @@ class Get(Navegador):
         
         self.tarefa = ""
 
-    def possui_anexos(self) -> bool:
-        drv = self.driver
-
-        #Clica em Anexos
-        self.irpara_guia('Anexos')
-        tem_tabela = len(campo := drv.find_elements(By.ID, 'formDetalharTarefa:detalheTarefaTabView:dtbltodosAnexos_data')) > 0
-        if tem_tabela:
-            tem_linha_unica = len(campo := campo[0].find_elements(By.TAG_NAME, 'tr')) == 1
-            if tem_linha_unica:
-                tem_cel_unica = len(campo := campo[0].find_elements(By.TAG_NAME, 'td')) == 1
-                if tem_cel_unica:
-                    if campo[0].text == 'Nenhum registro encontrado.':
-                        return False
-        return True
-
-    def gerar_subtarefa(self, servico: str, tipo_sub: str, dados) -> tuple[int, bool]:
+    def gerar_subtarefa(self, servico: str, tipo_sub: str, dados_camposadic) -> dict:
         """Gera uma subtarefa no GET e retorna seu número."""
-        drv = self.driver
+        nav = self.driver
+        res = dict()
         
         #Clica em Subtarefa
-        atalho = drv.find_element(By.XPATH, "//a[@href='#formDetalharTarefa:detalheTarefaTabView:tabSubtarefas']")
-        atalho.click()
-        self.aguardar_telaprocessamento()
-
-        #coleta a subtarefa, se existir
-        subs = self.coletar_subtarefas('', servico, False)
-        if len(subs) > 0:
-            return (int(subs[len(subs)-1][0]), True)
-
-        self.irpara_iniciotela()
+        self.abrir_guia('Subtarefas')
         
         #Clica no botao Nova Subtarefa
-        botao = drv.find_element(By.ID, value="formDetalharTarefa:detalheTarefaTabView:btnIncluirServicoSubTarefa")
+        botao = nav.find_element(By.ID, value="formDetalharTarefa:detalheTarefaTabView:btnIncluirServicoSubTarefa")
         botao.click()
-        WebDriverWait(drv, 20).until(EC.element_to_be_clickable((By.ID, "formDetalharTarefa:detalheTarefaTabView:servicoBusca_input")))
+        WebDriverWait(nav, self.tempo_espera).until(EC.element_to_be_clickable((By.ID, "formDetalharTarefa:detalheTarefaTabView:servicoBusca_input")))
         time.sleep(2)
         
         #Escolhe o Serviço
-        campo = drv.find_element(By.ID, value="formDetalharTarefa:detalheTarefaTabView:servicoBusca_input")
+        campo = nav.find_element(By.ID, value="formDetalharTarefa:detalheTarefaTabView:servicoBusca_input")
         campo.click()
         campo.send_keys(servico)
-        #time.sleep(2)
         self.aguardar_telaprocessamento()
-        campo = drv.find_element(By.ID, value="formDetalharTarefa:detalheTarefaTabView:servicoBusca_panel")
-        #time.sleep(2)
+        campo = nav.find_element(By.ID, value="formDetalharTarefa:detalheTarefaTabView:servicoBusca_panel")
         self.aguardar_telaprocessamento()
         WebDriverWait(campo, self.tempo_espera).until(EC.visibility_of_element_located((By.CLASS_NAME, 'ui-autocomplete-row')))
         linhatabela = campo.find_element(By.CLASS_NAME, value='ui-autocomplete-row')
         linhatabela.click()
+        self.aguardar_telaprocessamento()
         
         #Clica no botao Solicitar Perícia
-        self.aguardar_telaprocessamento()
-        #self.aguardar_visibilidade_elemento('id:formDetalharTarefa:detalheTarefaTabView:btnSolicitarPericia')
-        drv.find_element(By.ID, value="formDetalharTarefa:detalheTarefaTabView:btnSolicitarPericia").click()
-        WebDriverWait(drv, self.tempo_espera).until(EC.element_to_be_clickable((By.ID, "formNovaTarefa:gridPanelNovaTarefa")))
+        botao = nav.find_element(By.ID, value="formDetalharTarefa:detalheTarefaTabView:btnSolicitarPericia")
+        botao.click()
+        WebDriverWait(nav, self.tempo_espera).until(EC.element_to_be_clickable((By.ID, "formNovaTarefa:gridPanelNovaTarefa")))
         
         #Coleta o código usado na identificação dos campos adicionais
         cont = 0
         numero_id = ''
-        campo = drv.find_element(By.ID, value="formNovaTarefa:gridPanelCamposAdicionais")
-        campo = campo.find_element(By.CLASS_NAME, value="dtp-required")
-        if self.criarsub_modolinha:
-            campo = campo.find_element(By.CLASS_NAME, value="row")
-            campo = campo.find_elements(By.XPATH, value="./child::*")
-            campo = campo[0].find_element(By.XPATH, value="./child::*")
-        else:
-            campo = campo.find_element(By.TAG_NAME, value="label")
-        cid = campo.get_attribute("id")
-        for c in cid:
-            if c.isdigit():
-                numero_id += c
-            if c == ':':
-                cont += 1
-            if cont == 2:
-                break
+        campo = nav.find_element(By.ID, value="formNovaTarefa:gridPanelCamposAdicionais")
+        possui_campos_obrigatorios = len(campo.find_elements(By.CLASS_NAME, value="dtp-required")) > 0
+        if possui_campos_obrigatorios:
+            campo = campo.find_element(By.CLASS_NAME, value="dtp-required")
+            if self.criarsub_modolinha:
+                campo = campo.find_element(By.CLASS_NAME, value="row")
+                campo = campo.find_elements(By.XPATH, value="./child::*")
+                campo = campo[0].find_element(By.XPATH, value="./child::*")
+            else:
+                campo = campo.find_element(By.TAG_NAME, value="label")
+            cid = campo.get_attribute("id")
+            for c in cid:
+                if c.isdigit():
+                    numero_id += c
+                if c == ':':
+                    cont += 1
+                if cont == 2:
+                    break
         
-        #Preenche os campos adicionais da subtarefa
-        self.preencher_camposadic(numero_id, tipo_sub, dados)
+            #Preenche os campos adicionais da subtarefa
+            self.preencher_camposadic(numero_id, tipo_sub, dados_camposadic)
        
         #Clica no botão Salvar
         self.aguardar_telaprocessamento()
-        campo  = drv.find_element(By.ID, value="formNovaTarefa:btCriarTarefa")
-        drv.execute_script("arguments[0].scrollIntoView();", campo)
-        ActionChains(drv).send_keys(Keys.END).perform()
-        campo.click()
+        campo  = nav.find_element(By.ID, value="formNovaTarefa:btCriarTarefa")
+        nav.execute_script("arguments[0].scrollIntoView();", campo)
+        self.irpara_finaltela()
+        campo.click()        
         
         #Espera pela cx diálogo sobre ausência de responsáveis e anexos.
-        WebDriverWait(drv, 20).until(EC.element_to_be_clickable((By.ID, "formNovaTarefa:simIncluirTarefaSemResponsavelAnexo")))
+        WebDriverWait(nav, self.tempo_espera).until(EC.element_to_be_clickable((By.ID, "formNovaTarefa:simIncluirTarefaSemResponsavelAnexo")))
         
-        #Clica em Sim
-        campo  = drv.find_element(By.ID, value="formNovaTarefa:simIncluirTarefaSemResponsavelAnexo")
+        #Clica em Sim na caixa de diálogo
+        campo  = nav.find_element(By.ID, value="formNovaTarefa:simIncluirTarefaSemResponsavelAnexo")
         campo.click()
         
         #espera pela tela de bloqueio
         self.aguardar_telaprocessamento()
-        
+
+        #coleta a mensagem gerada        
+        res['sucesso'], res['mensagem'] = self.obter_mensagem()
+
         #Coleta o número da subtarefa
-        res, texto = self.obter_mensagem()
-        if res:
-            numsub = [int(s) for s in texto.split() if s.isdigit()]
+        if res['sucesso']:
+            res['numerosub'] = [int(s) for s in res['mesnagem'].split() if s.isdigit()]
         else:
-            print(f'Erro: {texto}')
-            numsub = [0]
+            res['numerosub'] = [0]
+            #Se deu erro, desiste de criar a subtarefa
             self.irpara_finaltela()
             self.clicar_botao('formNovaTarefa:btCancelarTarefa')
+            self.aguardar_telaprocessamento()
             self.espera.until(EC.visibility_of_element_located((By.ID, 'formTarefas:gridTarefa:0:cmdLinkDetalharTarefa')))
         
-        return (numsub[0], False)
+        return res
     
-    def irpara_guia(self, nome: str) -> None:
-        """Clica na guia do GET especificada."""
-        drv = self.driver
-
-        elem = drv.find_element(By.XPATH, f"//a[@href='#formDetalharTarefa:detalheTarefaTabView:tab{nome}']") 
-        elem.click()
-        self.aguardar_telaprocessamento()
-
     def obter_erro(self):
         drv = self.driver
 
@@ -569,12 +593,12 @@ class Get(Navegador):
     def obter_mensagem(self):
         drv = self.driver
 
-        WebDriverWait(drv, 20).until(EC.visibility_of_element_located((By.ID, "mMensagens")))
+        WebDriverWait(drv, self.tempo_espera).until(EC.visibility_of_element_located((By.ID, "mMensagens")))
         time.sleep(1)
         if len(campo := drv.find_elements(By.CLASS_NAME, value='ui-messages-info-summary')) > 0:
             texto = campo[0].text
             resultado = True
-        elif len(campo := drv.find_elements(By.CLASS_NAME, value='ui-messages-warn-detail')) > 0:
+        elif len(campo := drv.find_elements(By.CLASS_NAME, value='ui-messages-warn-summary')) > 0:
             texto = campo[0].text
             resultado = False
         return resultado, texto
@@ -598,6 +622,21 @@ class Get(Navegador):
             WebDriverWait(self.driver, 30).until(EC.element_to_be_clickable((By.ID, "formTarefas:gridTarefa:0:cmdLinkDetalharTarefa")))
         except TimeoutException:
             return False
+        return True
+    
+    def possui_anexos(self) -> bool:
+        drv = self.driver
+
+        #Clica em Anexos
+        self.irpara_guia('Anexos')
+        tem_tabela = len(campo := drv.find_elements(By.ID, 'formDetalharTarefa:detalheTarefaTabView:dtbltodosAnexos_data')) > 0
+        if tem_tabela:
+            tem_linha_unica = len(campo := campo[0].find_elements(By.TAG_NAME, 'tr')) == 1
+            if tem_linha_unica:
+                tem_cel_unica = len(campo := campo[0].find_elements(By.TAG_NAME, 'td')) == 1
+                if tem_cel_unica:
+                    if campo[0].text == 'Nenhum registro encontrado.':
+                        return False
         return True
     
     def preencher_camposadic(self, num_id: str, tipo_sub: str, dados: dict) -> None:
