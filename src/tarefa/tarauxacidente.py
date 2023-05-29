@@ -51,6 +51,10 @@ class TarefaAuxilioAcidente(Tarefa):
         """Grava na tarefa se o relatório da perícia em PDF foi gerado."""
         self.base_dados.alterar_atributo(self.pos, "arquivopdfpericia", bool_tobit(valor))
 
+    def alterar_msg_criacaosub(self, valor: str) -> None:
+        """Registra o erro ocorrido quando da criação da subtarefa"""
+        self.base_dados.alterar_atributo(self.pos, "msgerro_criacaosub", valor)
+
     def alterar_olm(self, valor: str) -> None:
         """Grava na tarefa a APS Mantenedora do benefício."""
         self.base_dados.alterar_atributo(self.pos, "olm", valor)
@@ -166,6 +170,10 @@ class TarefaAuxilioAcidente(Tarefa):
         """Retorna se a data da PM já passou."""
         valor = self.base_dados.obter_atributo(self.pos, 'dataagendamento')
         return valor < pd.to_datetime('today')
+    
+    def tem_erro_geracaosub(self) -> bool:
+        """Retorna se houve erro na geração da subtarefa."""
+        return self.base_dados.checar_atributo_naonulo(self.pos, "msgerro_criacaosub") 
     
     def tem_pericia_lancada(self) -> bool:
         """Retorna se a PM já foi lançada no PM."""

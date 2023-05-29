@@ -20,7 +20,8 @@ colunas_especificas = {'tem_agendapm': 'string',
                        'arquivopdfpericia': 'string',
                        'beneficio': 'string',
                        'pericialancada': 'string',
-                       'beneficiodespachado': 'string'
+                       'beneficiodespachado': 'string',
+                       'msgerro_criacaosub': 'string'
                        }
 
 datas_especificas = ['dataagendamento']
@@ -101,6 +102,7 @@ class ProcessadorAuxAcidente(Processador):
         resultado += self.obter_info('agendamentopm', 'Pendentes de agendamento de perícia médica: {0} tarefa(s).\n')
         resultado += self.obter_info('anexacaoagendapm', 'Pendentes de anexar PDF do agendamento da perícia médica: {0} tarefa(s).\n')
         resultado += self.obter_info('geracaoexig', 'Pendentes de abertura de exigência: {0} tarefa(s).\n')
+        resultado += self.obter_info('subcomerro', 'Com erro na geração de subtarefa de PM: {0} tarefa(s).\n')
         resultado += self.obter_info('aguardapm', 'Aguardando a realização da perícia médica: {0} tarefa(s).\n')
         resultado += self.obter_info('pmvencida', 'Com PM vencida {0} tarefa(s).\n')
         resultado += self.obter_info('cancelarsub', 'Sem comparecimento a PM e pendentes de cancelar subtarefa: {0} tarefa(s).\n')
@@ -248,7 +250,10 @@ class ProcessadorAuxAcidente(Processador):
             'valor': (df['tem_agendapm'] == '1') & df['tem_pdfagendapmanexo'].isna() & filto_sem_imp_conc
         }
         self.filtros['geracaoexig'] = {
-            'valor': (df['tem_pdfagendapmanexo'] == '1') & df['tem_exigencia'].isna() & filto_sem_imp_conc
+            'valor': (df['tem_pdfagendapmanexo'] == '1') & df['tem_exigencia'].isna() & (df['msgerro_criacaosub'].isna()) & filto_sem_imp_conc
+        }
+        self.filtros['subcomerro'] = {
+            'valor': (df['tem_pdfagendapmanexo'] == '1') & df['tem_exigencia'].isna() & (df['msgerro_criacaosub'].notna()) & filto_sem_imp_conc
         }
         self.filtros['aguardapm'] = {
             'valor': (df['tem_exigencia'] == '1') & df['periciacumprida'].isna() & (df['dataagendamento'] >= pd.to_datetime('today')) & 
@@ -802,38 +807,66 @@ class ProcessadorAuxAcidente(Processador):
     def processar_geracaosubtarefa(self) -> None:
         """Gera subtarefa nas tarefas pendentes de geração de subtarefa."""
         buffer_linha = ''
-        cont = 0        
+        cont = 0
+        necessario_fechartarefa = False
+        get = self.get
         protocolo = ''
 
-        self.pre_processar('GERAR SUBTAREFA')
+        self.pre_processar('GERAR SUBTAREFA')9
         for t in self.lista:
-            if not t.obter_fase_analise_beninacumulavel() or t.obter_fase_subtarefa_gerada() or t.tem_ben_inacumulavel() or t.tem_impedimento():
+            
+            #Não irá gerar subtarefa se:
+            # >não passou pela fase de analise de benefício inacumulável
+            # >tem benefício inacumulável ativo
+            # >ja foi gerada a subtarefa
+            # >houve erro durante a geração de subtarefa no processamento anterior
+            # >tarefa tem impedimento
+            if not t.obter_fase_analise_beninacumulavel() or t.tem_ben_inacumulavel() or t.obter_fase_subtarefa_gerada()  or t.tem_erro_geracaosub() or t.tem_impedimento():
                 continue
+
             protocolo = str(t.obter_protocolo())
             buffer_linha = f'Tarefa {protocolo}...'
             print(buffer_linha, end='\r')
-            if self.get.pesquisar_tarefa(protocolo):
-                status = self.get.coletar_status()
-                if status == 'Cancelada':
-                    print(buffer_linha + 'Tarefa cancelada. Subtarefa não foi gerada.')
-                    t.concluir_fase_concluso()
-                    t.concluir_fase_conclusao()
-                if status == 'Concluída':
-                    print(buffer_linha + 'Tarefa concluída. Subtarefa não foi gerada.')
-                    t.concluir_fase_concluso()
-                    t.concluir_fase_conclusao()                    
-                self.get.abrir_tarefa()
-                (sucesso, subcoletada) = self.gerar_subtarefa(t, {})
-                if sucesso:
-                    if subcoletada:
-                        print(buffer_linha + 'Subtarefa coletada.')
-                    else:
-                        print(buffer_linha + 'Subtarefa gerada.')
-                    self.get.fechar_tarefa()
-                    self.salvar_emarquivo()
+
+            #Pesquisa a tarefa no GET
+            if get.pesquisar_tarefa(protocolo):
+
+                #Verifica se tarefa está cancelada/concluída
+                if self.processar_status(t):
+                    print(buffer_linha + 'Tarefa cancelada/concluída. Subtarefa não foi gerada.')
                     cont += 1
+                    continue
+
+                #Abre a tarefa no GET
+                get.abrir_tarefa()
+                necessario_fechartarefa = True
+
+                #Verifica já existe subtarefa gerada e a coleta
+                numsub = get.coletar_subtarefa(self.nome_subservico)
+                if numsub != 0:
+                    t.alterar_msg_criacaosub('')
+                    t.alterar_subtarefa_coletada(True)
+                    t.alterar_subtarefa(numsub)
+                    t.concluir_fase_subtarefa()
+                    print(buffer_linha + 'Subtarefa coletada.')
                 else:
-                    print(buffer_linha + 'Subtarefa não foi gerada.')
+                    #Cria a subtarefa
+                    res = get.gerar_subtarefa(self.nome_subservico, self.id_subtarefa, {})
+                    if res['sucesso']:
+                        t.alterar_msg_criacaosub('')
+                        t.alterar_subtarefa_coletada(False)
+                        t.alterar_subtarefa(res['numerosub'][0])
+                        t.concluir_fase_subtarefa()
+                        print(buffer_linha + 'Subtarefa gerada.')
+                    else:
+                        #Erro na geração de sub. Registra.
+                        t.alterar_msg_criacaosub(res['mensagem'])
+                        print(buffer_linha + 'Subtarefa não foi gerada.')
+                        necessario_fechartarefa = False
+                if necessario_fechartarefa:
+                    get.fechar_tarefa()
+                self.salvar_emarquivo()
+                cont += 1                    
             else:
                 print(buffer_linha + 'Erro: Tarefa não foi encontrada.')
         self.pos_processar(cont)
