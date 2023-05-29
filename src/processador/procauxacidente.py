@@ -693,7 +693,7 @@ class ProcessadorAuxAcidente(Processador):
             print(buffer_linha)
             if self.get.pesquisar_tarefa(protocolo):
                 self.get.abrir_tarefa()
-                self.get.irpara_guia('Subtarefas')
+                self.get.abrir_guia('Subtarefas')
                 self.get.irpara_finaltela()
                 if self.get.cancelar_sub(t.obter_subtarefa(), self.nome_subservico, texto_conclusao):
                     t.concluir_fase_subtarefa_cancelada()

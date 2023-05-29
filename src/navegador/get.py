@@ -567,7 +567,7 @@ class Get(Navegador):
 
         #Coleta o número da subtarefa
         if res['sucesso']:
-            res['numerosub'] = [int(s) for s in res['mesnagem'].split() if s.isdigit()]
+            res['numerosub'] = [int(s) for s in res['mensagem'].split() if s.isdigit()]
         else:
             res['numerosub'] = [0]
             #Se deu erro, desiste de criar a subtarefa
