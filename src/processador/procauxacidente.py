@@ -812,7 +812,7 @@ class ProcessadorAuxAcidente(Processador):
         get = self.get
         protocolo = ''
 
-        self.pre_processar('GERAR SUBTAREFA')9
+        self.pre_processar('GERAR SUBTAREFA')
         for t in self.lista:
             
             #Não irá gerar subtarefa se:
