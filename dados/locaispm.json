@@ -1,10 +1,386 @@
 {
     "17001010": {
-        "estado": "RJ",
-        "cidade": "RIO DE JANEIRO"
+      "estado": "RJ",
+      "cidade": "RIO DE JANEIRO"
     },
     "17001020": {
-        "estado": "RJ",
-        "cidade": "RIO DE JANEIRO"
+      "estado": "RJ",
+      "cidade": "RIO DE JANEIRO"
+    },
+    "17001030": {
+      "estado": "RJ",
+      "cidade": "RIO DE JANEIRO"
+    },
+    "17001040": {
+      "estado": "RJ",
+      "cidade": "RIO DE JANEIRO"
+    },
+    "17001060": {
+      "estado": "RJ",
+      "cidade": "RIO DE JANEIRO"
+    },
+    "17001070": {
+      "estado": "RJ",
+      "cidade": "RIO DE JANEIRO"
+    },
+    "17001080": {
+      "estado": "RJ",
+      "cidade": "RIO DE JANEIRO"
+    },
+    "17001110": {
+      "estado": "RJ",
+      "cidade": "RIO DE JANEIRO"
+    },
+    "17001120": {
+      "estado": "RJ",
+      "cidade": "RIO DE JANEIRO"
+    },
+    "17001130": {
+      "estado": "RJ",
+      "cidade": "RIO DE JANEIRO"
+    },
+    "17001140": {
+      "estado": "RJ",
+      "cidade": "RIO DE JANEIRO"
+    },
+    "17001150": {
+      "estado": "RJ",
+      "cidade": "RIO DE JANEIRO"
+    },
+    "17001160": {
+      "estado": "RJ",
+      "cidade": "RIO DE JANEIRO"
+    },
+    "17001170": {
+      "estado": "RJ",
+      "cidade": "RIO DE JANEIRO"
+    },
+    "17001190": {
+      "estado": "RJ",
+      "cidade": "RIO DE JANEIRO"
+    },
+    "17001200": {
+      "estado": "RJ",
+      "cidade": "RIO DE JANEIRO"
+    },
+    "17001210": {
+      "estado": "RJ",
+      "cidade": "RIO DE JANEIRO"
+    },
+    "17002020": {
+      "estado": "RJ",
+      "cidade": "RIO DE JANEIRO"
+    },
+    "17002030": {
+      "estado": "RJ",
+      "cidade": "RIO DE JANEIRO"
+    },
+    "17002050": {
+      "estado": "RJ",
+      "cidade": "RIO DE JANEIRO"
+    },
+    "17002080": {
+      "estado": "RJ",
+      "cidade": "RIO DE JANEIRO"
+    },
+    "17002100": {
+      "estado": "RJ",
+      "cidade": "RIO DE JANEIRO"
+    },
+    "17002110": {
+      "estado": "RJ",
+      "cidade": "RIO DE JANEIRO"
+    },
+    "17002120": {
+      "estado": "RJ",
+      "cidade": "RIO DE JANEIRO"
+    },
+    "17002130": {
+      "estado": "RJ",
+      "cidade": "RIO DE JANEIRO"
+    },
+    "17002150": {
+      "estado": "RJ",
+      "cidade": "RIO DE JANEIRO"
+    },
+    "17002160": {
+      "estado": "RJ",
+      "cidade": "RIO DE JANEIRO"
+    },
+    "17021010": {
+      "estado": "RJ",
+      "cidade": "BOM JESUS DO ITABAPOANA"
+    },
+    "17021030": {
+      "estado": "RJ",
+      "cidade": "CAMPOS DOS GOYTACAZES"
+    },
+    "17021040": {
+      "estado": "RJ",
+      "cidade": "ITAPERUNA"
+    },
+    "17021050": {
+      "estado": "RJ",
+      "cidade": "MIRACEMA"
+    },
+    "17021060": {
+      "estado": "RJ",
+      "cidade": "SANTO ANTONIO DE PADUA"
+    },
+    "17021070": {
+      "estado": "RJ",
+      "cidade": "SAO FIDELIS"
+    },
+    "17021080": {
+      "estado": "RJ",
+      "cidade": "CAMBUCI"
+    },
+    "17021090": {
+      "estado": "RJ",
+      "cidade": "CARDOSO MOREIRA"
+    },
+    "17021100": {
+      "estado": "RJ",
+      "cidade": "ITALVA"
+    },
+    "17021110": {
+      "estado": "RJ",
+      "cidade": "ITAOCARA"
+    },
+    "17021130": {
+      "estado": "RJ",
+      "cidade": "NATIVIDADE"
+    },
+    "17021140": {
+      "estado": "RJ",
+      "cidade": "PORCIUNCULA"
+    },
+    "17021150": {
+      "estado": "RJ",
+      "cidade": "SAO JOAO DA BARRA"
+    },
+    "17021160": {
+      "estado": "RJ",
+      "cidade": "MACAE"
+    },
+    "17021170": {
+      "estado": "RJ",
+      "cidade": "CASIMIRO DE ABREU"
+    },
+    "17021180": {
+      "estado": "RJ",
+      "cidade": "CAMPOS DOS GOYTACAZES"
+    },
+    "17021190": {
+      "estado": "RJ",
+      "cidade": "SAO FRANCISCO DE ITABAPOANA"
+    },
+    "17022010": {
+      "estado": "RJ",
+      "cidade": "BELFORD ROXO"
+    },
+    "17022020": {
+      "estado": "RJ",
+      "cidade": "DUQUE DE CAXIAS"
+    },
+    "17022030": {
+      "estado": "RJ",
+      "cidade": "DUQUE DE CAXIAS"
+    },
+    "17022040": {
+      "estado": "RJ",
+      "cidade": "ITAGUAI"
+    },
+    "17022050": {
+      "estado": "RJ",
+      "cidade": "JAPERI"
+    },
+    "17022060": {
+      "estado": "RJ",
+      "cidade": "MAGE"
+    },
+    "17022080": {
+      "estado": "RJ",
+      "cidade": "MESQUITA"
+    },
+    "17022090": {
+      "estado": "RJ",
+      "cidade": "NILOPOLIS"
+    },
+    "17022100": {
+      "estado": "RJ",
+      "cidade": "NOVA IGUACU"
+    },
+    "17022110": {
+      "estado": "RJ",
+      "cidade": "DUQUE DE CAXIAS"
+    },
+    "17022120": {
+      "estado": "RJ",
+      "cidade": "PARACAMBI"
+    },
+    "17022130": {
+      "estado": "RJ",
+      "cidade": "QUEIMADOS"
+    },
+    "17022140": {
+      "estado": "RJ",
+      "cidade": "SAO JOAO DE MERITI"
+    },
+    "17022160": {
+      "estado": "RJ",
+      "cidade": "DUQUE DE CAXIAS"
+    },
+    "17022180": {
+      "estado": "RJ",
+      "cidade": "GUAPIMIRIM"
+    },
+    "17023010": {
+      "estado": "RJ",
+      "cidade": "ARARUAMA"
+    },
+    "17023020": {
+      "estado": "RJ",
+      "cidade": "CABO FRIO"
+    },
+    "17023030": {
+      "estado": "RJ",
+      "cidade": "ITABORAI"
+    },
+    "17023050": {
+      "estado": "RJ",
+      "cidade": "MARICA"
+    },
+    "17023060": {
+      "estado": "RJ",
+      "cidade": "NITEROI"
+    },
+    "17023080": {
+      "estado": "RJ",
+      "cidade": "NITEROI"
+    },
+    "17023090": {
+      "estado": "RJ",
+      "cidade": "RIO BONITO"
+    },
+    "17023100": {
+      "estado": "RJ",
+      "cidade": "SAO GONCALO"
+    },
+    "17023110": {
+      "estado": "RJ",
+      "cidade": "SAO PEDRO DA ALDEIA"
+    },
+    "17023130": {
+      "estado": "RJ",
+      "cidade": "ARRAIAL DO CABO"
+    },
+    "17023140": {
+      "estado": "RJ",
+      "cidade": "NITEROI"
+    },
+    "17023160": {
+      "estado": "RJ",
+      "cidade": "SAO GONCALO"
+    },
+    "17023190": {
+      "estado": "RJ",
+      "cidade": "SILVA JARDIM"
+    },
+    "17023200": {
+      "estado": "RJ",
+      "cidade": "TANGUA"
+    },
+    "17024010": {
+      "estado": "RJ",
+      "cidade": "CACHOEIRAS DE MACACU"
+    },
+    "17024020": {
+      "estado": "RJ",
+      "cidade": "NOVA FRIBURGO"
+    },
+    "17024030": {
+      "estado": "RJ",
+      "cidade": "PARAIBA DO SUL"
+    },
+    "17024040": {
+      "estado": "RJ",
+      "cidade": "PETROPOLIS"
+    },
+    "17024050": {
+      "estado": "RJ",
+      "cidade": "TERESOPOLIS"
+    },
+    "17024060": {
+      "estado": "RJ",
+      "cidade": "TRES RIOS"
+    },
+    "17024070": {
+      "estado": "RJ",
+      "cidade": "BOM JARDIM"
+    },
+    "17024080": {
+      "estado": "RJ",
+      "cidade": "CANTAGALO"
+    },
+    "17024090": {
+      "estado": "RJ",
+      "cidade": "CORDEIRO"
+    },
+    "17024100": {
+      "estado": "RJ",
+      "cidade": "SAO JOSE DO VALE DO RIO PRETO"
+    },
+    "17024110": {
+      "estado": "RJ",
+      "cidade": "SAPUCAIA"
+    },
+    "17025010": {
+      "estado": "RJ",
+      "cidade": "ANGRA DOS REIS"
+    },
+    "17025020": {
+      "estado": "RJ",
+      "cidade": "BARRA DO PIRAI"
+    },
+    "17025030": {
+      "estado": "RJ",
+      "cidade": "BARRA MANSA"
+    },
+    "17025040": {
+      "estado": "RJ",
+      "cidade": "RESENDE"
+    },
+    "17025050": {
+      "estado": "RJ",
+      "cidade": "VALENCA"
+    },
+    "17025060": {
+      "estado": "RJ",
+      "cidade": "VASSOURAS"
+    },
+    "17025070": {
+      "estado": "RJ",
+      "cidade": "VOLTA REDONDA"
+    },
+    "17025080": {
+      "estado": "RJ",
+      "cidade": "ITATIAIA"
+    },
+    "17025090": {
+      "estado": "RJ",
+      "cidade": "MENDES"
+    },
+    "17025100": {
+      "estado": "RJ",
+      "cidade": "MIGUEL PEREIRA"
+    },
+    "17025110": {
+      "estado": "RJ",
+      "cidade": "PARATY"
+    },
+    "17025120": {
+      "estado": "RJ",
+      "cidade": "PIRAI"
     }
-}
+  }
