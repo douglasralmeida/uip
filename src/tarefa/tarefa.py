@@ -115,7 +115,7 @@ class Tarefa:
     def cumprir_exigencia(self) -> None:
         """Cumpre a exigência."""
         self.base_dados.alterar_atributo(self. pos, 'tem_exigencia', '0')
-        self.base_dados.alterar_atributo(self. pos, 'tem_documentacao', pd.NA)      
+        self.base_dados.alterar_atributo(self. pos, 'tem_documentacao', bool_tobit(True))
 
     def obter_agendamento(self) -> Agendamento:
         """Retorna as informações do agendamento de PM."""
@@ -209,6 +209,11 @@ class Tarefa:
     def tem_dadosbasicos(self) -> bool:
         """Indica se a XXX tem dados básicos."""
         return self.base_dados.checar_atributo_verdadeiro(self.pos, 'tem_dadosbasicos')
+    
+    def tem_desistencia(self) -> bool:
+         """Indica se a tarefa possui desistencia."""
+         res = self.base_dados.obter_atributo(self.pos, "resultado")
+         return pd.notna(res) and res in ['desistencia']
 
     def tem_documentacao(self) -> bool:
          """Indica se a tarefa possui documentação para análise."""
