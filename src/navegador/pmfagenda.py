@@ -23,7 +23,7 @@ class Pmfagenda(Navegador):
         self.driver.get("https://geridinss.dataprev.gov.br:8443/cas/login?service=https://www-pmfagenda/agenda/index.html")
         
         #Aguarda autenticação
-        time.sleep(5)
+        time.sleep(4)
         
         #Escolher o domínio
         WebDriverWait(self.driver, 60).until(EC.element_to_be_clickable((By.ID, "domains")))
@@ -43,22 +43,23 @@ class Pmfagenda(Navegador):
         """Realiza um agendamento de PM."""
         drv = self.driver
         self.tarefa = tarefa
+        cpf_preenchido = False
         
         #Aguarda o campo de CPF
-        WebDriverWait(drv, 20).until(EC.element_to_be_clickable((By.ID, "formAgendar:cpfInput")))
+        self.espera.until(EC.element_to_be_clickable((By.ID, "formAgendar:cpfInput")))
 
-        #Digita o CPF
-        campo = drv.find_element(By.ID, value="formAgendar:cpfInput")
-        campo.clear()
-        time.sleep(1)
-        campo.send_keys(cpf)
-        
-        #Clica no botao Consultar CPF
-        botao = drv.find_element(By.ID, value="formAgendar:btnConsultarCpfAgendamento")
-        botao.click()
-        time.sleep(1)
-        self.espera.until(EC.element_to_be_clickable((By.ID, 'formAgendar:servicoDrop_input')))
-        
+        while not cpf_preenchido:
+            #Digita o CPF
+            campo = drv.find_element(By.ID, value="formAgendar:cpfInput")
+            campo.clear()
+            campo.send_keys(cpf)
+
+            #Clica no botao Consultar CPF
+            botao = drv.find_element(By.ID, value="formAgendar:btnConsultarCpfAgendamento")
+            botao.click()
+            time.sleep(2)
+            cpf_preenchido = not drv.find_element(By.ID, 'idMessage').is_displayed()
+       
         #Seleciona o serviço
         campo = drv.find_element(By.ID, value="formAgendar:servicoDrop_input")
         campo.clear()
@@ -263,6 +264,7 @@ class Pmfagenda(Navegador):
 
     def reiniciar(self):
         self.driver.quit()
+        time.sleep(5)
         self.driver = Edge(options=self.opcoes)
         self.driver.maximize_window()
         self.abrir()
