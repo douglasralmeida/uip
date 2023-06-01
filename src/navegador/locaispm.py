@@ -40,7 +40,7 @@ class LocaisPM:
     def carregar(self) -> None:
         """Carrega a lista de locais de PM do arquivo JSON."""
         with carregar_dados(ARQUIVO_DADOS) as dados:
-            self.lista = [LocalPM(codigo, item['cidade'], item['estado']) for codigo, item in dados]
+            self.lista = [LocalPM(codigo, item['cidade'], item['estado']) for codigo, item in dados.items()]
 
     def obter(self, id: str) -> LocalPM:
         """Retorna um impedimento conforme o ID especificado."""
