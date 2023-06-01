@@ -11,7 +11,8 @@ from tarefa import TarefaAuxilioAcidente
 from processador import Processador
 from variaveis import Variaveis
 
-colunas_especificas = {'tem_agendapm': 'string',
+colunas_especificas = {'olm': 'string',
+                       'tem_agendapm': 'string',
                        'tem_pdfagendapmanexo': 'string',
                        'horaagendamento': 'string',
                        'localagendamento': 'string',
@@ -21,6 +22,7 @@ colunas_especificas = {'tem_agendapm': 'string',
                        'beneficio': 'string',
                        'pericialancada': 'string',
                        'beneficiodespachado': 'string',
+                       'subtarefa_coletada': 'string',
                        'msgerro_criacaosub': 'string'
                        }
 
