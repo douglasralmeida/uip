@@ -18,7 +18,9 @@ tipocolunas = {'beneficio': 'string',
                'arquivopdf_pericia': 'string',
                'pericialancada': 'string',
                'atualizacao_despachada': 'string',
-               'enviado_sman': 'string'
+               'enviado_sman': 'string',
+               'subtarefa_coletada': 'string',
+               'msgerro_criacaosub': 'string'
 }
 
 colunasdata = []
@@ -416,9 +418,12 @@ class ProcessadorProrrogSalMaternidade(Processador):
                 dados_adicionais['cpf'] = t.obter_cpf()
                 self.get.abrir_tarefa()
                 if self.gerar_subtarefa(t, dados_adicionais):
+                    print(f'Subtarefa gerada.')
                     self.get.fechar_tarefa()
                     self.salvar_emarquivo()
                     cont += 1
+                else:
+                    print(f'Erro. Subtarefa não gerada.')
             else:
                 print(f'Erro. Tarefa {protocolo} não foi encontrada.')
         self.pos_processar(cont)

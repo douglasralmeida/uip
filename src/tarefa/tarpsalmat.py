@@ -2,7 +2,7 @@
 ## Março de 2023
 """Tarefa de Prorrogação de Salário-Maternidade"""
 
-from .utils import bool_tostring
+from .utils import bool_tobit, bool_tostring
 import pandas as pd
 from tarefa import Tarefa
 from basedados import BaseDados
@@ -32,9 +32,24 @@ class TarefaProrrogacaoSalMaternidade(Tarefa):
         resultado += f'Observações: {"(sem observações)"}\n'
         return resultado
        
+    def alterar_msg_criacaosub(self, valor: str) -> None:
+        """Registra o erro ocorrido quando da criação da subtarefa"""
+        self.base_dados.alterar_atributo(self.pos, "msgerro_criacaosub", valor)
+    
     def alterar_subtarefa(self, subtarefa: str) -> None:
         """Altera a subtarefa."""
-        self.base_dados.alterar_atributo(self.pos, 'subtarefa', subtarefa)
+        self.base_dados.alterar_atributo(self.pos, 'subtarefa', str(subtarefa))
+
+    def alterar_subtarefa_coletada(self, valor: bool) -> None:
+        """Grava na tarefe se a subtarefa foi coletada."""
+        self.base_dados.alterar_atributo(self.pos, "subtarefa_coletada", bool_tobit(valor))
+
+    def concluir_fase_subtarefa(self) -> None:
+        """Informa que a tarefa já possui subtarefa gerada."""
+        self.base_dados.alterar_atributo(self.pos, 'tem_subtarefa', "1")
+        if self.base_dados.checar_atributo_nulo(self.pos, 'tem_prim_subtarefa'):
+            self.base_dados.alterar_atributo(self.pos, "tem_prim_subtarefa", "1")
+            self.base_dados.alterar_atributo(self.pos, "data_subtarefa", pd.to_datetime('today'))
         
     def concluir_fase_pericia_realizada(self) -> None:
         """Registra que a tarefa já teve a perícia realizada."""
@@ -63,3 +78,7 @@ class TarefaProrrogacaoSalMaternidade(Tarefa):
     def obter_subtarefa(self) -> str:
         """Retorna o protocolo da subtarefa de PM."""
         return self.base_dados.obter_atributo(self.pos, 'subtarefa')
+    
+    def tem_erro_geracaosub(self) -> bool:
+        """Retorna se houve erro na geração da subtarefa."""
+        return self.base_dados.checar_atributo_naonulo(self.pos, "msgerro_criacaosub") 
