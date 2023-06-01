@@ -54,7 +54,7 @@
         "ativa": 0
     },
     "prorrogsm_sambbh": {
-        "nome": "Auxílio Acidente (SAMB GEX BH)",
+        "nome": "Prorrogação de Salário Maternidade (SAMB GEX BH)",
         "id": "psm",
         "codigo": "11.001.3",
         "valor_exigencia": 0.05,
@@ -63,7 +63,7 @@
         "ativa": 1
     },
     "prorrogsm_smanbh": {
-        "nome": "Auxílio Acidente (SMAN GEX BH)",
+        "nome": "Prorrogação de Salário Maternidade (SMAN GEX BH)",
         "id": "psm",
         "codigo": "11.501.14",
         "valor_exigencia": 0.05,
