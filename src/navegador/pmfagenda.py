@@ -44,9 +44,13 @@ class Pmfagenda(Navegador):
         drv = self.driver
         self.tarefa = tarefa
         
+        #Aguarda o campo de CPF
+        WebDriverWait(drv, 20).until(EC.element_to_be_clickable((By.ID, "formAgendar:cpfInput")))
+
         #Digita o CPF
         campo = drv.find_element(By.ID, value="formAgendar:cpfInput")
         campo.clear()
+        time.sleep(1)
         campo.send_keys(cpf)
         
         #Clica no botao Consultar CPF
@@ -209,6 +213,7 @@ class Pmfagenda(Navegador):
     
     def carregar_dados(self):
         self.locais_pm = LocaisPM([])
+        self.locais_pm.carregar()
     
     def coletar_agendamento(self) -> list[str]:
         """Coleta os dados do agendamento."""
@@ -253,7 +258,6 @@ class Pmfagenda(Navegador):
         #Volta para tela inicial
         botao = drv.find_element(By.ID, value="frmBotoes:btnVoltarParaTelaInicial")
         botao.click()
-        WebDriverWait(drv, 20).until(EC.element_to_be_clickable((By.ID, "formAgendar:cpfInput")))
                 
         return [dataagenda, horaagenda, localagenda]
 
