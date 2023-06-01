@@ -128,7 +128,7 @@ class ProcessadorSalMaternidade(Processador):
             dados = self.cnis.coletar_beneficios(cpf, ['80'])
             if dados['quantidade'] > 0:
                 print(f'{buffer_linha}Dados coletados. Beneficio {dados["beneficio"]}.')
-                t.alterar_beneficio(dados['beneficio'])
+                t.alterar_beneficiosanteriores(dados['beneficio'])
                 t.alterar_status(dados['status'])
                 t.alterar_dib(dados['dib'])
                 t.concluir_fase_dadosben()

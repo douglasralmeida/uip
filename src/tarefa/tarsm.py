@@ -23,13 +23,17 @@ class TarefaSalMaternidade(Tarefa):
 
         return resultado
     
-    def alterar_status(self, status: str) -> None:
-        """Altera o status do benefício."""
-        self.base_dados.alterar_atributo(self.pos, "status", str(status))
+    def alterar_beneficiosanteriores(self, beneficios: str) -> None:
+        """Altera o número do benefício."""
+        self.base_dados.alterar_atributo(self.pos, 'beneficios_anteriores', beneficios)
 
     def alterar_dib(self, dib: str) -> None:
         """Altera o status do benefício."""
-        self.base_dados.alterar_atributo(self.pos, "dib", str(dib))
+        self.base_dados.alterar_atributo(self.pos, "dib_anteriores", str(dib))
+    
+    def alterar_status(self, status: str) -> None:
+        """Altera o status do benefício."""
+        self.base_dados.alterar_atributo(self.pos, "status_anteriores", str(status))
 
     def alterar_subtarefa(self, subtarefa: str) -> None:
         """Altera o número da subtarefa."""
@@ -45,8 +49,8 @@ class TarefaSalMaternidade(Tarefa):
 
     def obter_statusben(self) -> str:
         """Retorna o status do benefício."""
-        return self.base_dados.obter_atributo(self.pos, 'status')
+        return self.base_dados.obter_atributo(self.pos, 'status_anteriores')
     
     def obter_dib(self) -> str:
         """Retorna a DIB."""
-        return self.base_dados.obter_atributo(self.pos, 'dib')
+        return self.base_dados.obter_atributo(self.pos, 'dib_anteriores')
