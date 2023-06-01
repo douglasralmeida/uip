@@ -43,6 +43,8 @@ colunas_padrao = {'protocolo': 'string',
                   'obs': 'string'
               }
 
+#datas_padrao = []
+
 datas_padrao = ['der', 'data_subtarefa', 'data_exigencia', 'data_conclusao', 'vencim_exigencia']
 
 class Processador:
@@ -309,13 +311,15 @@ class Processador:
         Primeiro valor booleano indica que a subtarefa foi coletada ou gerada.
         Segundo valor booleano indica que a subtrarefa foi coletada.
         """
-        (numsub, sub_coletada) = self.get.gerar_subtarefa(self.nome_subservico, self.id_subtarefa, dados_adicionais)
-        if numsub > 0:
-            tarefa.alterar_subtarefa_coletada(sub_coletada)
-            tarefa.alterar_subtarefa(numsub)
+        res = self.get.gerar_subtarefa(self.nome_subservico, self.id_subtarefa, dados_adicionais)
+        if res['sucesso']:
+            tarefa.alterar_subtarefa_coletada(False)
+            tarefa.alterar_subtarefa(res['numerosub'][0])
             tarefa.concluir_fase_subtarefa()
-            return (True, sub_coletada)
-        return (False, False)
+            return True
+        else:
+            tarefa.alterar_msg_criacaosub(res['mensagem'])
+        return False
     
     def obter_comandos(self) -> dict:
         """Retorna os comandos exclusivos do processador."""
@@ -557,7 +561,7 @@ class Processador:
                         print('Erro ao anexar arquivo.')
                         continue
                     self.get.irpara_iniciotela()
-                    self.get.abrir_guia("DadosBasicos")
+                    self.get.abrir_guia("Detalhes")
                 self.get.irpara_finaltela()
                 texto = self.obter_textodespacho(t.obter_idx(), t.obter_resultado())
                 self.get.adicionar_despacho(texto)
