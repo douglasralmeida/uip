@@ -194,6 +194,18 @@ class ProcessadorAuxAcidente(Processador):
             'requer_protocolo': True,
             'requer_sibe': False
         }
+        self.comandos['enviarhabilitacao'] = {
+            'funcao': self.processar_enviohabilitacao,
+            'argsmin': 0,
+            'desc': 'Gera a lista de benefícios para habilitação no Prismna.',
+            'requer_subcomando': False,
+            'requer_cnis': False,
+			'requer_get': False,
+            'requer_processador': True,
+            'requer_pmfagenda': False,
+            'requer_protocolo': False,
+            'requer_sibe': False
+        }
         self.comandos['receberlpm'] = {
             'funcao': self.processar_lancamentopm,
             'argsmin': 0,
@@ -482,7 +494,7 @@ class ProcessadorAuxAcidente(Processador):
             except FileNotFoundError as e:
                 print('A tarefa especificada não possui perícia médica.\n')
 
-    def enviar_tarefa_habilitacao(self, tarefa) -> None:
+    def enviar_tarefa_habilitacao(self, tarefa: TarefaAuxilioAcidente) -> None:
         nomearquivo_entrada = path.join(Variaveis.obter_pasta_entrada(), 'tarefas_habilitar.txt')
         cabecalho = ['protocolo', 'nit', 'der']
         arquivo_prisma = ArquivoPrismaEntrada(nomearquivo_entrada, cabecalho)
@@ -493,6 +505,19 @@ class ProcessadorAuxAcidente(Processador):
             arquivo_prisma.salvar()
         else:
             print("Erro. Não foi possível abrir o arquivo de entrada para processamento do Prisma.\n")
+
+    def enviar_tarefas_habilitacao(self, tarefas: list[TarefaAuxilioAcidente]) -> None:
+        nomearquivo_entrada = path.join(Variaveis.obter_pasta_entrada(), 'tarefas_habilitar.txt')
+        cabecalho = ['protocolo', 'nit', 'der']
+        arquivo_prisma = ArquivoPrismaEntrada(nomearquivo_entrada, cabecalho)
+        arquivo_prisma.carregar()
+        if arquivo_prisma.carregado:
+            for tarefa in tarefas:
+                dados = [tarefa.obter_nit(), tarefa.obter_der().strftime('%d/%m/%Y')]
+                arquivo_prisma.alterar_dados(tarefa.obter_protocolo(), dados)    
+        else:
+            print("Erro. Não foi possível abrir o arquivo de entrada para processamento do Prisma.\n")
+        arquivo_prisma.salvar()
 
     def enviar_lancarpm(self, protocolo: str, beneficio: str) -> None:
         """Envia dados da tarefa para lançamento de PM no Prisma."""
@@ -506,7 +531,21 @@ class ProcessadorAuxAcidente(Processador):
             arquivo_prisma.alterar_dados(protocolo, [beneficio])
             arquivo_prisma.salvar()
         else:
-            print("Erro: Não foi possível abrir o arquivo de entrada para processamento do Prisma.")
+            print("Erro: Não foi possível abrir o arquivo de entrada para processamento de lançamentos de PM do Prisma.")
+
+    def enviar_indeferir(self, protocolo: str, beneficio: str, res: str) -> None:
+        """Envia dados da tarefa para lançamento de PM no Prisma."""
+        cabecalho = ['protocolo', 'beneficio', 'resultado']
+        nomearquivo_entrada = path.join(Variaveis.obter_pasta_entrada(), 'tarefas_indeferir.txt')
+
+        # Anota as tarefas no arquivo tarefas_lancarpm
+        arquivo_prisma = ArquivoPrismaEntrada(nomearquivo_entrada, cabecalho)
+        arquivo_prisma.carregar()
+        if arquivo_prisma.carregado:
+            arquivo_prisma.alterar_dados(protocolo, [beneficio, res])
+            arquivo_prisma.salvar()
+        else:
+            print("Erro: Não foi possível abrir o arquivo de entrada para processamento de indeferimentos do Prisma.")
 
     def marcar(self, marca: str, protocolos: list[str]) -> None:
         """Marca a lista de tarefas com a marcação especificada."""
@@ -544,6 +583,7 @@ class ProcessadorAuxAcidente(Processador):
         buffer_linha = ''
         cont = 0
         cont_enviarpm = 0
+        cont_indef = 0
         lista_sucesso = []
         nomearquivo_saida = path.join(Variaveis.obter_pasta_entrada(), 'ben_habilitados.txt')
         self.pre_processar('ANALISAR HABILITAÇÃO DE BENEFÍCIO')
@@ -569,10 +609,12 @@ class ProcessadorAuxAcidente(Processador):
                 res = t.obter_resultado()
                 if res in ['b36Deferido', 'b94Deferido']:
                     self.enviar_lancarpm(protocolo, nb)
-                    print(buffer_linha + 'Enviada para lançamento da PM.')
+                    print(buffer_linha + ' Enviada para lançamento da PM.')
                     cont_enviarpm += 1
                 else:
-                    print(buffer_linha + 'Aguarda indeferimento.')
+                    self.enviar_indeferir(protocolo, nb, res)
+                    print(buffer_linha + ' Enviada para indeferimento.')
+                    cont_indef += 1
                 self.salvar_emarquivo()
                 lista_sucesso.append(protocolo)
             cont += 1
@@ -580,8 +622,10 @@ class ProcessadorAuxAcidente(Processador):
             arquivo_prisma.excluir_dados(p)
         if len(lista_sucesso) > 0:
             arquivo_prisma.salvar()
+
         #Envia a tarefa para lançamento de PM no Prisma
         print(f'{cont_enviarpm} tarefa(s) enviada(s) para lançamento de PM no Prisma.')
+        print(f'{cont_indef} tarefa(s) enviada(s) para indeferimento no Prisma.')
         self.pos_processar(cont)
 
     #Analisa a PM da tarefa
@@ -803,6 +847,26 @@ class ProcessadorAuxAcidente(Processador):
         self.definir_filtros()
         self.definir_listagens()
         self.definir_marcacoes()
+
+    def processar_enviohabilitacao(self, subcomando: str, lista: list[str]) -> None:
+        """Gera a lista de benefícios para habilitação no Prisma."""
+        cont = 0
+        protocolo = ''
+        lista = []
+
+        self.pre_processar('ENVIAR PARA HABILITAÇÃO')
+        for t in self.lista:
+            if (not t.tem_pericia_realizada() and not t.obter_fase_subtarefa_cancelada() and not t.tem_ben_inacumulavel() and
+                not t.tem_desistencia()) or (t.obter_fase_beneficio_habilitado() or t.tem_impedimento() or t.tem_sobrestamento() or
+                                         t.obter_fase_concluso()):
+                continue
+
+            protocolo = t.obter_protocolo()
+            lista.append(t)
+            print(f'Tarefa {protocolo}.')            
+            cont += 1
+        self.enviar_tarefas_habilitacao(lista)
+        self.pos_processar(cont)
 
     def processar_geracaosubtarefa(self) -> None:
         """Gera subtarefa nas tarefas pendentes de geração de subtarefa."""
