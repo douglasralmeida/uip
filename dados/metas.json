@@ -25,8 +25,14 @@
     },
     "05/2023": {
         "dias_uteis": 7.33,
+        "abono_sistemas": 3.11,
+        "dias_ferias": 0,
+        "dias_licenca": 0
+    },
+    "06/2023": {
+        "dias_uteis": 6.67,
         "abono_sistemas": 0,
         "dias_ferias": 0,
         "dias_licenca": 0
-    }
+    }    
 }
