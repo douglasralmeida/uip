@@ -171,6 +171,10 @@ class TarefaAuxilioAcidente(Tarefa):
         valor = self.base_dados.obter_atributo(self.pos, 'dataagendamento')
         return valor < pd.to_datetime('today')
     
+    def subtarefa_foicoletada(self) -> bool:
+        """Retorna se a subtarefa foi gerada ou coletada."""
+        return self.base_dados.checar_atributo_verdadeiro(self.pos, "subtarefa_coletada")
+    
     def tem_erro_geracaosub(self) -> bool:
         """Retorna se houve erro na geração da subtarefa."""
         return self.base_dados.checar_atributo_naonulo(self.pos, "msgerro_criacaosub") 
@@ -186,7 +190,3 @@ class TarefaAuxilioAcidente(Tarefa):
     def tem_pdfpericia(self) -> bool:
         """Retorna se há relatório de PM para lançar."""
         return self.base_dados.checar_atributo_verdadeiro(self.pos, "arquivopdfpericia")
-    
-    def subtarefa_foicoletada(self) -> bool:
-        """Retorna se a subtarefa foi gerada ou coletada."""
-        return self.base_dados.checar_atributo_verdadeiro(self.pos, "subtarefa_coletada")
