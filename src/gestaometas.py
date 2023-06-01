@@ -91,7 +91,7 @@ class GestaoMetas:
         self.meta_diaria.carregar()
 
         with carregar_dados(ARQUIVO_METAS) as metas:
-            for item, valor in metas:
+            for item, valor in metas.items():
                 meta = Meta(item, valor['dias_uteis'])
                 meta.alterar_ferias(valor['dias_ferias'])
                 meta.alterar_licencas(valor['dias_licenca'])

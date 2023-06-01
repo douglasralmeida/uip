@@ -36,6 +36,5 @@ class Arquivo:
 
     def salvar(self):
         with open(self.nome_arquivo, 'w') as arquivo:
-            arquivo.writelines(item + '\n' for item in self.conteudo[:-1])
-            arquivo.writelines(self.conteudo[-1])
+            arquivo.writelines('\n'.join(self.conteudo))
         self.conteudo.clear()

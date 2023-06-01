@@ -8,7 +8,7 @@ class carregar_dados:
 
     def __enter__(self):
        self.obj_arquivo = open(self.endereco_arquivo, 'r', encoding='utf8')
-       return load_fromjson(self.obj_arquivo).items()
+       return load_fromjson(self.obj_arquivo)
 
     def __exit__(self, type, val, tb):
         if self.obj_arquivo:

@@ -42,7 +42,7 @@ class Impedimentos:
     def carregar(self) -> None:
         """Carrega a lista de impedimentos do arquivo JSON."""
         with carregar_dados(ARQUIVO_DADOS) as dados:
-            self.lista = [Impedimento(codigo, item['desc']) for codigo, item in dados]
+            self.lista = [Impedimento(codigo, item['desc']) for codigo, item in dados.items()]
 
     def obter(self, valor: str) -> Impedimento:
         """Retorna um impedimento conforme o ID especificado;"""

@@ -31,7 +31,7 @@ class Filas:
                                item['valor_exigencia'], 
                                item['valor_subtarefa'], 
                                item['valor_conclusao'],
-                               item['ativa'] == 1) for codigo, item in dados]
+                               item['ativa'] == 1) for codigo, item in dados.items()]
 
     def obter(self, valor: str) -> Fila:
         """Retorna uma fila conforme o ID especificado"""
