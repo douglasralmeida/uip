@@ -116,6 +116,15 @@
         "valor_conclusao": 0.33,
         "ativa": 1
     },
+    "maj_rjceab": {
+        "nome": "Majoração de 25% (CEAB RJ)",
+        "id": "maj",
+        "codigo": "17.150.522",
+        "valor_exigencia": 0.05,
+        "valor_subtarefa": 0.0,
+        "valor_conclusao": 0.33,
+        "ativa": 1
+    },
     "smu_srsud3": {
         "nome": "Salário Maternidade Urbano da SR Sudeste III",
         "id": "sm",
