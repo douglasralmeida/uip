@@ -469,15 +469,15 @@ class Processador:
 
         self.pre_processar('AGENDAR PM')
         for t in self.lista:
-            if t.obter_fase_subtarefa_gerada() and not t.obter_fase_agendapm():
+            if t.obter_fase_subtarefa_gerada() and not t.obter_fase_agendapm() and not t.tem_impedimento():
                 protocolo = t.obter_protocolo()
                 print(f'Tarefa {protocolo}...', end=' ')
                 cpf = t.obter_cpf()
                 subtarefa = t.obter_subtarefa()
                 olm = t.obter_olm()
-                if num_agendamentos >= 20:
-                    self.pmfagenda.reiniciar()
-                    num_agendamentos = 0
+                #if num_agendamentos >= 23:
+                #    self.pmfagenda.reiniciar()
+                #    num_agendamentos = 0
                 dados = self.pmfagenda.agendar(protocolo, cpf, self.nome_servicopm, str(subtarefa), olm)
                 t.alterar_agendamento(Agendamento(dados[0], dados[1], dados[2]))
                 t.concluir_fase_agendapm()
