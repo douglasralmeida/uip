@@ -54,6 +54,8 @@ class Navegador:
 
         #Navegador de internet
         self.driver = Edge(options=self.opcoes)
+        print(f'Navegador: {self.driver.capabilities["browserName"]}')
+        print(f'Versão: {self.driver.capabilities["browserVersion"]}')
         self.driver.maximize_window()
 
         #Espera de processamento
