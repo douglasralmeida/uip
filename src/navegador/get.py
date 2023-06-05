@@ -479,6 +479,9 @@ class Get(Navegador):
         drv = self.driver
         
         #Clica em Voltar
+        
+        self.irpara_iniciotela()
+        WebDriverWait(drv, self.tempo_espera).until(EC.element_to_be_clickable((By.ID, "formDetalharTarefa:detalhe_voltar")))
         botao = drv.find_element(By.ID, value="formDetalharTarefa:detalhe_voltar")
         botao.click()
         self.aguardar_telaprocessamento()
