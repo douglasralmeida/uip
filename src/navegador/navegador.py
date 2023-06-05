@@ -47,8 +47,11 @@ class Navegador:
             prefs['profile.managed_default_content_settings.images'] = 2
         self.opcoes = EdgeOptions()
         self.opcoes.add_argument('--allow-running-insecure-content')
+        self.opcoes.add_argument('--disable-extensions')
+        self.opcoes.add_argument('--hide-scrollbars')
         self.opcoes.add_argument('--ignore-certificate-errors')
         self.opcoes.add_argument('--kiosk-printing')
+        self.opcoes.add_argument('--no-proxy-server')        
         self.opcoes.add_experimental_option('prefs', prefs)
         self.opcoes.add_experimental_option('excludeSwitches', ['enable-logging'])
 
