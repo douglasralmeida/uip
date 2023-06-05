@@ -39,6 +39,10 @@ class TarefaAuxilioAcidente(Tarefa):
         resultado += f'Observações: {"(sem observações)"}\n'
 
         return resultado
+    
+    def agendamento_foicoletado(self) -> bool:
+        """Retorna se o agendamento foi gerado ou coletado."""
+        return self.base_dados.checar_atributo_verdadeiro(self.pos, "agenda_coletada")
 
     def alterar_agendamento(self, agendamento: Agendamento) -> None:
         """Altera os dados do agendamento da PM"""
@@ -46,6 +50,14 @@ class TarefaAuxilioAcidente(Tarefa):
         self.base_dados.alterar_atributo(self.pos, 'dataagendamento', data)
         self.base_dados.alterar_atributo(self.pos, 'horaagendamento', agendamento.hora)
         self.base_dados.alterar_atributo(self.pos, 'localagendamento', agendamento.local)
+
+    def alterar_agendamento_coletado(self, valor: bool) -> None:
+        """Grava na tarefe se o agendamento foi coletado."""
+        self.base_dados.alterar_atributo(self.pos, "agenda_coletada", bool_tobit(valor))
+
+    def alterar_anexacao_comerro(self, valor: bool) -> None:
+        """Grava na tarefe se a anexação de PDF não foi processada por erro."""
+        self.base_dados.alterar_atributo(self.pos, "anexacao_comerro", bool_tobit(valor))
 
     def alterar_arquivopdf_pericia(self, valor: bool) -> None:
         """Grava na tarefa se o relatório da perícia em PDF foi gerado."""
@@ -70,6 +82,10 @@ class TarefaAuxilioAcidente(Tarefa):
     def alterar_subtarefa_coletada(self, valor: bool) -> None:
         """Grava na tarefe se a subtarefa foi coletada."""
         self.base_dados.alterar_atributo(self.pos, "subtarefa_coletada", bool_tobit(valor))
+
+    def anexacao_comerro(self) -> bool:
+        """Retorna se anexação de arquivos PDF não foi processada por erro."""
+        return self.base_dados.checar_atributo_verdadeiro(self.pos, "anexacao_comerro")
 
     def concluir_fase_subtarefa(self) -> None:
         """Informa que a tarefa já possui subtarefa gerada."""
