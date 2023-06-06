@@ -505,7 +505,7 @@ class Processador:
 
                 if 'der' in self.dadosparacoletar:
                     t.alterar_der(dados_coletados['der'])
-                if 'nb' in self.dadosparacoletar:
+                if 'beneficio' in self.dadosparacoletar:
                     t.alterar_beneficio(dados_coletados['nb'])
                 if 'cpf' in self.dadosparacoletar:
                     t.alterar_cpf(dados_coletados['cpf'])
@@ -520,7 +520,7 @@ class Processador:
                 if 'subtarefa' in self.dadosparacoletar:
                     if 'subtarefa' in dados_coletados:
                         self.registrar_subgerada(t, dados_coletados['subtarefa'])
-                        t.tarefa.alterar_subtarefa_coletada(True)
+                        t.alterar_subtarefa_coletada(True)
                 if 'pm' in self.dadosparacoletar:
                     if dados_coletados['pmrealizada']:
                         self.registrar_exigenciagerada(t)
@@ -529,6 +529,8 @@ class Processador:
                 if 'olm' in self.dadosparacoletar:
                     if dados_coletados['olm']:
                         t.alterar_olm(dados_coletados['olm'])
+                if 'esta_acamado' in self.dadosparacoletar:
+                    t.alterar_esta_acamado(dados_coletados['esta_acamado'])
                 t.concluir_fase_dadoscoletados()
                 print('Dados coletados.')
                 self.get.fechar_tarefa()
@@ -591,7 +593,7 @@ class Processador:
             t = Tarefa(self.base_dados, idx)
             t.remover_impedimento()
             print(f'Tarefa {protocolo} processada.')
-            cont =+ 1
+            cont += 1
         self.salvar_emarquivo()
         self.pos_processar(cont)
 
@@ -606,7 +608,7 @@ class Processador:
             t = Tarefa(self.base_dados, idx)
             t.registrar_desistencia()
             print(f'Tarefa {protocolo} processada.')
-            cont =+ 1
+            cont += 1
         self.salvar_emarquivo()
         self.pos_processar(cont)
 
@@ -632,7 +634,7 @@ class Processador:
             t = Tarefa(self.base_dados, idx)
             t.alterar_impedimento(impedimento_id)
             print(f'Tarefa {protocolo} processada.')
-            cont =+ 1
+            cont += 1
         self.salvar_emarquivo()
         self.pos_processar(cont)
 
