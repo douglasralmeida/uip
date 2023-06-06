@@ -196,16 +196,25 @@ class Get(Navegador):
             texto = campo.find_element(By.TAG_NAME, value="p").text
             resultado["der"] = texto[:10] #somente a data
         
-        #Coleta o NB
-        if 'nb' in atributos:
+        #Coleta os campos adicionais
+        tipos_campos_adic = ['esta_acamado', 'nb']
+        rotulos_campos_adic = ['você está acamado', 'nb']
+        checar_campos_adic = False
+        for tipo in tipos_campos_adic:
+            resultado[tipo] = ''
+            if tipo in atributos:
+                checar_campos_adic = True
+        if checar_campos_adic:
             campo = drv.find_element(By.ID, value="formDetalharTarefa:detalheTarefaTabView:panelCamposAdicionaisTarefa")
-            campo = campo.find_element(By.CLASS_NAME, value="form-group")
-            descricao = campo.find_element(By.TAG_NAME, value="label").text
-            if descricao.casefold() in ['nb']:
-                texto = campo.find_element(By.TAG_NAME, value="div").text
-                resultado['nb'] = texto
-            else:
-                resultado['nb'] = ''
+            campos_adic = campo.find_elements(By.CLASS_NAME, value="form-group")
+            for campo in campos_adic:
+                descricao = campo.find_element(By.TAG_NAME, value="label").text
+                i = 0
+                for rotulo in rotulos_campos_adic:
+                    if descricao.casefold().startswith(rotulo):
+                        texto = campo.find_element(By.TAG_NAME, value="div").text
+                        resultado[tipos_campos_adic[i]] = texto
+                    i += 1
         
         #Coleta o CPF
         if 'cpf' in atributos:
