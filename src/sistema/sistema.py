@@ -6,18 +6,14 @@ from gestaometas import GestaoMetas
 from impedimentos import Impedimentos
 from navegador import Cnis, Get, Pmfagenda
 from puxador import Puxador
-from processador import ProcessadorAuxAcidente
-from processador import ProcessadorAuxIncapacidade
-from processador import ProcessadorProrrogSalMaternidade
-from processador import ProcessadorIsencaoIR
-from processador import ProcessadorSalMaternidade
-from variaveis import Variaveis
+from processador import ProcessadorAuxAcidente, ProcessadorAuxIncapacidade, ProcessadorBenAssIdoso, ProcessadorProrrogSalMaternidade, ProcessadorIsencaoIR, ProcessadorSalMaternidade
 
 perfis_disponiveis = {
     'aa': ProcessadorAuxAcidente,
-    'psm': ProcessadorProrrogSalMaternidade,
     'ai': ProcessadorAuxIncapacidade,
+    'bpci': ProcessadorBenAssIdoso,
     'iir': ProcessadorIsencaoIR,
+    'psm': ProcessadorProrrogSalMaternidade,
     'sm': ProcessadorSalMaternidade
 }
 

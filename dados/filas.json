@@ -53,6 +53,15 @@
         "valor_conclusao": 0.33,
         "ativa": 0
     },
+    "bpcidoso_srsud3": {
+        "nome": "Benefício Assistencial ao Idoso da SR Sudeste III",
+        "id": "bpci",
+        "codigo": "17.150.521",
+        "valor_exigencia": 0.00,
+        "valor_subtarefa": 0.00,
+        "valor_conclusao": 0.00,
+        "ativa": 1
+    },
     "prorrogsm_sambbh": {
         "nome": "Prorrogação de Salário Maternidade (SAMB GEX BH)",
         "id": "psm",
