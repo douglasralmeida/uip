@@ -5,7 +5,11 @@ from .utils import bool_tobit
 class TarefaMajoracao25(Tarefa):
     def __init__(self, dados, i) -> None:
         super().__init__(dados, i)
-    
+
+    def alterar_esta_acamado(self, valor: str) -> None:
+        """Grava na tarefe se o requerente informou se está acamado/hospitalizado."""
+        self.base_dados.alterar_atributo(self.pos, "esta_acamado", valor)
+     
     def alterar_msg_criacaosub(self, valor: str) -> None:
         """Registra o erro ocorrido quando da criação da subtarefa"""
         self.base_dados.alterar_atributo(self.pos, "msgerro_criacaosub", valor)

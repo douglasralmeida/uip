@@ -7,6 +7,12 @@ from tarefa import TarefaMajoracao25
 from processador import Processador
 
 colunas_especificas = {
+               'esta_acamado': 'string',
+               'tem_dadosbeneficio': 'string',
+               'especie': 'string',
+               'status_beneficio': 'string',
+               'olm': 'string',
+               'sistema_matenedor': 'string',
                'tem_pdfagendapmanexo': 'string',
                'tem_exigencia': 'string',
                'tem_documentacao': 'string',
@@ -17,7 +23,7 @@ colunas_especificas = {
                'atualizacaodespachada': 'string'
               }
 
-datas_especificas = []
+datas_especificas = ['der', 'dib', 'dcb', 'data_subtarefa', 'data_exigencia', 'data_conclusao', 'vencim_exigencia']
 
 atributos = {'ms':           {'coluna': 'ms',
                               'tipo': 'booleano',
@@ -60,7 +66,7 @@ class ProcessadorMajoracao25(Processador):
 
         #self.dadosparacoletar = ['quantexig', 'quantsub', 'subtarefa']
 
-        self.dadosparacoletar = ['der', 'cpf', 'quantexig', 'quantsub', 'beneficio', 'subtarefa']
+        self.dadosparacoletar = ['der', 'cpf', 'quantexig', 'quantsub', 'beneficio', 'subtarefa', 'esta_acamado']
 
         #TODO Checar depois
         self.criarsub_modolinha = False
@@ -76,7 +82,7 @@ class ProcessadorMajoracao25(Processador):
 
         self.nome_servicopm = 'Perícia de Majoração'
         
-        self.nome_subservico = 'Perícia de Majoração de 25% da Aposentadoria por Incapacidade Permantente'
+        self.nome_subservico = 'Perícia de Majoração de 25% da Aposentadoria por Incapacidade Permanente'
 
         self.base_dados.definir_colunas(colunas_especificas, datas_especificas)
 
