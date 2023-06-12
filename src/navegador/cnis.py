@@ -24,7 +24,7 @@ class Cnis(Navegador):
         #Aguarda autenticação
         time.sleep(10)
 
-    def abrir_cpf(self, cpf: str) -> None:
+    def abrir_cpf(self, cpf: str) -> bool:
         """"""
         #drv = form
         drv = self.driver
@@ -39,9 +39,11 @@ class Cnis(Navegador):
         try:
             WebDriverWait(self.driver, timeout=50).until(EC.presence_of_element_located((By.ID, 'formNovo:lista:0:botaoAcao'))).click()
             #WebDriverWait(self.driver, timeout=50).until(EC.visibility_of_element_located((By.ID, 'formNovo:lista:0:botaoAcao'))).click()
-        except Exception as erro:
-            return
+        except Exception:
+
+            return False
         self.aguardar_processamento()
+        return True
 
     def aguardar_processamento(self) -> None:
         """Espera pelo encerramento da tela 'Aguardando processamento'"""
@@ -64,9 +66,10 @@ class Cnis(Navegador):
         drv.find_element(By.ID, 'formMenu:historicoBeneficio').click()
 
         #Pesuisar o CPF especificado.
-        self.abrir_cpf(cpf)
+        if not self.abrir_cpf(cpf):
+            return resultado
         try:
-            WebDriverWait(self.driver, timeout=4).until(EC.presence_of_element_located((By.ID, 'exibirHistoricoBeneficios')))
+            WebDriverWait(self.driver, timeout=5).until(EC.presence_of_element_located((By.ID, 'exibirHistoricoBeneficios')))
         except:
             if len((campos := drv.find_elements(By.CLASS_NAME, 'ui-messages-error-detail'))) > 0:
                 if campos[0].text == 'Filiado sem benefícios':
