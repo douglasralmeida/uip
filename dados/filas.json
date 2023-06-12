@@ -53,8 +53,8 @@
         "valor_conclusao": 0.33,
         "ativa": 0
     },
-    "bpcidoso_srsud3": {
-        "nome": "Benefício Assistencial ao Idoso da SR Sudeste III",
+    "bpcidoso_rjceab": {
+        "nome": "Benefício Assistencial ao Idoso (CEAB RJ)",
         "id": "bpci",
         "codigo": "17.150.521",
         "valor_exigencia": 0.00,
