@@ -118,6 +118,7 @@ class Get(Navegador):
         elem = drv.find_element(By.ID, 'formAnexo:uploadAnexo_input')
         elem.send_keys(nomearquivo)
         WebDriverWait(drv, 30).until(EC.element_to_be_clickable((By.ID, 'formAnexo:dtblAnexo:0:txtNomeArquivoAnexo')))
+        time.sleep(1)
 
         #Clica no botão Incluir Anexo
         drv.find_element(By.ID, 'formAnexo:btIncluirAnexo').click()
