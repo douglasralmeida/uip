@@ -46,7 +46,7 @@ class TarefaAuxilioAcidente(Tarefa):
 
     def alterar_agendamento(self, agendamento: Agendamento) -> None:
         """Altera os dados do agendamento da PM"""
-        data = pd.to_datetime(agendamento.data, dayfirst=True, format='%d/%m/%Y')
+        data = pd.to_datetime(agendamento.data, dayfirst=True, format='%d/%m/%Y').floor('D')
         self.base_dados.alterar_atributo(self.pos, 'dataagendamento', data)
         self.base_dados.alterar_atributo(self.pos, 'horaagendamento', agendamento.hora)
         self.base_dados.alterar_atributo(self.pos, 'localagendamento', agendamento.local)
@@ -62,6 +62,10 @@ class TarefaAuxilioAcidente(Tarefa):
     def alterar_arquivopdf_pericia(self, valor: bool) -> None:
         """Grava na tarefa se o relatório da perícia em PDF foi gerado."""
         self.base_dados.alterar_atributo(self.pos, "arquivopdfpericia", bool_tobit(valor))
+
+    def alterar_exigenciapm_comerro(self, valor: bool) -> None:
+        """Grava na tarefe se a geração de exigência do agendamento de PM não foi processada por erro."""
+        self.base_dados.alterar_atributo(self.pos, "exigenciapm_comerro", bool_tobit(valor))
 
     def alterar_msg_criacaosub(self, valor: str) -> None:
         """Registra o erro ocorrido quando da criação da subtarefa"""
@@ -83,16 +87,12 @@ class TarefaAuxilioAcidente(Tarefa):
         """Grava na tarefe se a subtarefa foi coletada."""
         self.base_dados.alterar_atributo(self.pos, "subtarefa_coletada", bool_tobit(valor))
 
-    def anexacao_comerro(self) -> bool:
-        """Retorna se anexação de arquivos PDF não foi processada por erro."""
-        return self.base_dados.checar_atributo_verdadeiro(self.pos, "anexacao_comerro")
-
     def concluir_fase_subtarefa(self) -> None:
         """Informa que a tarefa já possui subtarefa gerada."""
         self.base_dados.alterar_atributo(self.pos, 'tem_subtarefa', "1")
         if self.base_dados.checar_atributo_nulo(self.pos, 'tem_prim_subtarefa'):
             self.base_dados.alterar_atributo(self.pos, "tem_prim_subtarefa", "1")
-            self.base_dados.alterar_atributo(self.pos, "data_subtarefa", pd.to_datetime('today'))
+            self.base_dados.alterar_atributo(self.pos, "data_subtarefa", pd.to_datetime('today').floor('D'))
     
     def concluir_fase_agendapm(self) -> None:
         """Informa que a PM foi agendada."""
@@ -185,11 +185,19 @@ class TarefaAuxilioAcidente(Tarefa):
     def pericia_esta_vencida(self) -> bool:
         """Retorna se a data da PM já passou."""
         valor = self.base_dados.obter_atributo(self.pos, 'dataagendamento')
-        return valor < pd.to_datetime('today')
+        return valor < pd.to_datetime('today').floor('D')
     
     def subtarefa_foicoletada(self) -> bool:
         """Retorna se a subtarefa foi gerada ou coletada."""
         return self.base_dados.checar_atributo_verdadeiro(self.pos, "subtarefa_coletada")
+    
+    def tem_erro_anexacaopdfpm(self) -> bool:
+        """Retorna se anexação de arquivos PDF não foi processada por erro."""
+        return self.base_dados.checar_atributo_verdadeiro(self.pos, "anexacao_comerro")
+    
+    def tem_erro_exigenciapm(self) -> bool:
+        """Retorna se a geração de exigência para agendamento de PM não foi processada por erro."""
+        return self.base_dados.checar_atributo_verdadeiro(self.pos, "exigenciapm_comerro")
     
     def tem_erro_geracaosub(self) -> bool:
         """Retorna se houve erro na geração da subtarefa."""
