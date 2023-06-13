@@ -65,6 +65,16 @@ class Navegador:
         self.tempo_espera = 30
         self.espera = WebDriverWait(self.driver, timeout=self.tempo_espera, poll_frequency=1)
 
+    def aguardar_processamento_AngularJS(self):
+        #script_conteudo = "return window.getAllAngularTestabilities().findIndex(x=>!x.isStable()) === -1"
+        execucao_ok = False
+
+        while not execucao_ok:
+            time.sleep(1)
+            #execucao_ok = bool(self.driver.execute_script(script_conteudo))
+            execucao_ok = True
+            time.sleep(1)
+
     def aguardar_visibilidade_elemento(self, elemento: str)-> bool:
         """Espera um elemento ficar visível na página"""
         if elemento.startswith('classe:'):
@@ -84,7 +94,7 @@ class Navegador:
         """Clica no botão com o ID especificado."""
         drv = self.driver
 
-        WebDriverWait(drv, 20).until(EC.element_to_be_clickable((By.ID, botao_id)))
+        WebDriverWait(drv, 30).until(EC.element_to_be_clickable((By.ID, botao_id)))
         drv.find_element(By.ID, botao_id).click()
 
     def coletar_numero_porclasse(self, elemento_classe: str) -> None:
