@@ -14,11 +14,14 @@ from variaveis import Variaveis
 colunas_especificas = {'olm': 'string',
                        'tem_agendapm': 'string',
                        'tem_pdfagendapmanexo': 'string',
+                       'anexacao_comerro': 'string',
+                       'agenda_coletada': 'string',
                        'horaagendamento': 'string',
                        'localagendamento': 'string',
                        'periciacumprida': 'string',
                        'periciarealizada': 'string',
                        'arquivopdfpericia': 'string',
+                       'exigenciapm_comerro': 'string',
                        'beneficio': 'string',
                        'pericialancada': 'string',
                        'beneficiodespachado': 'string',
@@ -208,6 +211,18 @@ class ProcessadorAuxAcidente(Processador):
             'requer_protocolo': False,
             'requer_sibe': False
         }
+        self.comandos['processardataspm'] = {
+            'funcao': self.processar_dataspm,
+            'argsmin': 0,
+            'desc': 'Consulta novamente as datas de agendamento de PM.',
+            'requer_subcomando': False,
+            'requer_cnis': False,
+			'requer_get': False,
+            'requer_processador': True,
+            'requer_pmfagenda': True,
+            'requer_protocolo': False,
+            'requer_sibe': False
+        }
         self.comandos['receberlpm'] = {
             'funcao': self.processar_lancamentopm,
             'argsmin': 0,
@@ -261,7 +276,10 @@ class ProcessadorAuxAcidente(Processador):
             'valor': (df['tem_subtarefa'] == '1') & df['tem_agendapm'].isna() & filto_sem_imp_conc
         }
         self.filtros['anexacaoagendapm'] = {
-            'valor': (df['tem_agendapm'] == '1') & df['tem_pdfagendapmanexo'].isna() & filto_sem_imp_conc
+            'valor': (df['tem_agendapm'] == '1') & df['tem_pdfagendapmanexo'].isna() & df['agenda_coletada'].isna() & filto_sem_imp_conc
+        }
+        self.filtros['anexacaoagendacomerro'] = {
+            'valor': (df['tem_agendapm'] == '1') & df['tem_pdfagendapmanexo'].isna() & (df['agenda_coletada'] == '1') & filto_sem_imp_conc
         }
         self.filtros['geracaoexig'] = {
             'valor': (df['tem_pdfagendapmanexo'] == '1') & df['tem_exigencia'].isna() & (df['msgerro_criacaosub'].isna()) & filto_sem_imp_conc
@@ -270,11 +288,11 @@ class ProcessadorAuxAcidente(Processador):
             'valor': (df['tem_pdfagendapmanexo'] == '1') & df['tem_exigencia'].isna() & (df['msgerro_criacaosub'].notna()) & filto_sem_imp_conc
         }
         self.filtros['aguardapm'] = {
-            'valor': (df['tem_exigencia'] == '1') & df['periciacumprida'].isna() & (df['dataagendamento'] >= pd.to_datetime('today')) & 
+            'valor': (df['tem_exigencia'] == '1') & df['periciacumprida'].isna() & (df['dataagendamento'] >= pd.to_datetime('today').floor('D')) &
                      filto_sem_imp_conc
         }
         self.filtros['pmvencida'] = {
-            'valor': (df['tem_exigencia'] == '1') & df['periciacumprida'].isna() & (df['dataagendamento'] < pd.to_datetime('today')) &
+            'valor': (df['tem_exigencia'] == '1') & df['periciacumprida'].isna() & (df['dataagendamento'] < pd.to_datetime('today').floor('D')) &
                      filto_sem_imp_conc
         }
         self.filtros['cancelarsub'] = {
@@ -702,20 +720,31 @@ class ProcessadorAuxAcidente(Processador):
 
         self.pre_processar('ANEXAR PDF AGENDAMENTO PM')
         for t in self.lista:
-            if not t.obter_fase_agendapm() or t.obter_fase_pdfagendapm_anexo():
+            if not t.obter_fase_agendapm() or t.obter_fase_pdfagendapm_anexo() or t.agendamento_foicoletado() or t.tem_erro_anexacaopdfpm() or t.obter_fase_conclusao():
                 continue
             protocolo = str(t.obter_protocolo())
             buffer_linha = f'Tarefa {protocolo}...'
             print(buffer_linha)
             if self.get.pesquisar_tarefa(protocolo):
-                nome_arquivo_pdf = f'{protocolo} - AgendaPM.pdf'
+
+                #Verifica se tarefa está cancelada/concluída
+                if self.processar_status(t):
+                    print(buffer_linha + 'Tarefa cancelada/concluída. Subtarefa não foi gerada.')
+                    cont += 1
+                    continue
+
+                #Anexa o arquivo PDF para os demais casos
                 self.get.abrir_tarefa()
+                nome_arquivo_pdf = f'{protocolo} - AgendaPM.pdf'
                 if self.adicionar_anexo([nome_arquivo_pdf])[0]:
+                    t.alterar_anexacao_comerro(False)
                     t.concluir_fase_pdfagendapm_anexo()
                     buffer_linha += 'PDF anexado.'
                     print(buffer_linha)
                 else:
                     print(buffer_linha + 'Erro: Arquivo não foi anexado.')
+                    t.alterar_anexacao_comerro(True)
+                    
                 self.get.fechar_tarefa()
                 self.salvar_emarquivo()
                 cont += 1
@@ -766,7 +795,22 @@ class ProcessadorAuxAcidente(Processador):
             t.alterar_nit(nit)
             print(f'Tarefa {protocolo} processada.')
             self.salvar_emarquivo()
-            cont =+ 1
+            cont += 1
+        self.pos_processar(cont)
+
+    def processar_dataspm(self, subcomando: str, lista: list[str]) -> None:
+        "Consulta novamente as datas das perícias agendadas no PMF Agenda."
+        buffer_linha = ''
+        cont = 0
+        self.pre_processar("PROCESSAMENTO DATA AGENDAMENTO DE PM")
+        for t in self.lista:
+            if t.obter_fase_agendapm():
+                agendamento = self.pmfagenda.consultar_data(t.obter_cpf())
+                t.alterar_agendamento(agendamento)
+                t.alterar_agendareproc(True)
+                self.salvar_emarquivo()
+                print(f'Tarefa {t.obter_protocolo()} processada.')
+                cont += 1
         self.pos_processar(cont)
 
     def processar_despachosben(self, subcomando: str, lista: list[str]) -> None:
@@ -820,17 +864,23 @@ class ProcessadorAuxAcidente(Processador):
 
         self.pre_processar('GERAR EXIGÊNCIA DO AGENDAMENTO DA PM')
         for t in self.lista:
-            if not t.obter_fase_pdfagendapm_anexo() or t.tem_exigencia():
+            if not t.obter_fase_pdfagendapm_anexo() or t.tem_exigencia() or t.tem_erro_exigenciapm() or t.obter_fase_conclusao():
                 continue
             protocolo = str(t.obter_protocolo())
             print(f'Tarefa {protocolo}')
             if self.get.pesquisar_tarefa(protocolo):
-                #self.get.abrir_tarefa()
+                #Verifica se tarefa está cancelada/concluída
+                if self.processar_status(t):
+                    print('Tarefa cancelada/concluída. Exigência não gerada.')
+                    cont += 1
+                    continue
+
                 if self.definir_exigencia_pm(t.obter_agendamento()):
+                    t.alterar_exigenciapm_comerro(False)
                     t.concluir_fase_exigencia(True)
                 else:
-                    print("Erro ao atribuir exigência.")
-                #self.get.fechar_tarefa()
+                    print("Tarefa já está em exigência. Exigência não gerada.")
+                    t.alterar_exigenciapm_comerro(True)
                 self.salvar_emarquivo()
                 cont += 1
             else:
