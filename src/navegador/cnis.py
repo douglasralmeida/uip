@@ -37,7 +37,7 @@ class Cnis(Navegador):
         drv.find_element(By.ID, 'formNovo:acaoPesquisar').click()
         self.aguardar_processamento()
         try:
-            WebDriverWait(self.driver, timeout=50).until(EC.presence_of_element_located((By.ID, 'formNovo:lista:0:botaoAcao'))).click()
+            WebDriverWait(self.driver, timeout=15).until(EC.presence_of_element_located((By.ID, 'formNovo:lista:0:botaoAcao'))).click()
             #WebDriverWait(self.driver, timeout=50).until(EC.visibility_of_element_located((By.ID, 'formNovo:lista:0:botaoAcao'))).click()
         except Exception:
 
