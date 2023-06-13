@@ -23,7 +23,7 @@ class TarefaIsencaoIR(Tarefa):
         self.base_dados.alterar_atributo(self.pos, 'tem_subtarefa', "1")
         if self.base_dados.checar_atributo_nulo(self.pos, 'tem_prim_subtarefa'):
             self.base_dados.alterar_atributo(self.pos, "tem_prim_subtarefa", "1")
-            self.base_dados.alterar_atributo(self.pos, "data_subtarefa", pd.to_datetime('today'))
+            self.base_dados.alterar_atributo(self.pos, "data_subtarefa", pd.to_datetime('today').floor('D'))
             
     def obter_fase_subtarefa_gerada(self) -> bool:
         """Retorna se já foi gerada subtarefa de PM."""
