@@ -167,10 +167,10 @@ class ProcessadorProrrogSalMaternidade(Processador):
             'valor': (df['tem_documentacao'] == '0') & (df['tem_exigencia'].isna()) & (df['impedimentos'].isna()) & (df['concluso'].isna())
         }
         self.filtros['aguardaexig'] = {
-            'valor': (df['tem_exigencia'] == '1') & (df['tem_documentacao'] == '0') & (df['vencim_exigencia'] >= pd.to_datetime('today')) & (df['impedimentos'].isna()) & (df['concluso'].isna())
+            'valor': (df['tem_exigencia'] == '1') & (df['tem_documentacao'] == '0') & (df['vencim_exigencia'] >= pd.to_datetime('today').floor('D')) & (df['impedimentos'].isna()) & (df['concluso'].isna())
         }
         self.filtros['exigvencida'] = {
-            'valor': (df['tem_exigencia'] == '1') & (df['tem_documentacao'] == '0') & (df['vencim_exigencia'] < pd.to_datetime('today')) & (df['impedimentos'].isna()) & (df['concluso'].isna())
+            'valor': (df['tem_exigencia'] == '1') & (df['tem_documentacao'] == '0') & (df['vencim_exigencia'] < pd.to_datetime('today').floor('D')) & (df['impedimentos'].isna()) & (df['concluso'].isna())
         }
         self.filtros['abrirsub'] = {
             'valor': (df['tem_documentacao'] == '1') & (df['subtarefa'].isna()) & (df['impedimentos'].isna()) & (df['concluso'].isna())

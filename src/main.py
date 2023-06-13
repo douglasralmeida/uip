@@ -3,6 +3,7 @@
 from linhacomando import LinhaComando
 from sistema import Sistema
 
+
 sistema = Sistema()
 sistema.carregar_dados()
 lc = LinhaComando(sistema)

@@ -49,7 +49,7 @@ class TarefaProrrogacaoSalMaternidade(Tarefa):
         self.base_dados.alterar_atributo(self.pos, 'tem_subtarefa', "1")
         if self.base_dados.checar_atributo_nulo(self.pos, 'tem_prim_subtarefa'):
             self.base_dados.alterar_atributo(self.pos, "tem_prim_subtarefa", "1")
-            self.base_dados.alterar_atributo(self.pos, "data_subtarefa", pd.to_datetime('today'))
+            self.base_dados.alterar_atributo(self.pos, "data_subtarefa", pd.to_datetime('today').floor('D'))
         
     def concluir_fase_pericia_realizada(self) -> None:
         """Registra que a tarefa já teve a perícia realizada."""

@@ -144,10 +144,10 @@ class ProcessadorAuxIncapacidade(Processador):
             'valor': (df['tem_agendapm'] == '1') & (df['periciacumprida'].isna()) 
         }
         self.filtros['aguardaexig'] = {
-            'valor': (df['tem_exigencia'] == '1') & (df['data_exigencia'] >= pd.to_datetime('today'))
+            'valor': (df['tem_exigencia'] == '1') & (df['data_exigencia'] >= pd.to_datetime('today').floor('D'))
         }
         self.filtros['exigvencida'] = {
-            'valor': (df['tem_exigencia'] == '1') & (df['data_exigencia'] < pd.to_datetime('today'))
+            'valor': (df['tem_exigencia'] == '1') & (df['data_exigencia'] < pd.to_datetime('today').floor('D'))
         }
 
     def definir_listagens(self) -> None:
