@@ -108,9 +108,15 @@ class Cnis(Navegador):
         campo.click()
         campo.send_keys(cpf)
         drv.find_element(By.ID, 'formNovo:acaoPesquisar').click()
-        self.aguardar_processamento()
-        tabela = drv.find_element(By.ID, 'formNovo:lista_data')
-        nit = tabela.find_elements(By.TAG_NAME, 'td')[1].text
+        time.sleep(2)
+        self.aguardar_processamento()        
+
+        num_itens = 0
+        while num_itens < 2:
+            tabela = drv.find_element(By.ID, 'formNovo:lista_data')
+            itens = tabela.find_elements(By.TAG_NAME, 'td')
+            num_itens = len(itens)
+        nit = itens[1].text
         return f'{nit[0:3]}.{nit[3:8]}.{nit[8:10]}-{nit[10]}'
 
     def pesquisar_ben_ativos(self, protocolo: str, cpf: str, especies: list[str]) -> bool:
@@ -122,7 +128,6 @@ class Cnis(Navegador):
         drv.find_element(By.ID, 'itemMenuConsultasDoSistema').click()
         drv.find_element(By.ID, 'formMenu:historicoBeneficio').click()
         
-
         #Pesuisar o CPF especificado.
         self.abrir_cpf(cpf)
         self.tarefa = protocolo
