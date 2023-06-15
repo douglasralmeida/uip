@@ -19,5 +19,8 @@
     },
     "imoComprovarAtividade": {
         "desc": "Aguarda comprovação pelo requerente da atividade laborativa."
+    },
+    "imoPMRealizadaSubPendente": {
+        "desc": "Perícia realizada com subtarefa ainda pandente."
     }
 }
