@@ -520,7 +520,10 @@ class ProcessadorAuxAcidente(Processador):
         arquivo_prisma = ArquivoPrismaEntrada(nomearquivo_entrada, cabecalho)
         arquivo_prisma.carregar()
         if arquivo_prisma.carregado:
-            dados = [tarefa.obter_nit(), tarefa.obter_der().strftime('%d/%m/%Y')]
+            der = tarefa.obter_der()
+            if not isinstance(der, str):
+                der = der.strftime('%d/%m/%Y')
+            dados = [tarefa.obter_nit(), der]
             arquivo_prisma.alterar_dados(tarefa.obter_protocolo(), dados)
             arquivo_prisma.salvar()
         else:
@@ -533,7 +536,10 @@ class ProcessadorAuxAcidente(Processador):
         arquivo_prisma.carregar()
         if arquivo_prisma.carregado:
             for tarefa in tarefas:
-                dados = [tarefa.obter_nit(), tarefa.obter_der().strftime('%d/%m/%Y')]
+                der = tarefa.obter_der()
+                if not isinstance(der, str):
+                    der = der.strftime('%d/%m/%Y')
+                dados = [tarefa.obter_nit(), der]
                 arquivo_prisma.alterar_dados(tarefa.obter_protocolo(), dados)    
         else:
             print("Erro. Não foi possível abrir o arquivo de entrada para processamento do Prisma.\n")
@@ -744,7 +750,6 @@ class ProcessadorAuxAcidente(Processador):
                 else:
                     print(buffer_linha + 'Erro: Arquivo não foi anexado.')
                     t.alterar_anexacao_comerro(True)
-                    
                 self.get.fechar_tarefa()
                 self.salvar_emarquivo()
                 cont += 1
