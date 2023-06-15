@@ -16,5 +16,8 @@
     },
     "imoAguardaOutraTarefa": {
         "desc": "Aguarda a conclusão de outra tarefa GET."
+    },
+    "imoComprovarAtividade": {
+        "desc": "Aguarda comprovação pelo requerente da atividade laborativa."
     }
 }

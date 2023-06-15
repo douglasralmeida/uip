@@ -61,13 +61,13 @@
             "conclusao_vars": "beneficio"
         },
         "b36NaoComparecePM": {
-            "despacho": "Ref.:\t36/{beneficio}\nAss.:\tIndeferimento do Benefício\n\n1.\t\tTrata-se de Auxílio-Acidente indeferido por não comparecimento à perícia médica agendada.\n2.\t\tSem mais diligências. Arquive-se.\n",
+            "despacho": "Ref.:\t36/{beneficio}\nAss.:\tIndeferimento do Benefício\n\n1.\t\tTrata-se de Auxílio-Acidente indeferido por não comparecimento à perícia médica agendada.\n2.\t\tProcesso trabalhado na Ação de Desrepresamento da Superintendência Sudeste III de Maio-Julho/2023.\n3.\t\tSem mais diligências. Arquive-se.\n",
             "despacho_vars": "beneficio",
             "conclusao": "NB: {beneficio}\n\n\nPrezado(a) Senhor(a),\n\nO requerimento de auxílio-acidente foi INDEFERIDO por não comparecimento do titular à perícia médica agendada.\n\nDesta decisão poderá ser interposto recurso à Junta de Recursos da Previdência Social, dentro do prazo de 30 (trinta) dias, contados da data do recebimento da presente comunicação.\n\nO recurso deverá ser requerido através do serviço Meu INSS (meu.inss.gov.br) ou da Central de Atendimento 135.\n",
             "conclusao_vars": "beneficio"
         },
         "b36NaoEnquadraA3Decreto": {
-            "despacho": "Ref.:\t36/{beneficio}\nAss.:\tIndeferimento do Benefício\n\n1.\t\tTrata-se de Auxílio-Acidente indeferido por não enquadramento nas condições previstas do Anexo III do Decreto 3.048/99.\n2.\t\tO requisito de qualidade de segurado(a) está suprido em virtude deste benefício ser precedido.\n3.\t\tSem mais diligências. Arquive-se.\n",
+            "despacho": "Ref.:\t36/{beneficio}\nAss.:\tIndeferimento do Benefício\n\n1.\t\tTrata-se de Auxílio-Acidente indeferido por não enquadramento nas condições previstas do Anexo III do Decreto 3.048/99.\n2.\t\tProcesso trabalhado na Ação de Desrepresamento da Superintendência Sudeste III de Maio-Julho/2023.\n3.\t\tSem mais diligências. Arquive-se.\n",
             "despacho_vars": "beneficio",
             "conclusao": "NB: {beneficio}\n\n\nPrezado(a) Senhor(a),\n\nO requerimento de auxílio-acidente foi INDEFERIDO por ausência de sequelas definitivas que impliquem redução da capacidade laborativa.\n\nDe acordo com o art. 86 da Lei 8.213, o auxílio-acidente é devido ao segurado cujas lesões decorrentes de acidente de qualquer natureza resultem em sequela definitiva que implique redução da capacidade laborativa na atividade que habitualmente exercia.\n\nDesta decisão poderá ser interposto recurso à Junta de Recursos da Previdência Social, dentro do prazo de 30 (trinta) dias, contados da data do recebimento da presente comunicação.\n\nO recurso deverá ser requerido através do serviço Meu INSS (meu.inss.gov.br) ou Central de Atendimento 135.\n",
             "conclusao_vars": "beneficio"
@@ -85,19 +85,19 @@
             "conclusao_vars": "beneficio"
         },
         "b36SemSequela": {
-            "despacho": "Ref.:\t36/{beneficio}\nAss.:\tIndeferimento do Benefício\n\n1.\t\tTrata-se de Auxílio-Acidente indeferido por ausência de sequela definitiva no requerente.\n2.\t\tO requisito de qualidade de segurado(a) está suprido em virtude deste benefício ser precedido.\n3.\t\tSem mais diligências. Arquive-se.\n",
+            "despacho": "Ref.:\t36/{beneficio}\nAss.:\tIndeferimento do Benefício\n\n1.\t\tTrata-se de Auxílio-Acidente indeferido por ausência de sequela definitiva no requerente.\n2.\t\tProcesso trabalhado na Ação de Desrepresamento da Superintendência Sudeste III de Maio-Julho/2023.\n3.\t\tSem mais diligências. Arquive-se.\n",
             "despacho_vars": "beneficio",
             "conclusao": "NB: {beneficio}\n\n\nPrezado(a) Senhor(a),\n\nO requerimento de auxílio-acidente foi INDEFERIDO por ausência de sequelas definitivas que impliquem redução da capacidade laborativa.\n\nDe acordo com o art. 86 da Lei 8.213, o auxílio-acidente é devido ao segurado cujas lesões decorrentes de acidente de qualquer natureza resultem em sequela definitiva que implique redução da capacidade laborativa na atividade que habitualmente exercia.\n\nDesta decisão poderá ser interposto recurso à Junta de Recursos da Previdência Social, dentro do prazo de 30 (trinta) dias, contados da data do recebimento da presente comunicação.\n\nO recurso deverá ser requerido através do serviço Meu INSS (meu.inss.gov.br) ou Central de Atendimento 135.\n",
             "conclusao_vars": "beneficio"
         },        
         "b94Deferido": {
-            "despacho": "Ref.:\t94/{beneficio}\nAss.:\tDeferimento do Benefício\n\n1.\t\tTrata-se de Auxílio-Acidente por Acidente de Trabalho concedido em razão do beneficiário comprovar sequelas definitivas que impliquem na redução da capacidade laborativa.\n2.\t\tO requisito de qualidade de segurado(a) está suprido em virtude deste benefício ser precedido.\n3.\t\tSem mais diligências. Arquive-se.\n",
+            "despacho": "Ref.:\t94/{beneficio}\nAss.:\tDeferimento do Benefício\n\n1.\t\tTrata-se de Auxílio-Acidente por Acidente de Trabalho concedido em razão do beneficiário comprovar sequelas definitivas que impliquem na redução da capacidade laborativa.\n2.\t\tO requisito de qualidade de segurado(a) está suprido em virtude deste benefício ser precedido.\n3.\t\tProcesso trabalhado na Ação de Desrepresamento da Superintendência Sudeste III de Maio-Julho/2023.\n4.\t\tSem mais diligências. Arquive-se.\n",
             "despacho_vars": "beneficio",
             "conclusao": "NB: {beneficio}\n\n\nPrezado(a) Senhor(a),\n\nO requerimento de auxílio-acidente foi DEFERIDO tendo em vista a comprovação de sequelas definitivas advindas de acidente de trabalho que impliquem a redução da capacidade laborativa.\n\nAs informações deste benefício poderão ser acessadas pelo portal de serviços Meu INSS (meu.inss.gov.br).\n",
             "conclusao_vars": "beneficio"
         },
         "b36Deferido": {
-            "despacho": "Ref.:\t36/{beneficio}\nAss.:\tDeferimento do Benefício\n\n1.\t\tTrata-se de Auxílio-Acidente concedido em razão do beneficiário comprovar sequelas definitivas que impliquem na redução da capacidade laborativa.\n2.\t\tO requisito de qualidade de segurado(a) está suprido em virtude deste benefício ser precedido.\n3.\t\tSem mais diligências. Arquive-se.\n",
+            "despacho": "Ref.:\t36/{beneficio}\nAss.:\tDeferimento do Benefício\n\n1.\t\tTrata-se de Auxílio-Acidente concedido em razão do beneficiário comprovar sequelas definitivas que impliquem na redução da capacidade laborativa.\n2.\t\tO requisito de qualidade de segurado(a) está suprido em virtude deste benefício ser precedido.\n3.\t\tProcesso trabalhado na Ação de Desrepresamento da Superintendência Sudeste III de Maio-Julho/2023.\n4.\t\tSem mais diligências. Arquive-se.\n",
             "despacho_vars": "beneficio",
             "conclusao": "NB: {beneficio}\n\n\nPrezado(a) Senhor(a),\n\nO requerimento de auxílio-acidente foi DEFERIDO tendo em vista a comprovação de sequelas definitivas advindas de acidente de qualquer natureza que impliquem a redução da capacidade laborativa.\n\nAs informações deste benefício poderão ser acessadas pelo portal de serviços Meu INSS (meu.inss.gov.br).\n",
             "conclusao_vars": "beneficio"
