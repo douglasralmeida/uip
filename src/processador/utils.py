@@ -95,7 +95,7 @@ def analisar_relatoriopm(nome_arquivo: str) -> list[str]:
     if pos >= 0:
         siape_pm = dados_crus[pos][-8:].strip()
         dados_estruturados[9] = f'codigo_perito:{siape_pm}'
-        for item, valor in peritos:
+        for item, valor in peritos.items():
             if item == siape_pm:
                 dados_estruturados[9] = valor
     else:
