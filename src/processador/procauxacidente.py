@@ -333,6 +333,9 @@ class ProcessadorAuxAcidente(Processador):
         self.filtros['concluso'] = {
             'valor': (df['beneficiodespachado'] == '1') & filto_sem_imp_conc
         }
+        self.filtros['semnit'] = {
+            'valor': df['nit'].isna()
+        }
 
     def definir_listagens(self) -> None:
         """Define as listagens relativas a Auxílio Acidente."""
@@ -449,6 +452,13 @@ class ProcessadorAuxAcidente(Processador):
             'ordenacao': ['der'],
             'ordem_crescente': True
         }
+        self.listagens['semnit'] = {
+            "desc": "Exibe a lista de tarefas sem NIT.",
+            "filtro": (self.filtros['semnit']['valor']),
+            'colunas': ['protocolo', 'cpf'],
+            'ordenacao': ['der'],
+            'ordem_crescente': True
+        }        
 
     def definir_marcacoes(self) -> None:
         """Define as marcações relativas a Auxílio Acidente."""
