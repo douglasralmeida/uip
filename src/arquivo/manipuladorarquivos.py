@@ -16,7 +16,7 @@ class Arquivo:
         if not os.path.exists(self.nome_arquivo):
             print('Erro: Arquivo de entrada para processamento do Prisma não encontrado.')
             return
-        with open(self.nome_arquivo, 'r', newline='\n') as arquivo:
+        with open(self.nome_arquivo, 'r') as arquivo:
             self.conteudo = arquivo.readlines()
         if len(self.conteudo) == 0:
             print('Aviso: O arquivo de entrada para processamento do Prisma está inconsistente. O arquivo está vazio.')
