@@ -6,7 +6,7 @@ import pandas as pd
 from agendamento import Agendamento
 from arquivo import carregar_dados
 from basedados import BaseDados
-from navegador import Cnis, Get, Pmfagenda
+from navegador import Cnis, Get, Pmfagenda, Sibe
 from os import path
 from tarefa import Tarefa
 from variaveis import Variaveis
@@ -85,6 +85,9 @@ class Processador:
 
         #Objeto do Automatizador do PMF Agenda.
         self.pmfagenda = None
+
+        #Objeto do Automatizador do SIBE PU.
+        self.sibe = None
 
         #Colunas e tipos de dados 'Data' padrão para todas filas.
         self.base_dados.definir_colunas(colunas_padrao, datas_padrao)
@@ -189,7 +192,8 @@ class Processador:
         """Cadastra uma exigência na tarefa com o agendameto da PM."""
         texto = self.obter_textoexigencia("agendamentoPM")
         local = agendamento.obter_local()
-        return self.get.definir_exigencia(texto.format(str(agendamento), local))
+        texto_formatado = texto.format(str(agendamento), local)
+        return self.get.definir_exigencia(texto_formatado)
 
     def definir_exigencia_simples(self, tarefa: Tarefa, codigo_exig: str) -> None:
         """Cadastra uma exigência na tarefa"""
@@ -264,6 +268,10 @@ class Processador:
         """Define o automatizador do PMF Agenda."""
         self.pmfagenda = nav
 
+    def definir_sibe(self, nav: Sibe) -> None:
+        """Define o automatizador do SIBE PU."""
+        self.sibe = nav
+
     def editar_tarefas(self, atributo: str, valor: str, protocolos: list[str]) -> None:
         """Edita uma lista de tarefas"""
         if atributo == '?':
@@ -279,7 +287,7 @@ class Processador:
                     print(f'Erro: O valor \'{valor}\' não foi reconhecido como um valor válido para o atributo \'{atributo}\'.\n')
                     return
             elif tipo == 'data':
-                valor_dado = pd.to_datetime(valor, dayfirst=True, format='%d/%m/%Y')
+                valor_dado = pd.to_datetime(valor, dayfirst=True, format='%d/%m/%Y').floor('D')
             elif tipo == 'texto':
                 valor_dado = valor
             elif tipo == 'inteiro':
@@ -469,7 +477,7 @@ class Processador:
 
         self.pre_processar('AGENDAR PM')
         for t in self.lista:
-            if t.obter_fase_subtarefa_gerada() and not t.obter_fase_agendapm() and not t.tem_impedimento():
+            if t.obter_fase_subtarefa_gerada() and not t.obter_fase_agendapm() and not t.tem_impedimento() and not t.obter_fase_conclusao():
                 protocolo = t.obter_protocolo()
                 print(f'Tarefa {protocolo}...', end=' ')
                 cpf = t.obter_cpf()
@@ -560,6 +568,7 @@ class Processador:
                     nomearquivo = path.join(Variaveis.obter_pasta_pdf(), f'{protocolo} - Analise.pdf')
                     resultados = self.adicionar_anexo([nomearquivo])
                     if resultados[0] == False:
+                        self.get.fechar_tarefa()
                         print('Erro ao anexar arquivo.')
                         continue
                     self.get.irpara_iniciotela()
