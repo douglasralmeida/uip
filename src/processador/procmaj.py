@@ -9,6 +9,7 @@ from processador import Processador
 colunas_especificas = {
                'esta_acamado': 'string',
                'tem_dadosbeneficio': 'string',
+               'indicador_acompanhante': 'string',
                'especie': 'string',
                'status_beneficio': 'string',
                'olm': 'string',
@@ -88,8 +89,8 @@ class ProcessadorMajoracao25(Processador):
 
     def __str__(self) -> str:
         resultado = super().__str__()
-        resultado += self.obter_info('coletadb', 'Pendentes de coleta de dados: {0} tarefa(s).\n')
-        resultado += self.obter_info('analisedoc', 'Pendentes de análise da documentação: {0} tarefa(s).\n')
+        resultado += self.obter_info('coletadb', 'Pendentes de coleta de dados básicos: {0} tarefa(s).\n')
+        resultado += self.obter_info('coletaben', 'Pendentes de coleta de dados do benefício: {0} tarefa(s).\n')
         
         resultado += self.obter_info('aguardaexig', 'Aguardando cumprimento de exigência: {0} tarefa(s).\n')
         resultado += self.obter_info('exigvencida', 'Com exigência vencida: {0} tarefa(s).\n')
@@ -128,19 +129,31 @@ class ProcessadorMajoracao25(Processador):
             'requer_protocolo': False,
             'requer_sibe': False
         }
+        self.comandos['coletarben'] = {
+            'funcao': self.processar_coletabeneficio,
+            'argsmin': 0,
+            'desc': 'Coleta dados de benefícios no SIBE PU.',
+            'requer_subcomando': False,
+            'requer_cnis': False,
+			'requer_get': False,
+            'requer_processador': True,
+            'requer_pmfagenda': False,
+            'requer_protocolo': False,
+            'requer_sibe': True
+        }
 
     def definir_filtros(self) -> None:
         """Define os filtros relativos a Isenção de IR de consulta à base de dados"""
         df = self.base_dados.dados
         super().definir_filtros()
-        self.filtros['analisedoc'] = {
-            'valor': (df['tem_dadosbasicos'] == '1') & (df['tem_documentacao'].isna() & (df['impedimentos'].isna()))
+        self.filtros['coletaben'] = {
+            'valor': (df['tem_dadosbasicos'] == '1') & (df['tem_dadosbeneficio'].isna() & (df['impedimentos'].isna()))
         }
         self.filtros['aguardaexig'] = {
-            'valor': (df['tem_exigencia'] == '1') & (df['vencim_exigencia'] >= pd.to_datetime('today'))
+            'valor': (df['tem_exigencia'] == '1') & (df['vencim_exigencia'] >= pd.to_datetime('today').floor('D'))
         }
         self.filtros['exigvencida'] = {
-            'valor': (df['tem_exigencia'] == '1') & (df['vencim_exigencia'] < pd.to_datetime('today'))
+            'valor': (df['tem_exigencia'] == '1') & (df['vencim_exigencia'] < pd.to_datetime('today').floor('D'))
         }
         self.filtros['geracaosub'] = {
             'valor': (df['tem_exigencia'] == '0') & (df['tem_documentacao'] == '1') & df['tem_subtarefa'].isna() & (df['msgerro_criacaosub'].isna()) & (df['impedimentos'].isna())
@@ -161,9 +174,9 @@ class ProcessadorMajoracao25(Processador):
     def definir_listagens(self) -> None:
         """Define as listagens relativas a Isenção de IR."""
         super().definir_listagens()
-        self.listagens['analisedoc'] = {
-            "desc": "Exibe a lista de tarefas pendentes de análise da documentação.",
-            "filtro": (self.filtros['analisedoc']['valor']),
+        self.listagens['coletaben'] = {
+            "desc": "Exibe a lista de tarefas pendentes de coleta de dados de benefício.",
+            "filtro": (self.filtros['coletaben']['valor']),
             'colunas': ['protocolo', 'der'],
             'ordenacao': ['der'],
             'ordem_crescente': True
@@ -219,6 +232,40 @@ class ProcessadorMajoracao25(Processador):
         self.definir_filtros()
         self.definir_listagens()
         self.definir_marcacoes()
+
+    def processar_coletabeneficio(self, marca: str, protocolos: list[str]) -> None:
+        """Consulta dados do benefício da tarefa no SIBE PU."""
+        buffer_linha = ''
+        cont = 0
+        protocolo = ''
+
+        self.pre_processar('COLETAR DADOS DE BENEFÍCIO')
+        self.sibe.abrir_sisben()
+        for t in self.lista:
+            if not t.tem_dadosbasicos() or t.obter_fase_coleta_dadosbeneficio():
+                continue
+            beneficio = t.obter_beneficio()
+            protocolo = t.obter_protocolo()
+            buffer_linha = f'Tarefa {protocolo}...'
+            print(buffer_linha, end='\r')
+            dados = self.sibe.coletar_dados_beneficio(beneficio)
+            if dados['sucesso']:
+                t.alterar_acompanhante(dados['acompanhante'])
+                t.alterar_sistema_mantenedor(dados['sistema_mantenedor'])
+                t.alterar_olm(dados['olm'])
+                t.alterar_dib(dados['dib'])
+                t.alterar_situacaobeneficio(dados['status_beneficio'])
+                t.alterar_especie(dados['especie'])
+                if len(dados['dcb']) > 0:
+                    t.alterar_dcb(dados['dcb'])
+                t.concluir_fase_dadosbencoletados()
+                buffer_linha += 'Coleta processada com sucesso.'
+            else:
+                buffer_linha += 'Falha no processamento da coleta.'
+            print(buffer_linha)
+            self.salvar_emarquivo()
+            cont += 1
+        self.pos_processar(cont)
 
     def processar_geracaosubtarefa(self) -> None:
         """Gera subtarefa nas tarefas pendentes de geração de subtarefa."""
