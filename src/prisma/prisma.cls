@@ -174,8 +174,8 @@ Public Sub Prisma_HabilitarBeneficio()
 
 		'Aguardando comunicacao SUB...
 		While ManterLoopSub
-			If TextoNaTela(1, 22, "Nao encontrou benefï¿½cio.") Then
-                Debug.Print("Prisma: Mensagem exibida: Nï¿½o encontrou benefï¿½cios")
+			If TextoNaTela(1, 22, "Nao encontrou benefício.") Then
+                Debug.Print("Prisma: Mensagem exibida: Nï¿½o encontrou benefícios")
 				.Output ChrW$(13) 'Sim
 				ManterLoopSub = False
 				Sleep(1000)
