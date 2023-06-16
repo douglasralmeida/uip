@@ -109,6 +109,10 @@ class Navegador:
         """Encerra o navegador."""
         self.driver.quit()
 
+    def executar_script(self, script):
+        """Executa um script JS."""
+        self.driver.execute_script(script)
+
     def irpara_finaltela(self) -> None:
         """Vai para o início da página."""
         ActionChains(self.driver).send_keys(Keys.END).perform()
