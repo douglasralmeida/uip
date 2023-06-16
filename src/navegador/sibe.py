@@ -53,6 +53,7 @@ class Sibe(Navegador):
 
         time.sleep(4)
         lista = drv.find_elements(By.TAG_NAME, 'dtp-atributo')
+        res['acompanhante'] = ''
         res['dcb'] = ''
         for campo in lista:
             if campo.get_dom_attribute('chave') is None:
@@ -82,10 +83,11 @@ class Sibe(Navegador):
                 texto = campo.find_element(By.TAG_NAME, 'span').get_attribute('textContent')
                 res['sistema_mantenedor'] = texto
                 continue
-            if campo.get_dom_attribute('chave').casefold() == 'acompanhante':
-                texto = campo.find_element(By.TAG_NAME, 'span').get_attribute('textContent')
-                res['acompanhante'] = texto
-                continue
+            if res['especie'] == '32':
+                if campo.get_dom_attribute('chave').casefold() == 'acompanhante':
+                    texto = campo.find_element(By.TAG_NAME, 'span').get_attribute('textContent')
+                    res['acompanhante'] = texto
+                    continue
         res['sucesso'] = True
         
         #self.executar_script('history.back();')
