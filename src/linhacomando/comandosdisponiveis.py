@@ -57,6 +57,18 @@ class ComandosDisponiveis:
                 'requer_protocolo': False,
                 'requer_sibe': False
             },
+            'abrirsibe': {
+                'funcao': sistema.abrir_sibe,
+                'argsmin': 0,
+                'desc': 'Abre o navegador Edge e vai para o site do SIBE PU.',
+                'requer_subcomando': False,
+                'requer_cnis': False,
+				'requer_get': False,
+                'requer_processador': False,
+                'requer_pmfagenda': False,
+                'requer_protocolo': False,
+                'requer_sibe': False
+            },
             'acumulaben': {
                 'funcao': sistema.acumula_ben,
                 'argsmin': 0,

@@ -4,7 +4,7 @@ from datetime import date
 from fila import Filas
 from gestaometas import GestaoMetas
 from impedimentos import Impedimentos
-from navegador import Cnis, Get, Pmfagenda
+from navegador import Cnis, Get, Pmfagenda, Sibe
 from puxador import Puxador
 from processador import ProcessadorAuxAcidente, ProcessadorAuxIncapacidade, ProcessadorBenAssIdoso, ProcessadorMajoracao25, ProcessadorProrrogSalMaternidade, ProcessadorIsencaoIR, ProcessadorSalMaternidade
 
@@ -46,6 +46,9 @@ class Sistema:
         #Automatizador do PMF Agenda
         self.pmfagenda = None
 
+        #Automatizador do SIBE PU
+        self.sibe = None
+
         #Puxador de Tarefas
         self.puxador = Puxador()
 
@@ -77,6 +80,13 @@ class Sistema:
         self.pmfagenda.abrir()
         if self.processador_estaaberto():
             self.processador.definir_pmfagenda(self.pmfagenda)
+
+    def abrir_sibe(self, subcomando: str, lista: list[str]) -> None:
+        """Abre o navegador Edge e vai para o site do SIBE PU."""
+        self.sibe = Sibe()
+        self.sibe.abrir()
+        if self.processador_estaaberto():
+            self.processador.definir_sibe(self.sibe)
 
     def acumula_ben(self, subcomando: str, lista: list[str]) -> None:
         """Analisa a acumulação de benefícios."""
@@ -130,6 +140,8 @@ class Sistema:
                 self.processador.definir_get(self.get)
             if self.pmfagenda_estaberto():
                 self.processador.definir_pmfagenda(self.pmfagenda)
+            if self.sibe_estaaberto():
+                self.processador.definir_sibe(self.sibe)
             print("Perfil aberto com sucesso.\n")
             self.exibir_perfil()
             return
@@ -316,6 +328,10 @@ class Sistema:
     def processador_estaaberto(self) -> bool:
         """Retorna verdadeiro caso exista um processador carregado na memória."""
         return self.processador is not None
+    
+    def sibe_estaaberto(self) -> bool:
+        """Retorna verdadeiro caso o SIBE PU esteja aberto e autenticado."""
+        return self.sibe is not None
 
     def puxar_tarefa(self, subcomando: str, lista: list[str]) -> bool:
         """Puxa uma tarefa no GET."""
