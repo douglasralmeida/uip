@@ -83,7 +83,7 @@ class Sibe(Navegador):
                 texto = campo.find_element(By.TAG_NAME, 'span').get_attribute('textContent')
                 res['sistema_mantenedor'] = texto
                 continue
-            if res['especie'] == '32':
+            if 'especie' in res.keys() and res['especie'] == '32':
                 if campo.get_dom_attribute('chave').casefold() == 'acompanhante':
                     texto = campo.find_element(By.TAG_NAME, 'span').get_attribute('textContent')
                     res['acompanhante'] = texto
