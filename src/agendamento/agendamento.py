@@ -2,9 +2,11 @@
 ## Março de 2023
 """Agendamento"""
 
+from datetime import date, time
+
 class Agendamento:
     """Classe para Agendamento"""
-    def __init__(self, novadata, novahora, novolocal) -> None:
+    def __init__(self, novadata: date, novahora: time, novolocal: str) -> None:
         self.arquivopdf = False
         self.data = novadata
         self.hora = novahora
@@ -21,11 +23,11 @@ class Agendamento:
         """Retorna se existe arquivo PDF com comprovante de agendamento."""
         return self.arquivopdf
         
-    def obter_data(self) -> str:
+    def obter_data(self) -> date:
         """Retorna a data do agendamento."""
         return self.data
     
-    def obter_hora(self) -> str:
+    def obter_hora(self) -> time:
         """Retorna a hora do agendamento."""
         return self.hora
     
