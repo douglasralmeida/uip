@@ -3,7 +3,7 @@ from os import path
 from variaveis import Variaveis
 
 class carregar_dados:
-    def __init__(self, nome_arquivo):
+    def __init__(self, nome_arquivo: str):
         self.endereco_arquivo = path.join(Variaveis.obter_pasta_dados(), nome_arquivo)
 
     def __enter__(self):
