@@ -108,14 +108,17 @@ class Cnis(Navegador):
         campo.click()
         campo.send_keys(cpf)
         drv.find_element(By.ID, 'formNovo:acaoPesquisar').click()
-        time.sleep(2)
+        time.sleep(3)
         self.aguardar_processamento()        
 
         num_itens = 0
         while num_itens < 2:
             tabela = drv.find_element(By.ID, 'formNovo:lista_data')
-            itens = tabela.find_elements(By.TAG_NAME, 'td')
-            num_itens = len(itens)
+            try:
+                itens = tabela.find_elements(By.TAG_NAME, 'td')
+                num_itens = len(itens)
+            except:
+                num_itens = 0
         nit = itens[1].text
         return f'{nit[0:3]}.{nit[3:8]}.{nit[8:10]}-{nit[10]}'
 
