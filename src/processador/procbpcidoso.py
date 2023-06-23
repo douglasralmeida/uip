@@ -42,7 +42,7 @@ class ProcessadorBenAssIdoso(Processador):
         
         self.nome_servico = ''
         
-        self.id = 'sm'
+        self.id = 'bpci'
         
         self.id_subtarefa = ''
 
