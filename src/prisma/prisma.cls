@@ -160,7 +160,7 @@ Public Sub Prisma_HabilitarBeneficio()
 
 		'Pergunta Comunicar com o CNIS novamente?
 		If TextoNaTela(1, 22, "Houve alteracao nos dados do CNIS apos esta data ?") Then
-            Debug.Print("Prisma: Pergunta exibida: Houve alteraï¿½ï¿½o dos dados no CNIS? -> SIM")
+            Debug.Print("Prisma: Pergunta exibida: Houve alteração dos dados no CNIS? -> SIM")
 			.Output "S" & ChrW$(13) 'Sim
 		End If
 		Sleep(250)
@@ -175,7 +175,7 @@ Public Sub Prisma_HabilitarBeneficio()
 		'Aguardando comunicacao SUB...
 		While ManterLoopSub
 			If TextoNaTela(1, 22, "Nao encontrou benefício.") Then
-                Debug.Print("Prisma: Mensagem exibida: Nï¿½o encontrou benefícios")
+                Debug.Print("Prisma: Mensagem exibida: Não encontrou benefícios")
 				.Output ChrW$(13) 'Sim
 				ManterLoopSub = False
 				Sleep(1000)
@@ -203,7 +203,7 @@ Public Sub Prisma_HabilitarBeneficio()
 			Wend
 		End If
 
-		Debug.Print("Prisma: Ir para tela de habilitaï¿½ï¿½o...")
+		Debug.Print("Prisma: Ir para tela de habilitação...")
 		While Not TextoNaTela(57, 19, "PROT.GET..")
 			Sleep(500)
 		Wend
