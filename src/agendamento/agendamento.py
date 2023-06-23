@@ -1,11 +1,11 @@
 ## Codificado por Douglas Rodrigues de Almeida.
-## Março de 2023
+## Junho de 2023
 """Agendamento"""
 
 from datetime import date, time
 
 class Agendamento:
-    """Classe para Agendamento"""
+    """Classe para agendamentos"""
     def __init__(self, novadata: date, novahora: time, novolocal: str) -> None:
         self.arquivopdf = False
         self.data = novadata
