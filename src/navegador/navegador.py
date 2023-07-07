@@ -21,6 +21,10 @@ class Navegador:
 
         #Desabilita certas opções para agilizar automação
         self.modo_rapido = True
+
+        #Flag a ser utilizado quando as condições de sistema
+        #estiverem ruins.
+        self.suspender_processamento = False
         
         #Configurações para impressão automática
         impresssao_config = {
@@ -97,7 +101,7 @@ class Navegador:
         WebDriverWait(drv, 30).until(EC.element_to_be_clickable((By.ID, botao_id)))
         drv.find_element(By.ID, botao_id).click()
 
-    def coletar_numero_porclasse(self, elemento_classe: str) -> None:
+    def coletar_numero_porclasse(self, elemento_classe: str) -> str:
         """Coleta um número a partir de um texto."""
         drv = self.driver
 
