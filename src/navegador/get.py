@@ -107,7 +107,7 @@ class Get(Navegador):
         botao.click()
     
         ##Aguarda pela msg Despcho incluído com sucesso
-        WebDriverWait(drv, 20).until(EC.visibility_of_element_located((By.CLASS_NAME, "ui-messages-info"))).get_attribute("value")
+        WebDriverWait(drv, 60).until(EC.visibility_of_element_located((By.CLASS_NAME, "ui-messages-info"))).get_attribute("value")
         time.sleep(1)
 
     def adicionar_anexo(self, nomearquivo: str) -> None:
@@ -117,7 +117,7 @@ class Get(Navegador):
         #Informa o nome do arquivo para anexar
         elem = drv.find_element(By.ID, 'formAnexo:uploadAnexo_input')
         elem.send_keys(nomearquivo)
-        WebDriverWait(drv, 30).until(EC.element_to_be_clickable((By.ID, 'formAnexo:dtblAnexo:0:txtNomeArquivoAnexo')))
+        WebDriverWait(drv, 60).until(EC.element_to_be_clickable((By.ID, 'formAnexo:dtblAnexo:0:txtNomeArquivoAnexo')))
         time.sleep(1)
 
         #Clica no botão Incluir Anexo
@@ -128,7 +128,7 @@ class Get(Navegador):
     def aguardar_telaprocessamento(self) -> None:
         """Espera pelo encerramento da tela 'Aguardando processamento'"""
         #Aguarda pela invisibilidade do elemento
-        WebDriverWait(self.driver, 60).until(EC.invisibility_of_element((By.ID, 'loaderBlock')))
+        WebDriverWait(self.driver, 75).until(EC.invisibility_of_element((By.ID, 'loaderBlock')))
 
     def alterar_modolinha(self, valor: bool) -> None:
         """Altera o modo de criação de subtarefa."""
@@ -409,7 +409,7 @@ class Get(Navegador):
     
         ##Aguarda pela msg Conclusão da tarefa efetuado com sucesso
         self.aguardar_telaprocessamento()
-        WebDriverWait(drv, 20).until(EC.visibility_of_element_located((By.CLASS_NAME, "ui-messages-info")))
+        WebDriverWait(drv, 60).until(EC.visibility_of_element_located((By.CLASS_NAME, "ui-messages-info")))
         time.sleep(1)
         return resultado
     
@@ -497,7 +497,7 @@ class Get(Navegador):
         self.aguardar_telaprocessamento()
     
         ##Aguarda pelo campo de Pesquisa de Protocolo
-        WebDriverWait(drv, 20).until(EC.element_to_be_clickable((By.ID, "formTarefas:btnAtualizarListaTarefas")))
+        WebDriverWait(drv, 60).until(EC.element_to_be_clickable((By.ID, "formTarefas:btnAtualizarListaTarefas")))
         time.sleep(1)
         
         self.tarefa = ""
@@ -616,14 +616,20 @@ class Get(Navegador):
             resultado = False
         return resultado, texto
 
-    def pesquisar_tarefa(self, tarefa: str) -> None:
+    def pesquisar_tarefa(self, tarefa: str) -> bool:
         """Pesquisa uma tarefa por protocolo."""
         drv = self.driver
         
         #Digitar a tarefa
-        campo = drv.find_element(By.ID, value="formTarefas:filtroProtocolo")
-        campo.clear()
-        campo.send_keys(tarefa)
+        try:
+            campo = drv.find_element(By.ID, value="formTarefas:filtroProtocolo")
+            campo.clear()
+            campo.send_keys(tarefa)
+        except:
+            print("Erro: Campo de pesquisa por protocolo não encontrado.")
+            self.suspender_processamento = True
+            return False
+        
     
         #Clicar em Pesquisar
         botao = drv.find_element(By.ID, value="formTarefas:btnBuscar")
