@@ -688,7 +688,7 @@ class ProcessadorAuxAcidente(Processador):
                 if not protocolo in lista:
                     continue
             else:
-                if not t.tem_exigencia() or t.obter_fase_pericia_cumprida() or not t.pericia_esta_vencida():
+                if not t.tem_exigencia() or t.obter_fase_pericia_cumprida() or not t.pericia_esta_vencida() or t.tem_impedimento():
                     continue
             buffer_linha = f'Tarefa {protocolo}...'
             print(buffer_linha, end='\r')
