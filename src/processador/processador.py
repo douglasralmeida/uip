@@ -433,6 +433,9 @@ class Processador:
         for _ in (ui_titulo := f'PROGRAMA \'{titulo}\''):
             ui_linha += '-'
         print(f'{ui_titulo}\n{ui_linha}\nExecutando...\n')
+        
+        if not self.get is None:
+            self.get.suspender_processamento = False
 
     def pos_processar(self, cont: int) -> None:
         """Exibe o rodapé com o número de processamentos."""
@@ -558,6 +561,9 @@ class Processador:
 
         self.pre_processar('CONCLUSÃO DE TAREFAS')
         for t in self.lista:
+            if self.get.suspender_processamento:
+                print('Processamento suspenso.\n')
+                break
             if not t.obter_fase_concluso() or t.tem_impedimento():
                 continue
             protocolo = str(t.obter_protocolo())
