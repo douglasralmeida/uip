@@ -1,0 +1,2 @@
+class BadCSVException(Exception):
+    pass
