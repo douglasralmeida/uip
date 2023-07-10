@@ -35,21 +35,32 @@ class BaseDados:
 
     def alterar_atributo(self, idx: int, atributo: str, valor: str) -> None:
         """Altera o atributo especificado do regsitro."""
-        self.dados.loc[idx, atributo] = valor
+        self.dados.loc[idx, atributo.strip()] = valor.strip()
 
     def alterar_atributo_paraverdadeiro(self, idx: int, atributo: str) -> None:
         """Altera o atributo especificado do regsitro para verdadeiro, com valor igual a 1."""
         self.dados.loc[idx, atributo] = '1'
 
-    def alterar_atributos(self, protocolo: str, atributos: str, valores: str) -> None:
+    def alterar_atributos(self, protocolo: str, atributos: str, valores: str, sep: str) -> None:
         """Altera múltiplos atributos do registro."""
         num_atributos = len(atributos)
         if (idx := self.pesquisar_indice(protocolo)) is None:
             print(f'Tarefa {protocolo} não foi encontrada.')
             return False
         for i in range(num_atributos):
-            self.alterar_atributo(idx, atributos[i].strip(), valores[i].strip())
+            self.alterar_atributo(idx, atributos[i].strip(sep), valores[i].strip(sep))
         return True
+    
+    def alterar_atributos2(self, protocolo: str, atributos: list[str], valores: list[str]) -> bool:
+        """Altera múltiplos atributos do registro."""
+        num_atributos = len(atributos)
+        if (idx := self.pesquisar_indice(protocolo)) is None:
+            print(f'Tarefa {protocolo} não foi encontrada.')
+            return False
+        else:
+            for i in range(num_atributos):
+                self.alterar_atributo(idx, atributos[i], valores[i])
+            return True
 
     def alterar_atributos_delista(self, lista: list[str]) -> None:
         """
@@ -67,7 +78,7 @@ class BaseDados:
         for item in lista[1:]:
             valores = item.strip().split(' ')
             protocolo = valores[0].strip()
-            if self.alterar_atributos(protocolo, cabecalho[1:], valores[1:]):
+            if self.alterar_atributos(protocolo, cabecalho[1:], valores[1:], " "):
                 num_alteracoes += 1
         self.salvar_emarquivo()
         print(f'{num_alteracoes} tarefa(s) alteradas com sucesso.')

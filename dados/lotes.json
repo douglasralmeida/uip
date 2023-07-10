@@ -1,0 +1,7 @@
+{
+    "agendamento": {
+        "desc": "Lote de novos agendamentos",
+        "atributos": "protocolo;dataagendamento;horaagendamento",
+        "entrada": "agendamentos.csv"
+    }
+}

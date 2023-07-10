@@ -4,6 +4,7 @@ from datetime import date
 from fila import Filas
 from gestaometas import GestaoMetas
 from impedimentos import Impedimentos
+from lote import Lotes
 from navegador import Cnis, Get, Pmfagenda, Sibe
 from puxador import Puxador
 from processador import ProcessadorAuxAcidente, ProcessadorAuxIncapacidade, ProcessadorBenAssDeficiente, ProcessadorBenAssIdoso, ProcessadorMajoracao25, ProcessadorProrrogSalMaternidade, ProcessadorIsencaoIR, ProcessadorSalMaternidade
@@ -21,7 +22,11 @@ perfis_disponiveis = {
 
 class Sistema:
     def __init__(self) -> None:
-        self.getconectado = False
+        #Data da compilação
+        self.datacompilado = '10/07/2023'
+
+        #Versão da aplicação
+        self.ver = '1.0.0 protótipo'
 
         #Fila aberta
         self.fila_aberta = None
@@ -32,11 +37,8 @@ class Sistema:
         #Lista de impedimentos de conclusão
         self.impedimentos = None
 
-        #Data da compilação
-        self.datacompilado = '22/05/2023'
-
-        #Versão da aplicação
-        self.ver = '1.0.0 protótipo'
+        #Lista de lotes válidos
+        self.lotes: Lotes | None = None        
 
         #Automatizador do CNIS
         self.cnis = None
@@ -101,13 +103,19 @@ class Sistema:
         """Executa o programa 'Agendar PM' do processador."""
         self.processador.processar_agendamentopm()
 
-    def carregar_dados(self) -> None:
+    def carregar_dados(self) -> bool:
         """Carrega dados utilizados pelo sistema."""
+        self.filas = Filas([])
+        self.filas.carregar()
+
         self.impedimentos = Impedimentos([])
         self.impedimentos.carregar()
 
-        self.filas = Filas([])
-        self.filas.carregar()
+        self.lotes = Lotes([])
+        if not self.lotes.carregar():
+            return False
+
+        return True
 
     def carregar_perfil(self, subcomando: str, lista: list[str]) -> None:
         """Abre o perfil de tarefas do GET especificado."""
@@ -118,7 +126,7 @@ class Sistema:
         if nome_fila == self.perfil_aberto:
             print('Erro: O perfil informado já está aberto.\n')
             return
-        if self.getconectado:
+        if self.get_estaberto():
             self.processador.driver.fechar()
         print(f'Abrindo {nome_fila}...')
         fila = self.filas.obter(nome_fila)
@@ -208,6 +216,10 @@ class Sistema:
     def exibir_filas(self, subcomando: str, lista: list[str]) -> None:
         """Exibe as filas cadastradas no UIP."""
         print(self.filas)
+
+    def exibir_lotes(self, subcomando: str, lista: list[str]) -> None:
+        """Exibe os lotes válidos disponíveis no UIP."""
+        print(self.lotes)
 
     def exibir_perfil(self):
         """Exibe o nome do perfil e fila atribuída."""
@@ -329,6 +341,14 @@ class Sistema:
     def processador_estaaberto(self) -> bool:
         """Retorna verdadeiro caso exista um processador carregado na memória."""
         return self.processador is not None
+
+    def processar_lote(self, subcomando: str, lista: list[str]) -> None:
+        if self.lotes is not None:
+            lote = self.lotes.obter(subcomando)
+            if lote is not None:
+                self.processador.processar_lote(lote)
+            else:
+                print('Erro. Lote não encontrado.')
     
     def sibe_estaaberto(self) -> bool:
         """Retorna verdadeiro caso o SIBE PU esteja aberto e autenticado."""

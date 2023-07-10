@@ -3,10 +3,9 @@
 from linhacomando import LinhaComando
 from sistema import Sistema
 
-
 sistema = Sistema()
-sistema.carregar_dados()
-lc = LinhaComando(sistema)
-lc.carregar()
-lc.exibir_cabecalho()
-lc.exibir()
+if sistema.carregar_dados():
+    lc = LinhaComando(sistema)
+    lc.carregar()
+    lc.exibir_cabecalho()
+    lc.exibir()

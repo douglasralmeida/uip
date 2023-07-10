@@ -6,6 +6,7 @@ import pandas as pd
 from agendamento import Agendamento
 from arquivo import carregar_dados
 from basedados import BaseDados
+from lote import Lote
 from navegador import Cnis, Get, Pmfagenda, Sibe
 from os import path
 from tarefa import Tarefa
@@ -302,7 +303,7 @@ class Processador:
             if valor_dado == '':
                 valor_dado = pd.NA
             for protocolo in protocolos:
-                if self.base_dados.alterar_atributos(protocolo, [self.atributos[atributo]['coluna']], [valor_dado]):
+                if self.base_dados.alterar_atributos(protocolo, [self.atributos[atributo]['coluna']], [valor_dado], " "):
                     print(f'Tarefa {protocolo} foi alterda.')
                 else:
                     print(f'Tarefa {protocolo} não foi alterda.')
@@ -634,7 +635,7 @@ class Processador:
         for i in range(1, num_itens):
             valores = lista[i].split(' ')
             protocolo = valores[0].strip()
-            self.base_dados.alterar_atributos(protocolo, atributos[1:], valores[1:])
+            self.base_dados.alterar_atributos(protocolo, atributos[1:], valores[1:], " ")
         self.salvar_emarquivo()
         print(f'{num_itens-1} tarefa(s) alterada(s) com sucesso.')
 
@@ -650,6 +651,20 @@ class Processador:
             t.alterar_impedimento(impedimento_id)
             print(f'Tarefa {protocolo} processada.')
             cont += 1
+        self.salvar_emarquivo()
+        self.pos_processar(cont)
+
+    def processar_lote(self, lote: Lote) -> None:
+        """Processa um lote de edição de dados"""
+        cont = 0
+        self.pre_processar('PROCESSAR LOTE')
+        print(f"Lote: {lote}")
+        itens = lote.carregar_dados()
+        atributos = lote.obter_atributos()
+        for registro in itens:
+            print(f"Tarefa {registro[0]}...")
+            if self.base_dados.alterar_atributos2(registro[0].strip(), lote.obter_atributos()[1:], registro[1:]):
+                cont += 1
         self.salvar_emarquivo()
         self.pos_processar(cont)
 

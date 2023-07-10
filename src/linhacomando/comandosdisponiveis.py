@@ -298,6 +298,18 @@ class ComandosDisponiveis:
                 'requer_protocolo': False,
                 'requer_sibe': False
             },
+            'lotes': {
+                'funcao': sistema.exibir_lotes,
+                'argsmin': 0,
+                'desc': 'Exibe os lotes válidos do UIP.',
+                'requer_subcomando': False,
+                'requer_cnis': False,
+				'requer_get': False,
+                'requer_processador': False,
+                'requer_pmfagenda': False,
+                'requer_protocolo': False,
+                'requer_sibe': False
+            },
             'marcar': {
                 'funcao': sistema.marcar,
                 'ajuda': sistema.marcar_ajuda,
@@ -359,6 +371,18 @@ class ComandosDisponiveis:
                 'requer_protocolo': True,
                 'requer_sibe': False
             },
+            'processarlote': {
+                'funcao': sistema.processar_lote,
+                'argsmin': 1,
+                'desc': 'Altera um lote de dados na base de dados do UIP.',
+                'requer_subcomando': True,
+                'requer_cnis': False,
+				'requer_get': False,
+                'requer_processador': True,
+                'requer_pmfagenda': False,
+                'requer_protocolo': False,
+                'requer_sibe': False
+            },            
             'puxar': {
                 'funcao': sistema.puxar_tarefa,
                 'argsmin': 0,
