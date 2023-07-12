@@ -101,7 +101,7 @@ class Sistema:
 
     def agendar_pm(self, subcomando: str, lista: list[str]) -> None:
         """Executa o programa 'Agendar PM' do processador."""
-        self.processador.processar_agendamentopm()
+        self.processador.processar_agendamentopm(subcomando, lista)
 
     def carregar_dados(self) -> bool:
         """Carrega dados utilizados pelo sistema."""

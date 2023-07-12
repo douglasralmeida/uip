@@ -6,6 +6,7 @@ import pandas as pd
 from agendamento import Agendamento
 from arquivo import carregar_dados
 from basedados import BaseDados
+from datetime import datetime
 from lote import Lote
 from navegador import Cnis, Get, Pmfagenda, Sibe
 from os import path
@@ -473,30 +474,41 @@ class Processador:
             cont +=1            
         self.pos_processar(cont)
 
-    def processar_agendamentopm(self) -> None:
+    def processar_agendamentopm(self, subcomando: str, lista: list[str]) -> None:
         """Agenda uma PM no PMF Agenda."""
         cont = 0
+        buffer_linha = ''
         num_agendamentos = 0
         protocolo = ''
+        usar_lista_personalizada = False
 
         self.pre_processar('AGENDAR PM')
+        if len(lista) > 0:
+            usar_lista_personalizada = True        
         for t in self.lista:
-            if t.obter_fase_subtarefa_gerada() and not t.obter_fase_agendapm() and not t.tem_impedimento() and not t.obter_fase_conclusao():
-                protocolo = t.obter_protocolo()
-                print(f'Tarefa {protocolo}...', end=' ')
-                cpf = t.obter_cpf()
-                subtarefa = t.obter_subtarefa()
-                olm = t.obter_olm()
-                #if num_agendamentos >= 23:
-                #    self.pmfagenda.reiniciar()
-                #    num_agendamentos = 0
+            protocolo = t.obter_protocolo()
+            if usar_lista_personalizada:
+                if not protocolo in lista:
+                    continue
+            else:
+                if not t.obter_fase_subtarefa_gerada() or t.obter_fase_agendapm() or t.tem_impedimento() or t.obter_fase_conclusao():
+                    continue
+            protocolo = t.obter_protocolo()
+            buffer_linha = f'Tarefa {protocolo}...'
+            print(buffer_linha, end='\r')
+
+            cpf = t.obter_cpf()
+            subtarefa = t.obter_subtarefa()
+            olm = t.obter_olm()
+            if self.pmfagenda is not None:
                 dados = self.pmfagenda.agendar(protocolo, cpf, self.nome_servicopm, str(subtarefa), olm)
-                t.alterar_agendamento(Agendamento(dados[0], dados[1], dados[2]))
+                t.alterar_agendamento(Agendamento(datetime.strptime(dados[0], "%d/%m/%Y"), datetime.time(datetime.strptime(dados[1], "%H:%M")), dados[2]))
                 t.concluir_fase_agendapm()
-                print(f'Dia {dados[0]} às {dados[1]}.')
+                print(f'{buffer_linha}...Dia {dados[0]} às {dados[1]}.')
                 num_agendamentos += 1
-                cont += 1
-                self.salvar_emarquivo()
+            cont += 1
+
+            self.salvar_emarquivo()
         self.pos_processar(cont)
 
     def processar_coletadados(self) -> None:

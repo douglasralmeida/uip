@@ -33,9 +33,11 @@ class BaseDados:
         df = pd.DataFrame(novos_registros, columns=list(self.dados))
         self.dados = pd.concat([self.dados, df])
 
-    def alterar_atributo(self, idx: int, atributo: str, valor: str) -> None:
+    def alterar_atributo(self, idx: int, atributo: str, valor) -> None:
         """Altera o atributo especificado do regsitro."""
-        self.dados.loc[idx, atributo.strip()] = valor.strip()
+        if valor is str:
+            valor = valor.strip()
+        self.dados.loc[idx, atributo.strip()] = valor
 
     def alterar_atributo_paraverdadeiro(self, idx: int, atributo: str) -> None:
         """Altera o atributo especificado do regsitro para verdadeiro, com valor igual a 1."""
