@@ -882,32 +882,43 @@ class ProcessadorAuxAcidente(Processador):
 
     def processar_exigenciapm(self, subcomando: str, lista: list[str]) -> None:
         """Cadastra exigência de agendamento de PM."""
+        buffer_linha = ''
         cont = 0
         protocolo = ''
+        usar_lista_personalizada = False
 
         self.pre_processar('GERAR EXIGÊNCIA DO AGENDAMENTO DA PM')
+        if len(lista) > 0:
+            usar_lista_personalizada = True        
         for t in self.lista:
-            if not t.obter_fase_pdfagendapm_anexo() or t.tem_exigencia() or t.tem_erro_exigenciapm() or t.obter_fase_conclusao():
-                continue
-            protocolo = str(t.obter_protocolo())
-            print(f'Tarefa {protocolo}')
+            protocolo = t.obter_protocolo()
+            if usar_lista_personalizada:
+                if not protocolo in lista:
+                    continue
+            else:
+                if not t.obter_fase_pdfagendapm_anexo() or t.tem_exigencia() or t.tem_erro_exigenciapm() or t.obter_fase_conclusao():
+                    continue
+            buffer_linha = f'Tarefa {protocolo}...'
+            print(buffer_linha, end='\r')
+
             if self.get.pesquisar_tarefa(protocolo):
                 #Verifica se tarefa está cancelada/concluída
                 if self.processar_status(t):
-                    print('Tarefa cancelada/concluída. Exigência não gerada.')
+                    print(buffer_linha + 'Tarefa cancelada/concluída. Exigência não gerada.')
                     cont += 1
                     continue
 
                 if self.definir_exigencia_pm(t.obter_agendamento()):
                     t.alterar_exigenciapm_comerro(False)
                     t.concluir_fase_exigencia(True)
+                    print(buffer_linha + "Exigência processada.")
                 else:
-                    print("Tarefa já está em exigência. Exigência não gerada.")
+                    print(buffer_linha + "Tarefa já está em exigência. Exigência não gerada.")
                     t.alterar_exigenciapm_comerro(True)
                 self.salvar_emarquivo()
                 cont += 1
             else:
-                print(f'Erro. Tarefa {protocolo} não foi encontrada.')
+                print(buffer_linha + f'Erro. Tarefa {protocolo} não foi encontrada.')
         self.pos_processar(cont)
 
     def processar_dados(self) -> None:
