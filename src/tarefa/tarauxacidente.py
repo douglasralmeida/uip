@@ -46,9 +46,10 @@ class TarefaAuxilioAcidente(Tarefa):
 
     def alterar_agendamento(self, agendamento: Agendamento) -> None:
         """Altera os dados do agendamento da PM"""
-        data = pd.to_datetime(agendamento.data, dayfirst=True, format='%d/%m/%Y').floor('D')
-        self.base_dados.alterar_atributo(self.pos, 'dataagendamento', data)
-        self.base_dados.alterar_atributo(self.pos, 'horaagendamento', agendamento.hora)
+        valor_data = pd.to_datetime(agendamento.data)
+        self.base_dados.alterar_atributo(self.pos, 'dataagendamento', valor_data)
+        valor_hora = str(agendamento.hora)
+        self.base_dados.alterar_atributo(self.pos, 'horaagendamento', valor_hora)
         self.base_dados.alterar_atributo(self.pos, 'localagendamento', agendamento.local)
 
     def alterar_agendamento_coletado(self, valor: bool) -> None:
