@@ -733,19 +733,27 @@ class ProcessadorAuxAcidente(Processador):
         cont = 0
         nome_arquivo_pdf = ''  
         protocolo = ''
+        usar_lista_personalizada = False
 
         self.pre_processar('ANEXAR PDF AGENDAMENTO PM')
+        if len(lista) > 0:
+            usar_lista_personalizada = True        
         for t in self.lista:
-            if not t.obter_fase_agendapm() or t.obter_fase_pdfagendapm_anexo() or t.agendamento_foicoletado() or t.tem_erro_anexacaopdfpm() or t.obter_fase_conclusao():
-                continue
-            protocolo = str(t.obter_protocolo())
+            protocolo = t.obter_protocolo()
+            if usar_lista_personalizada:
+                if not protocolo in lista:
+                    continue
+            else:
+                if not t.obter_fase_agendapm() or t.obter_fase_pdfagendapm_anexo() or t.agendamento_foicoletado() or t.tem_erro_anexacaopdfpm() or t.obter_fase_conclusao():
+                    continue
             buffer_linha = f'Tarefa {protocolo}...'
-            print(buffer_linha)
+            print(buffer_linha, end='\r')
+
             if self.get.pesquisar_tarefa(protocolo):
 
                 #Verifica se tarefa está cancelada/concluída
                 if self.processar_status(t):
-                    print(buffer_linha + 'Tarefa cancelada/concluída. Subtarefa não foi gerada.')
+                    print(buffer_linha + 'Tarefa cancelada/concluída. Anexação de PDF não foi processada.')
                     cont += 1
                     continue
 

@@ -493,7 +493,6 @@ class Processador:
             else:
                 if not t.obter_fase_subtarefa_gerada() or t.obter_fase_agendapm() or t.tem_impedimento() or t.obter_fase_conclusao():
                     continue
-            protocolo = t.obter_protocolo()
             buffer_linha = f'Tarefa {protocolo}...'
             print(buffer_linha, end='\r')
 
