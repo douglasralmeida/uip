@@ -259,6 +259,18 @@ class ProcessadorAuxAcidente(Processador):
             'requer_protocolo': True,
             'requer_sibe': False
         }
+        self.comandos['transformarpm'] = {
+            'funcao': self.transformar_pmtxt_pmestruturado,
+            'argsmin': 0,
+            'desc': 'Gerar o arquivo de PM estruturado a partir do relatório PDF.',
+            'requer_subcomando': False,
+            'requer_cnis': False,
+			'requer_get': False,
+            'requer_processador': True,
+            'requer_pmfagenda': False,
+            'requer_protocolo': False,
+            'requer_sibe': False
+        }
     # 
     def definir_filtros(self) -> None:
         """Define os filtros relaticos a Auxílio-Acidente de consulta à base de dados"""
@@ -1108,3 +1120,11 @@ class ProcessadorAuxAcidente(Processador):
         tarefa.marcar_pm_realizada(resultado)
         if not tarefa.obter_fase_beneficio_habilitado:
             self.enviar_tarefa_habilitacao(tarefa)
+
+    def transformar_pmtxt_pmestruturado(self, subcomando: str, lista: list[str]) -> None:
+        cont = 0
+        for protocolo in lista:
+            self.processar_relatorio_pm(protocolo)
+            print(f'Tarefa {protocolo}.')
+            cont += 1
+        print(f'Processados: {cont} item(ns).')
