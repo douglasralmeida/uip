@@ -39,50 +39,66 @@ class Pmfagenda(Navegador):
         WebDriverWait(self.driver, 20).until(EC.element_to_be_clickable((By.ID, "formAgendar:cpfInput")))
         time.sleep(1)
     
-    def agendar(self, tarefa, cpf, servico, subtarefa, olm) -> list[str]:
+    def agendar(self, tarefa, cpf: str, servico, subtarefa, olm) -> list[str]:
         """Realiza um agendamento de PM."""
         drv = self.driver
         self.tarefa = tarefa
         cpf_preenchido = False
+        cpf_correto = False
         
-        #Aguarda o campo de CPF
-        self.espera.until(EC.element_to_be_clickable((By.ID, "formAgendar:cpfInput")))
-        while not cpf_preenchido:
-            #Digita o CPF
-            campo = drv.find_element(By.ID, value="formAgendar:cpfInput")
+        while not cpf_correto:
+            #Aguarda o campo de CPF
+            self.espera.until(EC.element_to_be_clickable((By.ID, "formAgendar:cpfInput")))
+
+            while not cpf_preenchido:
+                #Digita o CPF
+                campo = drv.find_element(By.ID, value="formAgendar:cpfInput")
+                campo.clear()
+                campo.send_keys(cpf)
+                time.sleep(1)
+
+                #Clica no botao Consultar CPF
+                botao = drv.find_element(By.ID, value="formAgendar:btnConsultarCpfAgendamento")
+                botao.click()
+                self.aguardar_telaprocessamento()
+                time.sleep(1)
+                cpf_preenchido = not drv.find_element(By.ID, 'idMessage').is_displayed()
+
+            #Seleciona o serviço
+            self.espera.until(EC.presence_of_element_located((By.ID, 'formAgendar:servicoDrop_input')))
+            self.espera.until(EC.element_to_be_clickable((By.ID, 'formAgendar:servicoDrop_input')))
+            campo = drv.find_element(By.ID, value="formAgendar:servicoDrop_input")
             campo.clear()
-            campo.send_keys(cpf)
-
-            #Clica no botao Consultar CPF
-            botao = drv.find_element(By.ID, value="formAgendar:btnConsultarCpfAgendamento")
-            botao.click()
+            campo.send_keys(servico)
+            time.sleep(2)
+        
+            #Clica na lista de opções
+            campo = drv.find_element(By.ID, value="formAgendar:servicoDrop_panel")
+            campo = campo.find_element(By.TAG_NAME, value="ul")
+            campo = campo.find_element(By.TAG_NAME, value="li")
+            campo.click()
+            time.sleep(2)
             self.aguardar_telaprocessamento()
-            time.sleep(1)
-            cpf_preenchido = not drv.find_element(By.ID, 'idMessage').is_displayed()
+            self.espera.until(EC.element_to_be_clickable((By.ID, 'formAgendar:btnAvancarParaDadosRequerente')))
+        
+            #Avança para próxima página
+            botao = drv.find_element(By.ID, value="formAgendar:btnAvancarParaDadosRequerente") 
+            botao.click()
+        
+            ##Aguarda pelo campo de tel. celular
+            self.espera.until(EC.element_to_be_clickable((By.ID, 'formAgendarConsultar:fixoInput')))
 
-        #Seleciona o serviço
-        self.espera.until(EC.presence_of_element_located((By.ID, 'formAgendar:servicoDrop_input')))
-        self.espera.until(EC.element_to_be_clickable((By.ID, 'formAgendar:servicoDrop_input')))
-        campo = drv.find_element(By.ID, value="formAgendar:servicoDrop_input")
-        #campo.clear()
-        campo.send_keys(servico)
-        time.sleep(2)
-        
-        #Clica na lista de opções
-        campo = drv.find_element(By.ID, value="formAgendar:servicoDrop_panel")
-        campo = campo.find_element(By.TAG_NAME, value="ul")
-        campo = campo.find_element(By.TAG_NAME, value="li")
-        campo.click()
-        time.sleep(2)
-        self.aguardar_telaprocessamento()
-        self.espera.until(EC.element_to_be_clickable((By.ID, 'formAgendar:btnAvancarParaDadosRequerente')))
-        
-        #Avança para próxima página
-        botao = drv.find_element(By.ID, value="formAgendar:btnAvancarParaDadosRequerente") 
-        botao.click()
-        
-        ##Aguarda pelo campo de tel. celular
-        self.espera.until(EC.element_to_be_clickable((By.ID, 'formAgendarConsultar:fixoInput')))
+            ## Necessário conferir o CPF
+            ## Alguns casos o PMF Agenda agendou para CPF diferente
+            ## por causas desconhecidas
+            #cpf_completo = cpf.rjust(11, '0')
+            #cpf_formatado = f'{cpf_completo[0:3]}.{cpf_completo[3:6]}.{cpf_completo[6:9]}-{cpf_completo[9:11]}'
+            cpf_coletado = drv.find_element(By.ID, "formAgendarConsultar:cpfOutput").text
+            if cpf != cpf_coletado:
+                drv.find_element(By.ID, 'frmBotoes:btnVoltarParaTelaInicial').click()
+                cpf_preenchido = False
+            else:
+                cpf_correto = True
         
         #Digita um celular
         ActionChains(drv).send_keys(Keys.END).perform()
@@ -233,6 +249,58 @@ class Pmfagenda(Navegador):
     def carregar_dados(self):
         self.locais_pm = LocaisPM([])
         self.locais_pm.carregar()
+
+    def checar_comparecimento(self, cpf, data, hora, servico: str, salvar_img):
+        drv = self.driver
+        lista_agendamentos = []
+        resultado = {'compareceu': False, 'data_remarcacao': '00/00/0000', 'hora_remarcacao': '00:00'}
+
+        #Aguarda o campo de CPF
+        self.espera.until(EC.element_to_be_clickable((By.ID, "formAgendar:cpfInputConsultar")))
+        while not cpf_preenchido:
+            #Digita o CPF
+            campo = drv.find_element(By.ID, value="formAgendar:cpfInputConsultar")
+            campo.clear()
+            campo.send_keys(cpf)
+
+            #Clica no botao Consultar CPF
+            botao = drv.find_element(By.ID, value="formAgendar:btnConsultarCpfConsulta")
+            botao.click()
+            self.aguardar_telaprocessamento()
+            time.sleep(1)
+            cpf_preenchido = not drv.find_element(By.ID, 'idMessage').is_displayed()
+
+        #Avançar
+        self.espera.until(EC.presence_of_element_located((By.ID, 'formAgendar:btnValidarDados')))
+        self.espera.until(EC.element_to_be_clickable((By.ID, 'formAgendar:btnValidarDados')))
+        campo = drv.find_element(By.ID, value="formAgendar:btnValidarDados")
+        time.sleep(1)
+        self.aguardar_telaprocessamento()
+
+        tabela = drv.find_element(By.ID, 'frmAgendamento:tabelaAgendamento:tbody_element')
+        linhas = tabela.find_elements(By.TAG_NAME, 'tr')
+        i = 0
+        for linha in linhas:
+            colunas = linha.find_elements(By.TAG_NAME, 'td')            
+            item = colunas[1].find_element(By.TAG_NAME, 'span')
+            data_agendamento = item.text
+            item = colunas[2].find_element(By.TAG_NAME, 'span')
+            hora_agendamento = item.text
+            item = colunas[3].find_element(By.TAG_NAME, 'span')
+            servico_agendamento = item.text
+            item = colunas[5].find_element(By.TAG_NAME, 'span')
+            situacao = item.text
+            pos = i
+            i += 1
+            if servico.startswith(servico_agendamento):
+                lista_agendamentos.append({'data': data_agendamento, 'hora': hora_agendamento, 'situacao': situacao, 'pos': pos})
+        
+        #Voltar
+        botao = drv.find_element(By.ID, value="form2:btnAgendarAtendimento")
+        botao.click()
+
+        for itens in lista_agendamentos:
+            pass
     
     def coletar_agendamento(self) -> list[str]:
         """Coleta os dados do agendamento."""
