@@ -40,6 +40,7 @@ class Sibe(Navegador):
     def coletar_dados_beneficio(self, beneficio) -> dict:
         """Coleta dados de benefício"""
         drv = self.driver
+        sera_indeferido = False
         res = {}
         res['sucesso'] = False
 
@@ -55,6 +56,13 @@ class Sibe(Navegador):
         lista = drv.find_elements(By.TAG_NAME, 'dtp-atributo')
         res['acompanhante'] = ''
         res['dcb'] = ''
+
+        ## Info. de status no cabeçalho superior direito.
+        cartao = drv.find_element(By.CLASS_NAME, 'info-beneficio-portal')
+        campos = cartao.find_elements(By.TAG_NAME, 'p')
+        texto = campos[1].text
+        res['status_beneficio'] = texto.split()[-1]
+
         for campo in lista:
             if campo.get_dom_attribute('chave') is None:
                 if len(campo.find_elements(By.TAG_NAME, 'label')) > 0:
@@ -65,12 +73,8 @@ class Sibe(Navegador):
                 continue            
             if campo.get_dom_attribute('chave').casefold() == 'espécie':
                 texto = campo.find_element(By.TAG_NAME, 'span').get_attribute('textContent')
-                res['especie'] = texto[:2]
+                res['especie'] = texto[:2].strip()
                 continue
-            if campo.get_dom_attribute('chave').casefold() == 'situação':
-                texto = campo.find_element(By.TAG_NAME, 'span').get_attribute('textContent')
-                res['status_beneficio'] = texto
-                continue                
             if campo.get_dom_attribute('chave').casefold() == 'dib':
                 texto = campo.find_element(By.TAG_NAME, 'span').get_attribute('textContent')
                 res['dib'] = texto
@@ -83,12 +87,19 @@ class Sibe(Navegador):
                 texto = campo.find_element(By.TAG_NAME, 'span').get_attribute('textContent')
                 res['sistema_mantenedor'] = texto
                 continue
-            if 'especie' in res.keys() and res['especie'] == '32':
+            if 'especie' in res.keys() and res['especie'] in ['4', '32', '92']:
                 if campo.get_dom_attribute('chave').casefold() == 'acompanhante':
                     texto = campo.find_element(By.TAG_NAME, 'span').get_attribute('textContent')
                     res['acompanhante'] = texto
                     continue
         res['sucesso'] = True
+        if res['especie'] in ['4', '32', '92']:
+            sera_indeferido = True
+        if res['acompanhante'] == 'Sim':
+            sera_indeferido = True
+
+        if sera_indeferido:
+            pass
         
         #self.executar_script('history.back();')
         self.sisben_clicarbotao('voltar')
