@@ -106,7 +106,7 @@ class BaseDados:
         """Checa se o atributo especificado é verdadeiro, com valor igual a 1."""
         return self.checar_atributo_naonulo(idx, atributo) and self.obter_atributo(idx, atributo) == '1'
 
-    def definir_colunas(self, tipocols: dict, colsdata: dict) -> None:
+    def definir_colunas(self, tipocols: dict[str, str], colsdata: list[str]) -> None:
         """Define as configurações de colunas de valores do tipo data."""
         if self.tipo_colunas is None:
             self.tipo_colunas = tipocols
