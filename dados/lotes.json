@@ -1,7 +1,12 @@
 {
     "agendamento": {
-        "desc": "Lote de novos agendamentos",
-        "atributos": "protocolo;dataagendamento;horaagendamento",
+        "desc": "Lote de Agendamentos",
+        "atributos": "protocolo;dataagendamento;horaagendamento;localagendamento",
         "entrada": "agendamentos.csv"
+    },
+    "conclusao": {
+        "desc": "Lote de Tarefas Concluídas",
+        "atributos": "protocolo;data_conclusao;concluso;concluida",
+        "entrada": "conclusao.csv"
     }
 }
