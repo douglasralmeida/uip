@@ -94,7 +94,7 @@ class Processador:
         #Colunas e tipos de dados 'Data' padrão para todas filas.
         self.base_dados.definir_colunas(colunas_padrao, datas_padrao)
 
-    def __str__(self) -> None:
+    def __str__(self) -> str:
         quant_tarefas = len(self.lista)
         resultado = f'TAREFAS DE {self.nome_servico.upper()}\n'
         linha = ''.join(['=' for _ in resultado])
@@ -339,7 +339,7 @@ class Processador:
         """Retorna um conjunto de dados com filtro aplicado."""
         return self.base_dados.obter_dados(self.filtros[filtro]['valor'])
     
-    def obter_info(self, filtro: str, texto: str) -> int:
+    def obter_info(self, filtro: str, texto: str) -> str:
         """Retorna a quantidade de registros retornados na pesquisa com filtro."""
         dd = self.obter_dados_comfiltro(filtro)
         return texto.format(len(dd))
@@ -671,10 +671,10 @@ class Processador:
         self.pre_processar('PROCESSAR LOTE')
         print(f"Lote: {lote}")
         itens = lote.carregar_dados()
-        atributos = lote.obter_atributos()
+        atributos = lote.obter_atributos()[1:]
         for registro in itens:
             print(f"Tarefa {registro[0]}...")
-            if self.base_dados.alterar_atributos2(registro[0].strip(), lote.obter_atributos()[1:], registro[1:]):
+            if self.base_dados.alterar_atributos2(registro[0].strip(), atributos, registro[1:]):
                 cont += 1
         self.salvar_emarquivo()
         self.pos_processar(cont)
