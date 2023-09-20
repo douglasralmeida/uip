@@ -7,6 +7,7 @@ class carregar_tabela:
         self.endereco_arquivo = path.join(Variaveis.obter_pasta_entrada(), nome_arquivo)
 
     def __enter__(self) -> list[list[str]]:
+        linha = 1
         num_registros = 0
         num_atributos = 0
         registros = []
@@ -17,9 +18,10 @@ class carregar_tabela:
                 num_atributos = len(dados)
             else:
                 if len(dados) != num_atributos:
-                    raise BadCSVException(f"O arquivo CSV está mal formatado. Eram esperadas {num_atributos} colunas, mas foram encontradas {len(dados)} colunas.")
+                    raise BadCSVException(f"O arquivo CSV está mal formatado na linha {linha}. Eram esperadas {num_atributos} colunas, mas foram encontradas {len(dados)} colunas.")
             registros.append(dados)
             num_registros += 1
+            linha += 1
         return registros
 
     def __exit__(self, type, val, tb) -> None:
