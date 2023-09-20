@@ -1,12 +1,22 @@
 {
     "agendamento": {
         "desc": "Lote de Agendamentos",
-        "atributos": "protocolo;dataagendamento;horaagendamento;localagendamento",
+        "atributos": "protocolo;dataagendamento;horaagendamento;localagendamento;protocoloagendamento",
         "entrada": "agendamentos.csv"
     },
     "conclusao": {
         "desc": "Lote de Tarefas Concluídas",
         "atributos": "protocolo;data_conclusao;concluso;concluida",
         "entrada": "conclusao.csv"
+    },
+    "acumulacao": {
+        "desc": "Lote de Tarefas com Análise de Acumulação de Benefícios",
+        "atributos": "protocolo;possui_ben_inacumulavel;especie_inacumulavel;nb_inacumulavel;dib_inacumulavel;resultado",
+        "entrada": "acumulacao.csv"
+    },
+    "analisesd": {
+        "desc": "Lote de Tarefas com Análise de Direito do Seguro Defeso",
+        "atributos": "protocolo;sd;resultado;nomeempresa;datafiliacao;tem_pdfresumoanexo;concluso",
+        "entrada": "analisesd.csv"
     }
 }
