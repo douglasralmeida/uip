@@ -3,12 +3,13 @@
 """Análise de Benefícios Inacumuláveis"""
 
 import pandas as pd
-from basedados import TipoBooleano, TipoInteiro, TipoTexto
+from basedados import TipoBooleano, TipoData, TipoInteiro, TipoTexto
 
 class AnaliseBenefInac:
     """Classe para análise de benefícios inacumuláveis"""
-    def __init__(self, possui_benef: TipoBooleano, especie: TipoInteiro, beneficio: TipoTexto) -> None:
+    def __init__(self, possui_benef: TipoBooleano, especie: TipoInteiro, beneficio: TipoTexto, dib: TipoData) -> None:
         self.tem = not possui_benef.e_nulo
+        self.dib = dib
         self.especie = especie
         self.beneficio = beneficio
         self.possui_benef_inacumulavel = possui_benef
@@ -25,10 +26,15 @@ class AnaliseBenefInac:
         else:
             res += '\tSem análise de benefícios inacumuláveis.'
         return res
+    
+    def alterar_dib(self, dib: str) -> None:
+        """"""
+        self.dib = TipoData(dib)
 
-    def marcar_possuiben(self, especie: str, beneficio: str) -> None:
+    def marcar_possuiben(self, especie: str, beneficio: str, dib: str) -> None:
         """a"""
         self.tem = True
+        self.dib = TipoData(dib)
         self.especie = TipoInteiro(especie)
         self.beneficio = TipoTexto(beneficio)
         self.possui_benef_inacumulavel = TipoBooleano(True)
@@ -36,6 +42,7 @@ class AnaliseBenefInac:
     def marcar_naopossuiben(self) -> None:
         """a"""
         self.tem = False
+        self.dib = TipoData(None)
         self.especie = TipoInteiro(None)
         self.beneficio = TipoTexto(None)
         self.possui_benef_inacumulavel = TipoBooleano(False)
@@ -43,6 +50,10 @@ class AnaliseBenefInac:
     def obter_beneficio(self) -> TipoTexto:
         """a"""
         return self.beneficio
+    
+    def obter_dib(self) -> TipoData:
+        """"""
+        return self.dib
     
     def obter_especie(self) -> TipoInteiro:
         """a"""
