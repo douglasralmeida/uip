@@ -68,7 +68,7 @@ class Exigencia:
             self.data_realizacao = obter_datahoje()
         else:
             self.data_realizacao = iniciar_em
-        self.data_vencimento = self.data_realizacao
+        self.data_vencimento = TipoData(str(self.data_realizacao))
         self.data_vencimento.somar_dias(PRAZO_EXIGENCIA)
 
     def marcar_erro(self, erro: TipoBooleano) -> None:
