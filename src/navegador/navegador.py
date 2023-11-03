@@ -1,10 +1,11 @@
 import json
 import time
+from os import path
 from selenium.webdriver import Edge, EdgeOptions, Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
 from variaveis import Variaveis
 from .utils import aguardar_geracao_arquivo
 
@@ -39,6 +40,7 @@ class Navegador:
         
         #Preferências do navegador
         prefs = {
+            'browser.show_hub_popup_on_download_start': False,
             'download.default_directory': self.dir_downloads,
             'download.prompt_for_download': False,
             'download.directory_upgrade': True,
@@ -51,11 +53,15 @@ class Navegador:
             prefs['profile.managed_default_content_settings.images'] = 2
         self.opcoes = EdgeOptions()
         self.opcoes.add_argument('--allow-running-insecure-content')
+        self.opcoes.add_argument('--disable-client-side-phishing-detection')
         self.opcoes.add_argument('--disable-extensions')
+        self.opcoes.add_argument('--disable-component-extensions-with-background-pages')
+        self.opcoes.add_argument('--disable-default-apps')
         self.opcoes.add_argument('--hide-scrollbars')
         self.opcoes.add_argument('--ignore-certificate-errors')
         self.opcoes.add_argument('--kiosk-printing')
-        self.opcoes.add_argument('--no-proxy-server')        
+        self.opcoes.add_argument('--no-proxy-server')     
+        self.opcoes.add_argument('--enable-automation')
         self.opcoes.add_experimental_option('prefs', prefs)
         self.opcoes.add_experimental_option('excludeSwitches', ['enable-logging'])
 
@@ -64,6 +70,9 @@ class Navegador:
         print(f'Navegador: {self.driver.capabilities["browserName"]}')
         print(f'Versão: {self.driver.capabilities["browserVersion"]}')
         self.driver.maximize_window()
+
+        #Nome da tela atual
+        self.tela_atual = ''
 
         #Espera de processamento
         self.tempo_espera = 30
@@ -93,6 +102,15 @@ class Navegador:
 
     def imprimir_relatpm(self, idx):
         pass
+
+    def capturar_tela(self, protocolo: str, sufixo: str) -> None:
+        drv = self.driver
+
+        nome_arquivo = f'{protocolo} - {sufixo}.png'
+        arquivo_png = path.join("arquivossaida", nome_arquivo)
+        drv.save_screenshot(arquivo_png)
+        while not path.exists(arquivo_png):
+            time.sleep(3)
 
     def clicar_botao(self, botao_id: str) -> None:
         """Clica no botão com o ID especificado."""
@@ -127,6 +145,10 @@ class Navegador:
         ActionChains(self.driver).send_keys(Keys.HOME).perform()
         time.sleep(2)
 
+    def renomear_pdf(self, nome_arquivo_gerado: str, nome_arquivo_novo: str) -> None:
+        """Muda o nome do arquivo PDF."""
+        aguardar_geracao_arquivo(nome_arquivo_gerado, nome_arquivo_novo)
+
     def manipular_pdf(self, nome_arquivo_gerado: str, nome_arquivo_novo: str) -> None:
         """Salva o PDF gerado com o nome especificado."""
         drv = self.driver
@@ -137,7 +159,7 @@ class Navegador:
         
         #Salvar o PDF
         drv.execute_script('window.print();')
-        aguardar_geracao_arquivo(nome_arquivo_gerado, nome_arquivo_novo)
+        self.renomear_pdf(nome_arquivo_gerado, nome_arquivo_novo)
 
         #Fecha a guia com o arquivo PDF
         drv.close()
