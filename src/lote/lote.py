@@ -35,7 +35,7 @@ class Lote:
        
     def carregar_dados(self) -> list[list[str]]:
         with carregar_tabela(self.entrada) as tabela:
-            return tabela
+            return tabela[1:]
         
     def obter_atributos(self) -> list[str]:
         return self.atributos.split(';')
@@ -57,14 +57,14 @@ class Lotes:
         try:
             with carregar_dados(ARQUIVO_DADOS) as dados:
                 self.lista = [Lote(codigo, item['desc'], item['atributos'], item['entrada']) for codigo, item in dados.items()]
-            return True
         except OSError as err:
             print(f"Erro ao abrir arquivo de lotes: {err.strerror}.")
             return False
+        return True
 
     def obter(self, valor: str) -> Lote | None:
         """Retorna um impedimento conforme o ID especificado;"""
         for lote in self.lista:
-            if valor.casefold() == repr(lote).casefold():
+            if valor.casefold() == repr(lote):
                 return lote
         return None
