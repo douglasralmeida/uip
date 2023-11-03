@@ -50,12 +50,15 @@ class Resultados:
         """Descrição de Resultados"""
         res = '\n'.join(f'\t{resultado!r} - {resultado!s}' for resultado in self.lista)
         return 'Resultados disponíveis:\n' + res
+    
+    def __iter__(self):
+        yield from self.lista
 
     def carregar(self) -> bool:
         """Carrega a lista de resultados do arquivo JSON."""
         try:
             with carregar_dados(ARQUIVO_DADOS) as dados:
-                self.lista = [Resultado(codigo, item['desc'], item['conclusao'], item['despacho'], item['conclusao_vars'], item['despacho_vars']) for codigo, item in dados.items()]
+                self.lista = [Resultado(codigo, item['descricao'], item['conclusao'], item['despacho'], item['conclusao_vars'], item['despacho_vars']) for codigo, item in dados.items()]
         except OSError as err:
             print(f"Erro ao abrir arquivo de resultados: {err.strerror}.")
             return False
