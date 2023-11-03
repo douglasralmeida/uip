@@ -1,0 +1,107 @@
+{
+    "tudo": {
+        "processador": "todos",
+        "valor": "concluida.isna()",
+        "sem_desis_conc_imp": "0"
+    },
+    "coletadb": {
+        "processador": "todos",
+        "valor": "tem_dadosbasicos.isna()",
+        "sem_desis_conc_imp": "1"
+    },
+    "analiseacb": {
+        "processador": "ben",
+        "valor": "possui_ben_inacumulavel.isna() & tem_dadosbasicos == '1'",
+        "sem_desis_conc_imp": "1"
+    },
+    "analisesd": {
+        "processador": "sd",
+        "valor": "resultado.isna() & tem_dadosbasicos == '1'",
+        "sem_desis_conc_imp": "1"
+    },
+    "geracaosub": {
+        "processador": "ben",
+        "valor": "tem_subtarefa.isna() & possui_ben_inacumulavel == '0' & msgerro_criacaosub.isna()",
+        "sem_desis_conc_imp": "1"
+    },
+    "subcomerro": {
+        "processador": "ben",
+        "valor": "tem_subtarefa.isna() & possui_ben_inacumulavel == '0' & msgerro_criacaosub.notna()",
+        "sem_desis_conc_imp": "1"
+    },    
+    "agendamentopm": {
+        "processador": "ben",
+        "valor": "tem_agendapm.isna() & tem_subtarefa == '1'",
+        "sem_desis_conc_imp": "1"
+    },
+    "anexacaoagendapm": {
+        "processador": "ben",
+        "valor": "tem_pdfagendapmanexo.isna() & tem_agendapm == '1' & anexacao_comerro.isna()",
+        "sem_desis_conc_imp": "1"
+    },
+    "anexacaoagendacomerro": {
+        "processador": "ben",
+        "valor": "tem_pdfagendapmanexo.isna() & tem_agendapm == '1' & anexacao_comerro == '1'",
+        "sem_desis_conc_imp": "1"
+    },
+    "gerarexig": {
+        "processador": "ben",
+        "valor": "tem_exigencia.isna() & tem_pdfagendapmanexo == '1' & periciacumprida.isna()",
+        "sem_desis_conc_imp": "1"
+    },
+    "aguardapm": {
+        "processador": "ben",
+        "valor": "periciacumprida.isna() & tem_exigencia == '1' & dataagendamento >= @hoje",
+        "sem_desis_conc_imp": "1"
+    },
+    "pmvencida": {
+        "processador": "ben",
+        "valor": "periciacumprida.isna() & tem_exigencia == '1' & dataagendamento < @hoje",
+        "sem_desis_conc_imp": "1"
+    },
+    "cancelarsub": {
+        "processador": "ben",
+        "valor": "subtarefacancelada.isna() & periciacumprida == '1' & periciarealizada == '0'",
+        "sem_desis_conc_imp": "1"
+    },
+    "habilitaben": {
+        "processador": "ben",
+        "valor": "beneficio.isna() & (periciarealizada == '1' | subtarefacancelada == '1' | possui_ben_inacumulavel == '1' | resultado == 'desistencia') & impedimentos.isna() & concluso.isna()",
+        "sem_desis_conc_imp": "0"
+    },
+    "pmlancar": {
+        "processador": "ben",
+        "valor": "pericialancada.isna() & resultado in ['b36Deferido', 'b94Deferido'] & beneficio.notna()",
+        "sem_desis_conc_imp": "1"
+    },
+    "deferir": {
+        "processador": "ben",
+        "valor": "beneficiodespachado.isna() & pericialancada == '1'",
+        "sem_desis_conc_imp": "1"
+    },
+    "indeferir": {
+        "processador": "ben",
+        "valor": "beneficiodespachado.isna() & resultado in ['b36SemSequela', 'b36NaoEnquadraA3Decreto', 'b36NaoComparecePM', 'desistencia'] & beneficio.notna() & impedimentos.isna() & concluso.isna()",
+        "sem_desis_conc_imp": "0"
+    },
+    "indeferirinac": {
+        "processador": "ben",
+        "valor": "beneficiodespachado.isna() & resultado in ['b36RecebeBenInac', 'b36RecebeAA'] & beneficio.notna()",
+        "sem_desis_conc_imp": "1"
+    },
+    "conclusos": {
+        "processador": "todos",
+        "valor": "concluida.isna() & concluso == '1' & impedimentos.isna()",
+        "sem_desis_conc_imp": "0"
+    },
+    "impedimentos": {
+        "processador": "todos",
+        "valor": "impedimentos.notna()",
+        "sem_desis_conc_imp": "0"
+    },    
+    "semnit": {
+        "processador": "todos",
+        "valor": "nit.isna() & tem_dadosbasicos == '1'",
+        "sem_desis_conc_imp": "1"
+    }
+}
