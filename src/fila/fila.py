@@ -56,6 +56,9 @@ class Fila:
         base_dados = BaseDados('tarefas/tarefas_' + self._id + '.csv')
         return base_dados
     
+    def get_codigo(self):
+        return self._codigo
+
     def get_id(self):
         """Retorna o ID da fila."""
         return self._id
