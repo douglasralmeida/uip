@@ -2,14 +2,18 @@ import time
 from conversor import Conversor
 from datetime import date
 from fila import Filas
+from filtro import Filtros
 from gestaometas import GestaoMetas
-from impedimentos import Impedimentos
+from impedimento import Impedimentos
+from listagem import Listagens
 from lote import Lotes
-from navegador import Cnis, Get, Pmfagenda, Sibe
+from modelos_exigencias import ListaModelosExigencia
+from navegador import Cnis, Get, Pmfagenda, Sibe, SD
 from puxador import Puxador
-from processador import ProcessadorAuxAcidente, ProcessadorAuxIncapacidade, ProcessadorBenAssDeficiente, ProcessadorBenAssIdoso, ProcessadorMajoracao25, ProcessadorProrrogSalMaternidade, ProcessadorIsencaoIR, ProcessadorSalMaternidade
+from processador import Processador, ProcessadorAuxAcidente, ProcessadorAuxIncapacidade, ProcessadorBenAssDeficiente, ProcessadorBenAssIdoso, ProcessadorMajoracao25, ProcessadorProrrogSalMaternidade, ProcessadorIsencaoIR, ProcessadorSalMaternidade, ProcessadorSeguroDefeso
+from resultado import Resultados
 
-perfis_disponiveis = {
+perfis_disponiveis: dict[str, type[Processador]] = {
     'aa': ProcessadorAuxAcidente,
     'ai': ProcessadorAuxIncapacidade,
     'bpcd': ProcessadorBenAssDeficiente,
@@ -17,13 +21,14 @@ perfis_disponiveis = {
     'iir': ProcessadorIsencaoIR,
     'maj': ProcessadorMajoracao25,
     'psm': ProcessadorProrrogSalMaternidade,
-    'sm': ProcessadorSalMaternidade
+    'sm': ProcessadorSalMaternidade,
+    'sd': ProcessadorSeguroDefeso
 }
 
 class Sistema:
     def __init__(self) -> None:
         #Data da compilação
-        self.datacompilado = '10/07/2023'
+        self.datacompilado = '26/09/2023'
 
         #Versão da aplicação
         self.ver = '1.0.0 protótipo'
@@ -32,13 +37,23 @@ class Sistema:
         self.fila_aberta = None
 
         #Lista de filas disponíveis
-        self.filas = None
+        self.filas = Filas([])
+
+        #Lista de filtros
+        self.filtros = Filtros([])
 
         #Lista de impedimentos de conclusão
-        self.impedimentos = None
+        self.impedimentos = Impedimentos([])
+
+        #Lista de listagens
+        self.listagens = Listagens([])
 
         #Lista de lotes válidos
-        self.lotes: Lotes | None = None        
+        self.lotes = Lotes([])
+
+        self.modelos_exigencia = ListaModelosExigencia([])
+
+        self.resultados = Resultados([])
 
         #Automatizador do CNIS
         self.cnis = None
@@ -46,11 +61,17 @@ class Sistema:
         #Automatizador do GET
         self.get = None
 
+        #Automatizador do PAT
+        self.pat = None
+
         #Automatizador do PMF Agenda
         self.pmfagenda = None
 
         #Automatizador do SIBE PU
         self.sibe = None
+
+        #Automatizador do SD
+        self.sd = None
 
         #Puxador de Tarefas
         self.puxador = Puxador()
@@ -65,14 +86,17 @@ class Sistema:
         """Abre o navegador Edge e vai para o site do Portal CNIS."""
         self.cnis = Cnis()
         self.cnis.abrir()
-        if self.processador_estaaberto():
+        if self.processador is not None:
             self.processador.definir_cnis(self.cnis)
 
     def abrir_get(self, subcomando: str, lista: list[str]) -> None:
         """Abre o navegador Edge e vai para o site do GET."""
         self.get = Get(False)
         self.get.abrir(self.usarintranet)
-        if self.processador_estaaberto():
+        if self.fila_aberta is not None:
+            if self.get.selecionar_fila(self.fila_aberta.get_codigo()):
+                self.get.irpara_pesquisa_protocolo()
+        if self.processador is not None:
             self.processador.definir_get(self.get)
         self.puxador.definir_get(self.get)
 
@@ -81,38 +105,52 @@ class Sistema:
         self.pmfagenda = Pmfagenda()
         self.pmfagenda.carregar_dados()
         self.pmfagenda.abrir()
-        if self.processador_estaaberto():
+        if self.processador is not None:
             self.processador.definir_pmfagenda(self.pmfagenda)
 
     def abrir_sibe(self, subcomando: str, lista: list[str]) -> None:
         """Abre o navegador Edge e vai para o site do SIBE PU."""
         self.sibe = Sibe()
         self.sibe.abrir()
-        if self.processador_estaaberto():
+        if self.processador is not None:
             self.processador.definir_sibe(self.sibe)
+
+    def abrir_sd(self, subcomando: str, lista: list[str]) -> None:
+        """Abre o navegador Edge e vai para o site do SD."""
+        self.sd = SD()
+        self.sd.abrir()
+        if self.processador is not None:
+            self.processador.definir_sd(self.sd)
 
     def acumula_ben(self, subcomando: str, lista: list[str]) -> None:
         """Analisa a acumulação de benefícios."""
-        self.processador.processar_acumulacaoben()
+        if self.processador is None:
+            return
+        #if len(lista) > 0 and (lista[0] == 'ulp'):
+        #    self.processador.coletar_dadosbasicos_lote()
+        #else:
+        #    self.processador.coletar_dadosbasicos_base()
+        self.processador.analisar_acumulaben()
 
     def adicionar_tarefas(self, subcomando: str, lista: list[str]) -> None:
         """Adiciona uma lista de tarefas a base de dados."""
         self.processador.adicionar_tarefas(lista)
 
-    def agendar_pm(self, subcomando: str, lista: list[str]) -> None:
-        """Executa o programa 'Agendar PM' do processador."""
-        self.processador.processar_agendamentopm(subcomando, lista)
-
     def carregar_dados(self) -> bool:
         """Carrega dados utilizados pelo sistema."""
-        self.filas = Filas([])
-        self.filas.carregar()
-
-        self.impedimentos = Impedimentos([])
-        self.impedimentos.carregar()
-
-        self.lotes = Lotes([])
+        if not self.filas.carregar():
+            return False
+        if not self.filtros.carregar():
+            return False
+        if not self.impedimentos.carregar():
+            return False
+        if not self.listagens.carregar():
+            return False
         if not self.lotes.carregar():
+            return False
+        if not self.modelos_exigencia.carregar():
+            return False
+        if not self.resultados.carregar():
             return False
 
         return True
@@ -120,54 +158,65 @@ class Sistema:
     def carregar_perfil(self, subcomando: str, lista: list[str]) -> None:
         """Abre o perfil de tarefas do GET especificado."""
         perfil = subcomando
-        fila = lista[0]
+        _fila = lista[0]
 
-        nome_fila = perfil + '_' + fila
+        nome_fila = perfil + '_' + _fila
         if nome_fila == self.perfil_aberto:
             print('Erro: O perfil informado já está aberto.\n')
             return
-        if self.get_estaberto():
-            self.processador.driver.fechar()
         print(f'Abrindo {nome_fila}...')
+        if self.filas is None:
+            return
         fila = self.filas.obter(nome_fila)
         if fila is None:
             print('Erro. O perfil informado não existe.\n')
             return
-        tipo = fila.get_tipo()
+        else:
+            tipo = fila.get_tipo()
         if tipo in perfis_disponiveis:
             base_dados = fila.carregar()
             self.fila_aberta = fila
             self.processador = perfis_disponiveis[tipo](base_dados)
-            self.processador.carregar_fila()
-            self.processador.carregar_entidades()
-            self.processador.carregar_despachos()
-            self.processador.processar_dados()
+            if not self.processador.carregar_fila():
+                return
             self.perfil_aberto = nome_fila
-            if self.cnis_estaberto():
-                self.processador.definir_cnis(self.cnis)
-            if self.get_estaberto():
-                self.processador.definir_get(self.get)
-            if self.pmfagenda_estaberto():
-                self.processador.definir_pmfagenda(self.pmfagenda)
-            if self.sibe_estaaberto():
-                self.processador.definir_sibe(self.sibe)
+            self.processador.definir_cnis(self.cnis)
+            self.processador.definir_get(self.get)
+            self.processador.definir_pmfagenda(self.pmfagenda)
+            self.processador.definir_sibe(self.sibe)
+            self.processador.definir_sd(self.sd)
+            self.processador.definir_mod_exigencias(self.modelos_exigencia)
+            self.processador.definir_filtros(self.filtros)
+            self.processador.definir_resultados(self.resultados)
+            self.processador.processar_dados()
             print("Perfil aberto com sucesso.\n")
             self.exibir_perfil()
             return
         else:
             print('Erro. O perfil informado não é suportado pelo UIP.\n')
-
-    def cnis_estaberto(self) -> bool:
-        """Retorna verdadeiro caso o CNIS esteja aberto e autenticado."""
-        return self.cnis is not None
+        
+    def coletar_ben(self, subcomando: str, lista: list[str]) -> None:
+        if self.processador is None:
+            return
+        if len(lista) > 0 and (lista[0] == 'ulp'):
+            self.processador.coletar_dadosbeneficio_lote()
+        else:
+            self.processador.coletar_dadosbeneficio_base()        
 
     def coletar_db(self, subcomando: str, lista: list[str]) -> None:
         """Executa o programa 'Coletar Dados Básicos' do processador."""
-        self.processador.processar_coletadados()
+        if self.processador is None:
+            return
+        if len(lista) > 0 and (lista[0] == 'ulp'):
+            self.processador.coletar_dadosbasicos_lote()
+        else:
+            self.processador.coletar_dadosbasicos_base()
     
     def concluir(self, subcomando: str, lista: list[str]) -> None:
         """Executa o programa 'Concluir Tarefa' do processador."""
-        self.processador.processar_conclusao()
+        usar_lista = len(lista) > 0 and lista[0] == 'ulp'
+        if self.processador is not None:
+            self.processador.concluir_tarefa(usar_lista)
 
     def contar_exig(self, subcomando: str, lista: list[str]) -> None:
         """Conta o número de exigências registradas na tarefa especificada."""
@@ -241,7 +290,7 @@ class Sistema:
         """Exibe informações sobre a tarefa especificada."""
         protocolo = lista[0]
         for t in self.processador.lista:
-            if protocolo == t.obter_protocolo():
+            if protocolo == str(t.obter_protocolo()):
                 print(t)
                 return
         print("Erro. Tarefa não foi encontrada.\n")
@@ -250,48 +299,68 @@ class Sistema:
         """Exibe o resumo das tarefas do perfil aberto."""
         print(self.processador)
 
-    def get_estaberto(self) -> bool:
-        """Retorna verdadeiro caso o GET esteja aberto e autenticado."""
-        return self.get is not None
+    def gerar_pa(self, subcomando: str, lista: list[str]) -> None:
+        """Gerar PA da tarefa"""
+        if self.processador is None:
+            return
+        if len(lista) > 0 and (lista[0]) == 'ulp':
+            self.processador.gerar_pa_lote()
+        else:
+            self.processador.gerar_pa_base()
 
     def gerar_subtarefa(self, subcomando: str, lista: list[str]) -> None:
         """Executa o programa 'Gerar Subtarefa' do processador."""
-        self.processador.processar_geracaosubtarefa()
+        if self.processador is None:
+            return
+        if len(lista) > 0 and (lista[0] == 'ulp'):
+            self.processador.processar_gerarsubtarefa_lote()
+        else:
+            self.processador.processar_gerarsubtarefa_base()
 
     def impedir(self, subcomando: str, lista: list[str]) -> None:
         """Marca a tarefa especificada com um impedimento para conclusão."""
         impedimento_id = subcomando
         protocolos = lista
         if (impedimento := self.impedimentos.obter(impedimento_id)) is not None:
-            self.processador.processar_impedimento(impedimento.id, protocolos)
+            self.processador.processar_impedimento(impedimento, protocolos)
         else:
             print(f'O impedimento {impedimento_id} não existe.\n')
+
+    def juntar_docs(self, subcomando: str, lista: list[str]) -> None:
+        """Junta documentos da análise."""
+        if self.processador is None:
+            return
+        if len(lista) > 0 and (lista[0] == 'ulp'):
+            self.processador.juntar_docs()
+        else:
+            print('Requer ulp.')
     
     def listar(self, subcomando: str, sublistas: list[str]) -> None:
         """Exibe uma lista de tarefas de acordo com o filtro especificado."""
         nome_lista = subcomando
-        if len(sublistas) > 0:
-            sublista = sublistas[0]
-        else:
-            sublista = None
-        listas_disponiveis = self.processador.obter_listagens()         
-        if nome_lista in listas_disponiveis.keys():
-            (quant, resultado) = self.processador.obter_listagem(nome_lista, sublista)
-            print(resultado)
-            print(f'\nTotal de itens: {quant}.\n')
-        else:
+        if self.processador is None:
+            return
+        listagem = self.listagens.obter(nome_lista, self.processador.tags)
+        if listagem is None:
             print(f'Erro. A listagem \'{nome_lista}\' não foi reconhecida.\n')
+        else:
+            filtro = self.filtros.obter(listagem.filtro)
+            if filtro is None:
+                print(f'Erro. O filtro \'{listagem.filtro}\' não foi reconhecido.\n')
+            else:                
+                (quant, resultado) = self.processador.listar(listagem, filtro)
+                print(resultado)
+                print(f'\nTotal de itens: {quant}.\n')            
 
     def listar_ajuda(self) -> None:
         """Exibe as listagens disponíveis."""
-        print("Listas disponíveis:")
         if self.processador is None:
             return
-        listas_disponiveis = self.processador.obter_listagens()  
-        for chave, item in listas_disponiveis.items():
-            desc = item['desc']
-            print(f'{chave} - {desc}')
-        print('')
+        _lista = Listagens([])
+        for lista in self.listagens:
+            if lista.processador in self.processador.tags:
+                _lista.adicionar(lista)
+        print(_lista)
 
     def marcar(self, subcomando: str, lista: list[str]) -> None:
         """Marca a tarefa especificada com uma marcação."""
@@ -334,25 +403,15 @@ class Sistema:
             return {}
         return self.processador.obter_comandos()
     
-    def pmfagenda_estaberto(self) -> bool:
-        """Retorna verdadeiro caso o PMF Agenda esteja aberto e autenticado."""
-        return self.pmfagenda is not None
-    
-    def processador_estaaberto(self) -> bool:
-        """Retorna verdadeiro caso exista um processador carregado na memória."""
-        return self.processador is not None
-
     def processar_lote(self, subcomando: str, lista: list[str]) -> None:
+        if self.processador is None:
+            return
         if self.lotes is not None:
             lote = self.lotes.obter(subcomando)
             if lote is not None:
                 self.processador.processar_lote(lote)
             else:
                 print('Erro. Lote não encontrado.')
-    
-    def sibe_estaaberto(self) -> bool:
-        """Retorna verdadeiro caso o SIBE PU esteja aberto e autenticado."""
-        return self.sibe is not None
 
     def puxar_tarefa(self, subcomando: str, lista: list[str]) -> bool:
         """Puxa uma tarefa no GET."""
@@ -360,11 +419,11 @@ class Sistema:
 
         if not subcomando.isnumeric():
             print(f'O argumento informado não é um número inteiro válido.\n')
-            return        
+            return False
         quant = int(subcomando)
         if quant == 0:
             print(f'O argumento informado deve ser um número inteiro maior que zero.\n')
-            return
+            return False
         self.puxador.abrir_lista()
         while cont < quant:
             if self.puxador.puxar():
@@ -377,6 +436,12 @@ class Sistema:
             print(f'{cont} tarefa(s) puxada(s) com sucesso\n')
         else:
             print('Nenhuma tarefa foi puxada.\n')
+        return True
+    
+    def reprocessar_bpc(self, subcomando: str, lista: list[str]) -> None:
+        """Reprocessa um lote de BPC com erro de validação PAT-Portal SIBE."""
+        if self.pat is None:
+            return        
 
     def usar_intranet(self, subcomando: str, lista: list[str]) -> None:
         """Altera o parâmetro de uso do GET via intranet ou Internet."""
@@ -396,3 +461,10 @@ class Sistema:
             print('Configuração usar_intranet foi alterada para sim.\n')
         else:
             print('Configuração usar_intranet foi alterada para não.\n')
+
+    def visualizacao_rapida(self, subcomando: str, lista: list[str]) -> None:
+        """"""
+        if self.processador is None:
+            return
+        if len(lista) > 0 and (lista[0] == 'ulp'):
+            self.processador.visualizar_rapido_lote()
