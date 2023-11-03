@@ -11,8 +11,9 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.select import Select
+from selenium.webdriver.support.wait import WebDriverWait
 
 URL_GET_INTRANET = 'https://geridinss.dataprev.gov.br:8443/cas/login?service=https://www-tarefas/tarefas'
 URL_GET_INTERNET = 'https://geridinss.dataprev.gov.br:8443/cas/login?service=https://www.tarefas.inss.gov.br/tarefasinternet'
@@ -50,20 +51,51 @@ class Get(Navegador):
         
         #Modo de preencher os campos adicionais de uma subtarefa
         self.criarsub_modolinha = criarsub_modolinha
+
+    def selecionar_fila(self, codigo: str) -> bool:
+        item_selecionar = ''
+        selec = Select(self.driver.find_element(By.ID, value="domains"))
+
+        for item in selec.options:
+            if item.text.find(codigo) >= 0:
+                item_selecionar = item.text
+
+        if len(item_selecionar) == 0:
+            return False
+        selec.select_by_value(item_selecionar)
+        self.espera.until(EC.element_to_be_clickable((By.ID, "formTarefas:btnBuscar")))
+        return True
+
+    def irpara_pesquisa_protocolo(self) -> None:
+        self.clicar_botao("formTarefas:btnBuscaDireta")
+        self.espera.until(EC.element_to_be_clickable((By.ID, "formTarefas:tipoConsulta:4")))
+        #time.sleep(2)
+        elemento = self.driver.find_element(By.ID, "formTarefas:tipoConsulta")
+        elemento_filho = elemento.find_elements(By.CLASS_NAME, "ui-button")
+        elemento_filho[4].click()
+        #elemento = self.driver.find_element(By.ID, "formTarefas:tipoConsulta:4")
+        #elemento_pai = elemento.parent
+        #elemento_pai.click()
+        self.aguardar_telaprocessamento()
+        self.espera.until(EC.element_to_be_clickable((By.ID, "formTarefas:filtroProtocolo")))
     
     def abrir(self, intranet):
         """Abre o GET."""
+        
         if intranet:
-            self.driver.get(URL_GET_INTRANET)
+            endereco_get = URL_GET_INTRANET
+            endereco_selecdom = URL_DOMINIOS_INTRANET
         else:
-            self.driver.get(URL_GET_INTERNET)
+            endereco_get = URL_GET_INTERNET
+            endereco_selecdom = URL_DOMINIOS_INTERNET
+        self.driver.get(endereco_get)
         
         #Aguarda autenticação
         time.sleep(10)
-        if intranet:
-            self.driver.get(URL_DOMINIOS_INTRANET)
-        else:
-            self.driver.get(URL_DOMINIOS_INTERNET)
+        self.driver.get(endereco_selecdom)
+
+        #Aguarda seletor de domínios
+        WebDriverWait(self.driver, self.tempo_espera).until(EC.element_to_be_clickable((By.ID, "domains")))
 
     def abrir_guia(self, nome_guia) -> None:
         """Abre uma guia do GET."""
@@ -89,6 +121,46 @@ class Get(Navegador):
         WebDriverWait(self.driver, 20).until(EC.visibility_of_element_located((By.CLASS_NAME, 'panel-title')))
         time.sleep(1)
 
+    def adicionar_anexos(self, arquivos: list[str]) -> list[bool]:
+        """Anexa os arquivos especificados na tarefa do GET."""
+        nav = self.driver
+        resultados = []
+
+        if nav is None:
+            return []
+
+        self.irpara_iniciotela()
+        self.abrir_guia('Anexos')
+        self.irpara_finaltela()
+        for arquivo in arquivos:
+
+            ## Checar se arquivo existe
+            if path.exists(arquivo):
+                self.clicar_botao('formDetalharTarefa:detalheTarefaTabView:btnIncluirAnexo')
+                
+                #Informa o nome do arquivo para anexar
+                elem = nav.find_element(By.ID, 'formAnexo:uploadAnexo_input')
+                elem.send_keys(arquivo)
+                try:
+                    WebDriverWait(nav, 60).until(EC.element_to_be_clickable((By.ID, 'formAnexo:dtblAnexo:0:txtNomeArquivoAnexo')))
+                except:
+                    resultados.append(False)
+                    continue
+                time.sleep(1)
+
+                #Clica no botão Incluir Anexo
+                nav.find_element(By.ID, 'formAnexo:btIncluirAnexo').click()
+                try:
+                    self.aguardar_telaprocessamento()
+                except:
+                    resultados.append(False)
+                    continue
+                time.sleep(1)
+                resultados.append(True)
+            else:
+                resultados.append(False)
+        return resultados
+
     def adicionar_despacho(self, texto: str) -> None:
         """Adiciona despacho na tarefa."""
         drv = self.driver
@@ -108,21 +180,6 @@ class Get(Navegador):
     
         ##Aguarda pela msg Despcho incluído com sucesso
         WebDriverWait(drv, 60).until(EC.visibility_of_element_located((By.CLASS_NAME, "ui-messages-info"))).get_attribute("value")
-        time.sleep(1)
-
-    def adicionar_anexo(self, nomearquivo: str) -> None:
-        """Anexa o arquivo PDF na tarefa."""
-        drv = self.driver
-
-        #Informa o nome do arquivo para anexar
-        elem = drv.find_element(By.ID, 'formAnexo:uploadAnexo_input')
-        elem.send_keys(nomearquivo)
-        WebDriverWait(drv, 60).until(EC.element_to_be_clickable((By.ID, 'formAnexo:dtblAnexo:0:txtNomeArquivoAnexo')))
-        time.sleep(1)
-
-        #Clica no botão Incluir Anexo
-        drv.find_element(By.ID, 'formAnexo:btIncluirAnexo').click()
-        self.aguardar_telaprocessamento()
         time.sleep(1)
 
     def aguardar_telaprocessamento(self) -> None:
@@ -198,8 +255,8 @@ class Get(Navegador):
             resultado["der"] = texto[:10] #somente a data
         
         #Coleta os campos adicionais
-        tipos_campos_adic = ['esta_acamado', 'nb']
-        rotulos_campos_adic = ['você está acamado', 'nb']
+        tipos_campos_adic = ['esta_acamado', 'nb', 'uf', 'portaria', 'defeso']
+        rotulos_campos_adic = ['você está acamado', 'nb', 'uf', 'portaria', 'defeso']
         checar_campos_adic = False
         for tipo in tipos_campos_adic:
             resultado[tipo] = ''
@@ -209,11 +266,11 @@ class Get(Navegador):
             campo = drv.find_element(By.ID, value="formDetalharTarefa:detalheTarefaTabView:panelCamposAdicionaisTarefa")
             campos_adic = campo.find_elements(By.CLASS_NAME, value="form-group")
             for campo in campos_adic:
-                descricao = campo.find_element(By.TAG_NAME, value="label").text
+                descricao = campo.find_element(By.TAG_NAME, value="label").text.strip()
                 i = 0
                 for rotulo in rotulos_campos_adic:
                     if descricao.casefold().startswith(rotulo):
-                        texto = campo.find_element(By.TAG_NAME, value="div").text
+                        texto = campo.find_element(By.TAG_NAME, value="div").text.strip()
                         resultado[tipos_campos_adic[i]] = texto
                     i += 1
         
@@ -328,7 +385,7 @@ class Get(Navegador):
                 if campos[1].find_element(By.TAG_NAME, "span").text == nome_servico:
                     numero_sub = campos[0].find_element(By.TAG_NAME, "span").text
                     subconcluida = campos[2].find_element(By.TAG_NAME, "span").text == TEXTO_CONCLUIDA
-                    resultado.append((numero_sub, subconcluida))
+                    resultado.append((numero_sub.strip(), subconcluida))
                     if subconcluida and gerarpdf:
                         botao = campos[3].find_element(By.ID, f'formDetalharTarefa:detalheTarefaTabView:dtblSubtarefasPericias:{item_id}:cmdLinkLaudoPericia')
                         botao.click()
@@ -340,18 +397,20 @@ class Get(Navegador):
         self.irpara_iniciotela()
         return resultado
     
-    def coletar_status(self) -> str:
+    def coletar_status(self) -> tuple[str, str]:
         """Coleta o status da tarefa"""
         drv = self.driver
         status = ''
 
-        campo = drv.find_element(By.ID, 'formTarefas:gridTarefa_data')
-        campo = campo.find_elements(By.TAG_NAME, 'td')[9]
-        status = campo.find_element(By.TAG_NAME, 'span').text
+        campos = drv.find_element(By.ID, 'formTarefas:gridTarefa_data')
+        campo = campos.find_elements(By.TAG_NAME, 'td')[8]
+        data = campo.find_element(By.TAG_NAME, 'div').text.strip()
+        campo = campos.find_elements(By.TAG_NAME, 'td')[9]
+        status = campo.find_element(By.TAG_NAME, 'span').text.strip()
 
-        return status
+        return (status, data)
     
-    def coletar_subtarefa(self, servico: str) -> int:
+    def coletar_subtarefa(self, servico: str) -> tuple[int, bool]:
         """Coleta o número da subtarefa do serviço informado"""
         nav = self.driver
 
@@ -363,7 +422,7 @@ class Get(Navegador):
         if len(subs) > 0:
             return (int(subs[len(subs)-1][0]), True)
         else:
-            return 0
+            return (0, False)
 
     def concluir_tarefa(self, numero: str, texto: str) -> dict:
         """Conclui a tarefa especificada no GET."""
@@ -445,7 +504,7 @@ class Get(Navegador):
                 cont += len(linhas)
         return cont
 
-    def definir_exigencia(self, conteudo) -> bool:
+    def definir_exigencia(self, conteudo: str) -> bool:
         """Registra uma exigência na tarefa."""             
         drv = self.driver
         
@@ -484,12 +543,14 @@ class Get(Navegador):
         
         return True
     
+    def descer_pagina(self) -> None:
+        ActionChains(self.driver).send_keys(Keys.PAGE_DOWN).perform()
+    
     def fechar_tarefa(self) -> None:
         """Fecha a tarefa no GET e volta para página de pesquisa."""
         drv = self.driver
         
         #Clica em Voltar
-        
         self.irpara_iniciotela()
         WebDriverWait(drv, self.tempo_espera).until(EC.element_to_be_clickable((By.ID, "formDetalharTarefa:detalhe_voltar")))
         botao = drv.find_element(By.ID, value="formDetalharTarefa:detalhe_voltar")
@@ -501,6 +562,23 @@ class Get(Navegador):
         time.sleep(1)
         
         self.tarefa = ""
+
+        
+    def gerar_pa(self, tarefa: str) -> bool:
+        """Gera cópia em PDF do processo da tarefa."""
+        nav = self.driver
+               
+        #Clica em Gerar PDF
+        botao = nav.find_element(By.ID, value="formTarefas:gridTarefa:0:lnkGerarPdf")
+        botao.click()
+        self.aguardar_telaprocessamento()
+
+        #Aguarda pelo arquivo PDF e o renomeia
+        arquivo_gerado = path.join(self.dir_downloads, f'relatorio_tarefa_{tarefa}.pdf')
+        arquivo_novo = path.join(self.dir_downloads, f'{tarefa} - PA.pdf')
+        self.renomear_pdf(arquivo_gerado, arquivo_novo)
+
+        return True
 
     def gerar_subtarefa(self, servico: str, tipo_sub: str, dados_camposadic) -> dict:
         """Gera uma subtarefa no GET e retorna seu número."""
@@ -582,7 +660,7 @@ class Get(Navegador):
         if res['sucesso']:
             res['numerosub'] = [int(s) for s in res['mensagem'].split() if s.isdigit()]
         else:
-            res['numerosub'] = [0]
+            
             #Se deu erro, desiste de criar a subtarefa
             self.irpara_finaltela()
             self.clicar_botao('formNovaTarefa:btCancelarTarefa')
@@ -721,3 +799,6 @@ class Get(Navegador):
         texto = drv.find_element(By.CLASS_NAME, value="ui-messages-info-summary").text
         numsub = [int(s) for s in texto.split() if s.isdigit()]
         return numsub[0] 
+    
+    def subir_pagina(self) -> None:
+        ActionChains(self.driver).send_keys(Keys.PAGE_UP).perform()
