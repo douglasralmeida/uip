@@ -1,0 +1,142 @@
+{
+        "10,29": {
+            "estados": "MT",
+            "inicio_periodo": "01/10/2022",
+            "fim_periodo": "31/01/2023",
+            "inicio_contribuicao": "02/2022",
+            "fim_contribuicao": "09/2022",
+            "areas": "rio,lago",
+            "produtos": "peixe",
+            "descricao": "Bacias dos Rios Amazonas, Araguaia, Tocantins e Paraguai"
+        },
+        "12,17": {
+            "estados": "GO,TO",
+            "inicio_periodo": "01/11/2022",
+            "fim_periodo": "28/02/2023",
+            "inicio_contribuicao": "03/2022",
+            "fim_contribuicao": "10/2022",
+            "areas": "rio,lago",
+            "produtos": "peixe",
+            "descricao": "Bacia do Rio Araguaia"
+        },
+        "13,16": {
+            "estados": "GO,PA,TO",
+            "inicio_periodo": "01/11/2022",
+            "fim_periodo": "28/02/2023",
+            "inicio_contribuicao": "03/2022",
+            "fim_contribuicao": "10/2022",
+            "areas": "rio,lago",
+            "produtos": "peixe",
+            "descricao": "Bacias dos Rios Tocantins e Gurupi"
+        },
+        "13,17": {
+            "estados": "GO,PA,TO",
+            "inicio_periodo": "01/11/2023",
+            "fim_periodo": "28/02/2024",
+            "inicio_contribuicao": "03/2023",
+            "fim_contribuicao": "10/2023",
+            "areas": "rio,lago",
+            "produtos": "peixe",
+            "descricao": "Bacias dos Rios Tocantins e Gurupi"
+        },        
+        "25,20": {
+            "estados": "GO,MS",
+            "inicio_periodo": "01/11/2022",
+            "fim_periodo": "28/02/2023",
+            "inicio_contribuicao": "03/2022",
+            "fim_contribuicao": "09/2022",
+            "areas": "rio,lago,açude",
+            "produtos": "peixe",
+            "descricao": "Bacia do Rio Paraná"
+        },
+        "43,21": {
+            "estados": "AP,PA",
+            "inicio_periodo": "17/11/2022",
+            "fim_periodo": "31/03/2023",
+            "inicio_contribuicao": "04/2022",
+            "fim_contribuicao": "11/2022",
+            "areas": "rio,mar",
+            "produtos": "peixe-espécie gurijuba",
+            "descricao": "Bacias dos Rios Araguari e Cunani; Águas Juridicionais Brasilieiras"
+        },
+        "48,140": {
+            "estados": "AM",
+            "inicio_periodo": "15/11/2022",
+            "fim_periodo": "15/03/2023",
+            "inicio_contribuicao": "03/2022",
+            "fim_contribuicao": "11/2022",
+            "areas": "rio,lago",
+            "produtos": "peixe",
+            "descricao": "Bacia Amazônica do Amazonas"
+        },
+        "48,141": {
+            "estados": "AC",
+            "inicio_periodo": "15/11/2022",
+            "fim_periodo": "15/03/2023",
+            "inicio_contribuicao": "03/2022",
+            "fim_contribuicao": "11/2022",
+            "areas": "rio,lago",
+            "produtos": "peixe",
+            "descricao": "Bacia Amazônica do Acre"
+        },
+        "48,142": {
+            "estados": "PA",
+            "inicio_periodo": "15/11/2022",
+            "fim_periodo": "15/03/2023",
+            "inicio_contribuicao": "03/2022",
+            "fim_contribuicao": "11/2022",
+            "areas": "rio,lago",
+            "produtos": "peixe",
+            "descricao": "Bacia Amazônica e Rios do Pará"
+        },
+        "48,143": {
+            "estados": "RO",
+            "inicio_periodo": "15/11/2022",
+            "fim_periodo": "15/03/2023",
+            "inicio_contribuicao": "03/2022",
+            "fim_contribuicao": "11/2022",
+            "areas": "rio,lago",
+            "produtos": "peixe",
+            "descricao": "Bacia Amazônica e Rios de Rondônia"
+        },
+        "48,144": {
+            "estados": "AP",
+            "inicio_periodo": "15/11/2022",
+            "fim_periodo": "15/03/2023",
+            "inicio_contribuicao": "03/2022",
+            "fim_contribuicao": "11/2022",
+            "areas": "rio,lago",
+            "produtos": "peixe",
+            "descricao": "Bacia Amazônica e Rios do Amapá"
+        },
+        "48,145": {
+            "estados": "PA",
+            "inicio_periodo": "01/01/2023",
+            "fim_periodo": "30/04/2023",
+            "inicio_contribuicao": "05/2022",
+            "fim_contribuicao": "12/2022",
+            "areas": "rio,lago",
+            "produtos": "peixe",
+            "descricao": "Bacia Amazônica da Ilha de Marajó"
+        },
+        "48,146": {
+            "estados": "RR",
+            "inicio_periodo": "01/03/2023",
+            "fim_periodo": "30/06/2023",
+            "inicio_contribuicao": "07/2022",
+            "fim_contribuicao": "02/2023",
+            "areas": "rio,lago",
+            "produtos": "peixe",
+            "descricao": "Bacia Amazônica e Rios de Roraima"
+        },
+        "201,24": {
+            "estados": "MS",
+            "inicio_periodo": "05/11/2022",
+            "fim_periodo": "28/02/2023",
+            "inicio_contribuicao": "03/2022",
+            "fim_contribuicao": "11/2022",
+            "areas": "rio,lago",
+            "produtos": "peixe",
+            "descricao": "Bacia do Rio Paraguai"
+        }
+}
