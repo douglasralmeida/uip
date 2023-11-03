@@ -4,8 +4,6 @@
 
 from arquivo import carregar_dados
 from dataclasses import dataclass
-from os import path
-from variaveis import Variaveis
 
 ARQUIVO_DADOS = 'impedimentos.json'
 
@@ -39,12 +37,17 @@ class Impedimentos:
         resultado = '\n'.join(f'\t{impedimento!r} - {impedimento!s}' for impedimento in self.lista)
         return 'Impedimentos disponíveis:\n' + resultado
 
-    def carregar(self) -> None:
+    def carregar(self) -> bool:
         """Carrega a lista de impedimentos do arquivo JSON."""
-        with carregar_dados(ARQUIVO_DADOS) as dados:
-            self.lista = [Impedimento(codigo, item['desc']) for codigo, item in dados.items()]
+        try:
+            with carregar_dados(ARQUIVO_DADOS) as dados:
+                self.lista = [Impedimento(codigo, item['desc']) for codigo, item in dados.items()]
+        except OSError as err:
+            print(f"Erro ao abrir arquivo de impedimentos: {err.strerror}.")
+            return False
+        return True
 
-    def obter(self, valor: str) -> Impedimento:
+    def obter(self, valor: str) -> Impedimento | None:
         """Retorna um impedimento conforme o ID especificado;"""
         for impedimento in self.lista:
             if valor.casefold() == repr(impedimento).casefold():
