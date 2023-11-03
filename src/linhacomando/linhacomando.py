@@ -17,7 +17,7 @@ class LinhaComando:
         #Sistema
         self.sistema = sistema
     
-    def avaliar_comando(self, nome_comando: str, args: str) -> None:
+    def avaliar_comando(self, nome_comando: str, args: str) -> bool:
         """
         Verifica se o comando obedece às regras pré-estabelecidas e o executa.
         Retorna Verdadeiro se o comando existe na lista de comandos disponíveis.
@@ -44,16 +44,20 @@ class LinhaComando:
                 print('Nenhuma ajuda foi encontrada para o comando informado.\n')
                 return True
         if comando['requer_processador']:
-            if not self.sistema.processador_estaaberto():
+            if not self.sistema.processador is not None:
                 print('Erro: Nenhum perfil está aberto.\n')
                 return True
         if comando['requer_get']:
-            if not self.sistema.get_estaberto():
+            if not self.sistema.get is not None:
                 print('Erro: O GET não foi aberto.\n')
                 return True
         if comando['requer_pmfagenda']:
-            if not self.sistema.pmfagenda_estaberto():
+            if not self.sistema.pmfagenda is not None:
                 print('Erro: O PMF Agenda não foi aberto.\n')
+                return True
+        if comando['requer_sd']:
+            if not self.sistema.sd is not None:
+                print('Erro: O SD não foi aberto.\n')
                 return True
         if args is not None:
             lista = args.split(' ')

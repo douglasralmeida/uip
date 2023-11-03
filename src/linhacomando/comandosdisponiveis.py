@@ -16,10 +16,12 @@ class ComandosDisponiveis:
                 'requer_subcomando': False,
                 'requer_cnis': False,
 				'requer_get': False,
-                'requer_processador': False,
+                'requer_pat': False,
+				'requer_processador': False,
                 'requer_pmfagenda': False,
                 'requer_protocolo': False,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },            
             'abrirget': {
                 'funcao': sistema.abrir_get,
@@ -28,10 +30,12 @@ class ComandosDisponiveis:
                 'requer_subcomando': False,
                 'requer_cnis': False,
 				'requer_get': False,
-                'requer_processador': False,
+                'requer_pat': False,
+				'requer_processador': False,
                 'requer_pmfagenda': False,
                 'requer_protocolo': False,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },
             'abrirperfil': {
                 'funcao': sistema.carregar_perfil,
@@ -40,10 +44,12 @@ class ComandosDisponiveis:
                 'requer_subcomando': True,
                 'requer_cnis': False,
 				'requer_get': False,
-                'requer_processador': False,
+                'requer_pat': False,
+				'requer_processador': False,
                 'requer_pmfagenda': False,
                 'requer_protocolo': False,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },
             'abrirpmfagenda': {
                 'funcao': sistema.abrir_pmfagenda,
@@ -52,10 +58,26 @@ class ComandosDisponiveis:
                 'requer_subcomando': False,
                 'requer_cnis': False,
 				'requer_get': False,
-                'requer_processador': False,
+                'requer_pat': False,
+				'requer_processador': False,
                 'requer_pmfagenda': False,
                 'requer_protocolo': False,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
+            },
+            'abrirsd': {
+                'funcao': sistema.abrir_sd,
+                'argsmin': 0,
+                'desc': 'Abre o navegador Edge e vai para o site do SD.',
+                'requer_subcomando': False,
+                'requer_cnis': False,
+				'requer_get': False,
+                'requer_pat': False,
+				'requer_processador': False,
+                'requer_pmfagenda': False,
+                'requer_protocolo': False,
+                'requer_sibe': False,
+				'requer_sd': False
             },
             'abrirsibe': {
                 'funcao': sistema.abrir_sibe,
@@ -64,10 +86,12 @@ class ComandosDisponiveis:
                 'requer_subcomando': False,
                 'requer_cnis': False,
 				'requer_get': False,
-                'requer_processador': False,
+                'requer_pat': False,
+				'requer_processador': False,
                 'requer_pmfagenda': False,
                 'requer_protocolo': False,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },
             'acumulaben': {
                 'funcao': sistema.acumula_ben,
@@ -76,10 +100,12 @@ class ComandosDisponiveis:
                 'requer_subcomando': False,
                 'requer_cnis': True,
 				'requer_get': False,
-                'requer_processador': True,
+                'requer_pat': False,
+				'requer_processador': True,
                 'requer_pmfagenda': False,
                 'requer_protocolo': False,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },
             'adicionar': {
                 'funcao': sistema.adicionar_tarefas,
@@ -88,10 +114,12 @@ class ComandosDisponiveis:
                 'requer_subcomando': False,
                 'requer_cnis': False,
 				'requer_get': False,
-                'requer_processador': True,
+                'requer_pat': False,
+				'requer_processador': True,
                 'requer_pmfagenda': False,
                 'requer_protocolo': True,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },
             'agendapm': {
                 'funcao': sistema.mostrar_agenda_pm,
@@ -100,22 +128,12 @@ class ComandosDisponiveis:
                 'requer_subcomando': False,
                 'requer_cnis': False,
 				'requer_get': False,
-                'requer_processador': True,
+                'requer_pat': False,
+				'requer_processador': True,
                 'requer_pmfagenda': False,
                 'requer_protocolo': True,
-                'requer_sibe': False
-            },
-            'agendarpm': {
-                'funcao': sistema.agendar_pm,
-                'argsmin': 0,
-                'desc': 'Executa o programa \'Agendar PM\' do processador.',
-                'requer_subcomando': False,
-                'requer_cnis': False,
-				'requer_get': False,
-                'requer_processador': True,
-                'requer_pmfagenda': True,
-                'requer_protocolo': False,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },
             'coletardb': {
                 'funcao': sistema.coletar_db,
@@ -124,10 +142,25 @@ class ComandosDisponiveis:
                 'requer_subcomando': False,
                 'requer_cnis': False,
 				'requer_get': True,
-                'requer_processador': True,
+                'requer_pat': False,
+				'requer_processador': True,
                 'requer_pmfagenda': False,
                 'requer_protocolo': False,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
+            },
+            'coletardib': {
+                'funcao': sistema.coletar_ben,
+                'argsmin': 0,
+                'desc': 'Executa o programa \'Coletar Dados de DIB\' do processador.',
+                'requer_subcomando': False,
+                'requer_cnis': False,
+				'requer_get': False,
+                'requer_pat': False,
+				'requer_processador': True,
+                'requer_pmfagenda': False,
+                'requer_protocolo': False,
+                'requer_sibe': True
             },
             'comunicado': {
                 'funcao': sistema.mostrar_comunicado,
@@ -136,10 +169,12 @@ class ComandosDisponiveis:
                 'requer_subcomando': False,
                 'requer_cnis': False,
 				'requer_get': False,
-                'requer_processador': True,
+                'requer_pat': False,
+				'requer_processador': True,
                 'requer_pmfagenda': False,
                 'requer_protocolo': True,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },
             'concluir': {
                 'funcao': sistema.concluir,
@@ -148,10 +183,12 @@ class ComandosDisponiveis:
                 'requer_subcomando': False,
                 'requer_cnis': False,
 				'requer_get': True,
-                'requer_processador': True,
+                'requer_pat': False,
+				'requer_processador': True,
                 'requer_pmfagenda': False,
                 'requer_protocolo': False,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },
             'contarexig': {
                 'funcao': sistema.contar_exig,
@@ -160,10 +197,12 @@ class ComandosDisponiveis:
                 'requer_subcomando': False,
                 'requer_cnis': False,
 				'requer_get': True,
-                'requer_processador': True,
+                'requer_pat': False,
+				'requer_processador': True,
                 'requer_pmfagenda': False,
                 'requer_protocolo': True,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },
             'contarsub': {
                 'funcao': sistema.contar_sub,
@@ -172,10 +211,12 @@ class ComandosDisponiveis:
                 'requer_subcomando': False,
                 'requer_cnis': False,
 				'requer_get': True,
-                'requer_processador': True,
+                'requer_pat': False,
+				'requer_processador': True,
                 'requer_pmfagenda': False,
                 'requer_protocolo': True,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },
             'desimpedir': {
                 'funcao': sistema.desimpedir,
@@ -184,10 +225,12 @@ class ComandosDisponiveis:
                 'requer_subcomando': False,
                 'requer_cnis': False,
 				'requer_get': False,
-                'requer_processador': True,
+                'requer_pat': False,
+				'requer_processador': True,
                 'requer_pmfagenda': False,
                 'requer_protocolo': True,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },
             'desistir': {
                 'funcao': sistema.desistir,
@@ -196,10 +239,12 @@ class ComandosDisponiveis:
                 'requer_subcomando': False,
                 'requer_cnis': False,
 				'requer_get': False,
-                'requer_processador': True,
+                'requer_pat': False,
+				'requer_processador': True,
                 'requer_pmfagenda': False,
                 'requer_protocolo': True,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },
             'despacho': {
                 'funcao': sistema.mostrar_despacho,
@@ -208,10 +253,12 @@ class ComandosDisponiveis:
                 'requer_subcomando': False,
                 'requer_cnis': False,
 				'requer_get': False,
-                'requer_processador': True,
+                'requer_pat': False,
+				'requer_processador': True,
                 'requer_pmfagenda': False,
                 'requer_protocolo': True,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },
             'editartarefa': {
                 'funcao': sistema.editar_tarefas,
@@ -220,10 +267,12 @@ class ComandosDisponiveis:
                 'requer_subcomando': True,
                 'requer_cnis': False,
 				'requer_get': False,
-                'requer_processador': True,
+                'requer_pat': False,
+				'requer_processador': True,
                 'requer_pmfagenda': False,
                 'requer_protocolo': True,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },
             'fases': {
                 'funcao': sistema.exibir_fases,
@@ -232,10 +281,12 @@ class ComandosDisponiveis:
                 'requer_subcomando': False,
                 'requer_cnis': False,
 				'requer_get': False,
-                'requer_processador': True,
+                'requer_pat': False,
+				'requer_processador': True,
                 'requer_pmfagenda': False,
                 'requer_protocolo': False,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },
             'filas': {
                 'funcao': sistema.exibir_filas,
@@ -244,10 +295,26 @@ class ComandosDisponiveis:
                 'requer_subcomando': False,
                 'requer_cnis': False,
 				'requer_get': False,
-                'requer_processador': False,
+                'requer_pat': False,
+				'requer_processador': False,
                 'requer_pmfagenda': False,
                 'requer_protocolo': False,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
+            },
+            'gerarpa': {
+                'funcao': sistema.gerar_pa,
+                'argsmin': 0,
+                'desc': 'Executa o programa \'Gerar PA\' do processador.',
+                'requer_subcomando': False,
+                'requer_cnis': False,
+				'requer_get': True,
+                'requer_pat': False,
+				'requer_processador': True,
+                'requer_pmfagenda': False,
+                'requer_protocolo': False,
+                'requer_sibe': False,
+				'requer_sd': False
             },
             'gerarsub': {
                 'funcao': sistema.gerar_subtarefa,
@@ -256,10 +323,12 @@ class ComandosDisponiveis:
                 'requer_subcomando': False,
                 'requer_cnis': False,
 				'requer_get': True,
-                'requer_processador': True,
+                'requer_pat': False,
+				'requer_processador': True,
                 'requer_pmfagenda': False,
                 'requer_protocolo': False,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },
             'impedir': {
                 'funcao': sistema.impedir,
@@ -268,10 +337,26 @@ class ComandosDisponiveis:
                 'requer_subcomando': True,
                 'requer_cnis': False,
 				'requer_get': False,
-                'requer_processador': True,
+                'requer_pat': False,
+				'requer_processador': True,
                 'requer_pmfagenda': False,
                 'requer_protocolo': True,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
+            },
+            'juntardocs': {
+                'funcao': sistema.juntar_docs,
+                'argsmin': 0,
+                'desc': 'Junta os documentos da análise em um único arquivo.',
+                'requer_subcomando': False,
+                'requer_cnis': False,
+				'requer_get': False,
+                'requer_pat': False,
+				'requer_processador': True,
+                'requer_pmfagenda': False,
+                'requer_protocolo': False,
+                'requer_sibe': False,
+				'requer_sd': False
             },
             'impedimentos': {
                 'funcao': sistema.mostrar_impedimentos,
@@ -280,10 +365,12 @@ class ComandosDisponiveis:
                 'requer_subcomando': False,
                 'requer_cnis': False,
 				'requer_get': False,
-                'requer_processador': False,
+                'requer_pat': False,
+				'requer_processador': False,
                 'requer_pmfagenda': False,
                 'requer_protocolo': False,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },
             'listar': {
                 'funcao': sistema.listar,
@@ -293,10 +380,12 @@ class ComandosDisponiveis:
                 'requer_subcomando': True,
                 'requer_cnis': False,
 				'requer_get': False,
-                'requer_processador': True,
+                'requer_pat': False,
+				'requer_processador': True,
                 'requer_pmfagenda': False,
                 'requer_protocolo': False,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },
             'lotes': {
                 'funcao': sistema.exibir_lotes,
@@ -305,10 +394,12 @@ class ComandosDisponiveis:
                 'requer_subcomando': False,
                 'requer_cnis': False,
 				'requer_get': False,
-                'requer_processador': False,
+                'requer_pat': False,
+				'requer_processador': False,
                 'requer_pmfagenda': False,
                 'requer_protocolo': False,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },
             'marcar': {
                 'funcao': sistema.marcar,
@@ -318,10 +409,12 @@ class ComandosDisponiveis:
                 'requer_subcomando': True,
                 'requer_cnis': False,
 				'requer_get': False,
-                'requer_processador': True,
+                'requer_pat': False,
+				'requer_processador': True,
                 'requer_pmfagenda': False,
                 'requer_protocolo': True,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },
             'meta': {
                 'funcao': sistema.exibir_producao_metas,
@@ -330,10 +423,12 @@ class ComandosDisponiveis:
                 'requer_subcomando': True,
                 'requer_cnis': False,
 				'requer_get': False,
-                'requer_processador': False,
+                'requer_pat': False,
+				'requer_processador': False,
                 'requer_pmfagenda': False,
                 'requer_protocolo': False,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },
             'pdftxt': {
                 'funcao': sistema.converter_pdf_txt,
@@ -342,10 +437,12 @@ class ComandosDisponiveis:
                 'requer_subcomando': True,
                 'requer_cnis': False,
 				'requer_get': False,
-                'requer_processador': False,
+                'requer_pat': False,
+				'requer_processador': False,
                 'requer_pmfagenda': False,
                 'requer_protocolo': True,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },
             'resumo': {
                 'funcao': sistema.exibir_resumo,
@@ -354,10 +451,12 @@ class ComandosDisponiveis:
                 'requer_subcomando': False,
                 'requer_cnis': False,
 				'requer_get': False,
-                'requer_processador': True,
+                'requer_pat': False,
+				'requer_processador': True,
                 'requer_pmfagenda': False,
                 'requer_protocolo': False,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },
             'tarefa': {
                 'funcao': sistema.exibir_tarefa,
@@ -366,10 +465,12 @@ class ComandosDisponiveis:
                 'requer_subcomando': False,
                 'requer_cnis': False,
 				'requer_get': False,
-                'requer_processador': True,
+                'requer_pat': False,
+				'requer_processador': True,
                 'requer_pmfagenda': False,
                 'requer_protocolo': True,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },
             'processarlote': {
                 'funcao': sistema.processar_lote,
@@ -378,10 +479,12 @@ class ComandosDisponiveis:
                 'requer_subcomando': True,
                 'requer_cnis': False,
 				'requer_get': False,
-                'requer_processador': True,
+                'requer_pat': False,
+				'requer_processador': True,
                 'requer_pmfagenda': False,
                 'requer_protocolo': False,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },            
             'puxar': {
                 'funcao': sistema.puxar_tarefa,
@@ -390,11 +493,27 @@ class ComandosDisponiveis:
                 'requer_subcomando': True,
                 'requer_cnis': False,
 				'requer_get': True,
-                'requer_processador': False,
+                'requer_pat': False,
+				'requer_processador': False,
                 'requer_pmfagenda': False,
                 'requer_protocolo': False,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },
+            'reprocessarbpc': {
+                'funcao': sistema.reprocessar_bpc,
+                'argsmin': 1,
+                'desc': 'Reprocessar um lote de BPC com erro de integração GET-SIBE-PU.',
+                'requer_subcomando': False,
+                'requer_cnis': False,
+				'requer_get': False,
+                'requer_pat': True,
+				'requer_processador': False,
+                'requer_pmfagenda': False,
+                'requer_protocolo': False,
+                'requer_sibe': False,
+				'requer_sd': False
+            },            
             'usarintranet': {
                 'funcao': sistema.usar_intranet,
                 'argsmin': 0,
@@ -402,11 +521,27 @@ class ComandosDisponiveis:
                 'requer_subcomando': False,
                 'requer_cnis': False,
 				'requer_get': False,
-                'requer_processador': False,
+                'requer_pat': False,
+				'requer_processador': False,
                 'requer_pmfagenda': False,
                 'requer_protocolo': False,
-                'requer_sibe': False
+                'requer_sibe': False,
+				'requer_sd': False
             },
+            'ver': {
+                'funcao': sistema.visualizacao_rapida,
+                'argsmin': 0,
+                'desc': 'Visualiza uma lista de tarefas rapidamente.',
+                'requer_subcomando': False,
+                'requer_cnis': False,
+				'requer_get': True,
+                'requer_pat': False,
+				'requer_processador': True,
+                'requer_pmfagenda': False,
+                'requer_protocolo': False,
+                'requer_sibe': False,
+				'requer_sd': False         
+            }
         }
         
     def executar(self, comando: str, subcomando: str, protocolos: str) -> None:
