@@ -2,32 +2,14 @@
 ## Março de 2023
 """Processador para Auxílio Acidente"""
 
-from os import path
 import pandas as pd
+from .procben import ProcessadorBeneficio
 from .utils import analisar_relatoriopm
-from arquivo import ArquivoPrismaEntrada, ArquivoPrismaSaida
+from arquivo import ArquivoPrismaEntrada
 from conversor import Conversor
+from os import path
 from tarefa import TarefaAuxilioAcidente
-from processador import Processador
 from variaveis import Variaveis
-
-colunas_especificas = {'olm': 'string',
-                       'tem_agendapm': 'string',
-                       'tem_pdfagendapmanexo': 'string',
-                       'anexacao_comerro': 'string',
-                       'agenda_coletada': 'string',
-                       'horaagendamento': 'string',
-                       'localagendamento': 'string',
-                       'periciacumprida': 'string',
-                       'periciarealizada': 'string',
-                       'arquivopdfpericia': 'string',
-                       'exigenciapm_comerro': 'string',
-                       'beneficio': 'string',
-                       'pericialancada': 'string',
-                       'beneficiodespachado': 'string',
-                       'subtarefa_coletada': 'string',
-                       'msgerro_criacaosub': 'string'
-                       }
 
 datas_especificas = ['dataagendamento']
 
@@ -73,7 +55,7 @@ atributos = {'tembeninac':   {'coluna': 'possui_ben_inacumulavel',
             }
 }
 
-class ProcessadorAuxAcidente(Processador):
+class ProcessadorAuxAcidente(ProcessadorBeneficio):
     """Classe para o processador de Auxílio Acidente."""
     def __init__(self, base_dados) -> None:
         super().__init__(base_dados)
@@ -85,50 +67,65 @@ class ProcessadorAuxAcidente(Processador):
         self.dadosparacoletar = ['der', 'cpf', 'quantexig', 'quantsub', 'subtarefa', 'pm', 'olm']
 
         self.especies_acumulaveis = ['01', '21', '25', '80', '93']
+        
+        self.id_subtarefa = 'pm_aa'
 
         #Lista de tarefas carregadas da base de dados.
-        self.lista = [TarefaAuxilioAcidente]
-       
-        self.id_subtarefa = 'pm_aa'
+        self.lista: list[TarefaAuxilioAcidente] = []        
 
         self.nome_servico = 'Auxílio-Acidente'
 
         self.nome_servicopm = 'AGENDAMENTO - PERÍCIA MÉDICA DE AUXÍLIO-ACIDENTE (ATENDIMENTO PRESENCIAL - AGENDAMENTO)'
         
         self.nome_subservico = 'Perícia Médica de Auxílio-Acidente'
+
+        #Tag para benefício
+        self.tags.append('aa')
         
-        self.base_dados.definir_colunas(colunas_especificas, datas_especificas)
+        self.base_dados.definir_colunas(datas_especificas)
        
     def __str__(self) -> str:
         resultado = super().__str__()
-        resultado += self.obter_info('coletadb', 'Pendentes de coleta de dados: {0} tarefa(s).\n')
-        resultado += self.obter_info('analiseacb', 'Pendentes de análise de acumulação de benefício: {0} tarefa(s).\n')
-        resultado += self.obter_info('geracaosub', 'Pendentes de geração de subtarefa: {0} tarefa(s).\n')
-        resultado += self.obter_info('agendamentopm', 'Pendentes de agendamento de perícia médica: {0} tarefa(s).\n')
-        resultado += self.obter_info('anexacaoagendapm', 'Pendentes de anexar PDF do agendamento da perícia médica: {0} tarefa(s).\n')
-        resultado += self.obter_info('geracaoexig', 'Pendentes de abertura de exigência: {0} tarefa(s).\n')
-        resultado += self.obter_info('subcomerro', 'Com erro na geração de subtarefa de PM: {0} tarefa(s).\n')
-        resultado += self.obter_info('aguardapm', 'Aguardando a realização da perícia médica: {0} tarefa(s).\n')
-        resultado += self.obter_info('pmvencida', 'Com PM vencida {0} tarefa(s).\n')
-        resultado += self.obter_info('cancelarsub', 'Sem comparecimento a PM e pendentes de cancelar subtarefa: {0} tarefa(s).\n')
-        resultado += self.obter_info('habilitaben', 'Pendentes de habilitação de benefício: {0} tarefa(s).\n')
-        resultado += self.obter_info('pmlancar', 'Pendentes de lançamento da PM no Prisma: {0} tarefa(s).\n')
-        resultado += self.obter_info('deferir', 'Pendentes de DEFERIMENTO do benefício: {0} tarefa(s).\n')
-        resultado += self.obter_info('pmindefere', 'Pendentes de INDEFERIMENTO por PM contrária: {0} tarefa(s).\n')
-        resultado += self.obter_info('possuibeninac', 'Pendentes de INDEFERIMENTO por acumulação de benefício: {0} tarefa(s).\n')
-        resultado += self.obter_info('recebeaa', 'Pendentes de INDEFERIMENTO por já receber AA: {0} tarefa(s).\n')
-        resultado += self.obter_info('naocompareceupm', 'Pendentes de INDEFERIMENTO por não comparecimento a PM: {0} tarefa(s).\n')
-        resultado += self.obter_info('desistir', 'Pendentes de DESISTENCIA do requerente no Prisma: {0} tarefa(s).\n')
-        resultado += self.obter_info('sobrestado', 'Sobrestadas: {0} tarefas(s)\n')
-        resultado += self.obter_info('impedimentos', 'Com impedimento para concluir: {0} tarefas(s)\n')
-        resultado += self.obter_info('concluso', 'Com benefício despachado pendente de envio para conclusão: {0} tarefa(s).\n')
-        resultado += self.obter_info('conclusao', 'Pendentes de conclusão da tarefa: {0} tarefa(s).\n')
+
+        resultado += f"Pendentes de coleta de dados: {self.obter_info('coletadb')} tarefa(s).\n"
+        resultado += f"Pendentes de análise sobre acumulação de benefício: {self.obter_info('analiseacb')} tarefa(s).\n"
+        resultado += f"Pendentes de geração de subtarefa: {self.obter_info('geracaosub')} tarefa(s).\n"
+        resultado += f"Com erro na geração de subtarefa de PM: {self.obter_info('subcomerro')} tarefa(s).\n"
+        resultado += f"Pendentes de agendamento da PM: {self.obter_info('agendamentopm')} tarefa(s).\n"
+        resultado += f"Com agendamento e aguardando anexação do comprovante: {self.obter_info('anexacaoagendapm')} tarefa(s).\n"
+        resultado += f"Com agendamento e erro na anexação do comprovante: {self.obter_info('anexacaoagendacomerro')} tarefa(s).\n"
+        resultado += f"Pendentes de geração da exigência do agendamento da PM: {self.obter_info('gerarexig')} tarefa(s).\n"
+        resultado += f"Com agendamento e aguardando a realização da PM: {self.obter_info('aguardapm')} tarefa(s).\n"
+        resultado += f"Com agendamento vencido: {self.obter_info('pmvencida')} tarefa(s).\n"
+        resultado += f"Pendentes de cancelamento de subtarefa: {self.obter_info('cancelarsub')} tarefa(s).\n"
+        resultado += f"Pendentes de habilitação de benefício: {self.obter_info('habilitaben')} tarefa(s).\n"
+        resultado += f"Pendentes de lançamento da PM no Prisma: {self.obter_info('pmlancar')} tarefa(s).\n"
+        resultado += f"Pendentes de DEFERIMENTO do benefício: {self.obter_info('deferir')} tarefa(s).\n"
+        resultado += f"Pendentes de INDEFERIMENTO/DESISTENCIA do benefício: {self.obter_info('indeferir')} tarefa(s).\n"
+        resultado += f"Pendentes de INDEFERIMENTO por acumulação indevida: {self.obter_info('indeferirinac')} tarefa(s).\n"
+        resultado += f"Sobrestadas: {self.obter_info('sobrestado')} tarefa(s).\n"
+        resultado += f"Com impedimentos: {self.obter_info('impedimentos')} tarefa(s).\n"
+        resultado += f"Pendentes de envio para conclusão: {self.obter_info('conclusos')} tarefa(s).\n"
         return resultado
         
     def definir_comandos(self) -> None:
         """Define os comandos exclusivos deste processador."""
+        self.comandos['agendarpm'] = {
+                'funcao': self.comando_agendar_pm,
+                'argsmin': 0,
+                'desc': 'Executa o programa \'Agendar PM\' do processador.',
+                'requer_subcomando': False,
+                'requer_cnis': False,
+				'requer_get': False,
+                'requer_processador': True,
+                'requer_pmfagenda': True,
+                'requer_protocolo': False,
+                'requer_sibe': False,
+                'requer_sd': False
+                
+        }        
         self.comandos['anexarpdfpm'] = {
-            'funcao': self.processar_anexacaopdf,
+            'funcao': self.comando_anexar_pdfpm,
             'argsmin': 0,
             'desc': 'Anexa o arquivo PDF na tarefa do GET.',
             'requer_subcomando': False,
@@ -137,8 +134,22 @@ class ProcessadorAuxAcidente(Processador):
             'requer_processador': True,
             'requer_pmfagenda': False,
             'requer_protocolo': False,
-            'requer_sibe': False
+            'requer_sibe': False,
+                'requer_sd': False
         }
+        self.comandos['checarpm'] = {
+                'funcao': self.comando_checar_agendapm,
+                'argsmin': 0,
+                'desc': 'Executa o programa \'Checar Agenda PM\' do processador.',
+                'requer_subcomando': False,
+                'requer_cnis': False,
+				'requer_get': False,
+                'requer_processador': True,
+                'requer_pmfagenda': True,
+                'requer_protocolo': False,
+                'requer_sibe': False,
+                'requer_sd': False
+        }  
         self.comandos['gerarexigpm'] = {
             'funcao': self.processar_exigenciapm,
             'argsmin': 0,
@@ -149,7 +160,8 @@ class ProcessadorAuxAcidente(Processador):
             'requer_processador': True,
             'requer_pmfagenda': False,
             'requer_protocolo': False,
-            'requer_sibe': False
+            'requer_sibe': False,
+                'requer_sd': False
         }
         self.comandos['analisarpm'] = {
             'funcao': self.processar_analisepm,
@@ -161,10 +173,11 @@ class ProcessadorAuxAcidente(Processador):
             'requer_processador': True,
             'requer_pmfagenda': False,
             'requer_protocolo': False,
-            'requer_sibe': False
+            'requer_sibe': False,
+                'requer_sd': False
         }
-        self.comandos['analisarnb'] = {
-            'funcao': self.processar_analiseben,
+        self.comandos['receberben'] = {
+            'funcao': self.processar_recebimentoben,
             'argsmin': 0,
             'desc': 'Recebe a lista de benefícios habilitados no Prisma.',
             'requer_subcomando': False,
@@ -173,7 +186,8 @@ class ProcessadorAuxAcidente(Processador):
             'requer_processador': True,
             'requer_pmfagenda': False,
             'requer_protocolo': True,
-            'requer_sibe': False
+            'requer_sibe': False,
+                'requer_sd': False
         }
         self.comandos['cancelarsub'] = {
             'funcao': self.processar_cancelasub,
@@ -185,7 +199,8 @@ class ProcessadorAuxAcidente(Processador):
             'requer_processador': True,
             'requer_pmfagenda': False,
             'requer_protocolo': False,
-            'requer_sibe': False
+            'requer_sibe': False,
+                'requer_sd': False
         }
         self.comandos['coletarnit'] = {
             'funcao': self.processar_coletanit,
@@ -196,8 +211,9 @@ class ProcessadorAuxAcidente(Processador):
 			'requer_get': False,
             'requer_processador': True,
             'requer_pmfagenda': False,
-            'requer_protocolo': True,
-            'requer_sibe': False
+            'requer_protocolo': False,
+            'requer_sibe': False,
+                'requer_sd': False
         }
         self.comandos['enviarhabilitacao'] = {
             'funcao': self.processar_enviohabilitacao,
@@ -209,7 +225,21 @@ class ProcessadorAuxAcidente(Processador):
             'requer_processador': True,
             'requer_pmfagenda': False,
             'requer_protocolo': False,
-            'requer_sibe': False
+            'requer_sibe': False,
+                'requer_sd': False
+        }
+        self.comandos['enviarindeferimento'] = {
+            'funcao': self.processar_envioindeferimento,
+            'argsmin': 0,
+            'desc': 'Gera a lista de benefícios para indeferimento no Prismna.',
+            'requer_subcomando': False,
+            'requer_cnis': False,
+			'requer_get': False,
+            'requer_processador': True,
+            'requer_pmfagenda': False,
+            'requer_protocolo': False,
+            'requer_sibe': False,
+                'requer_sd': False
         }
         self.comandos['processardataspm'] = {
             'funcao': self.processar_dataspm,
@@ -221,7 +251,8 @@ class ProcessadorAuxAcidente(Processador):
             'requer_processador': True,
             'requer_pmfagenda': True,
             'requer_protocolo': False,
-            'requer_sibe': False
+            'requer_sibe': False,
+                'requer_sd': False
         }
         self.comandos['receberlpm'] = {
             'funcao': self.processar_lancamentopm,
@@ -233,7 +264,8 @@ class ProcessadorAuxAcidente(Processador):
             'requer_processador': True,
             'requer_pmfagenda': False,
             'requer_protocolo': False,
-            'requer_sibe': False
+            'requer_sibe': False,
+                'requer_sd': False
         }
         self.comandos['receberdespachos'] = {
             'funcao': self.processar_despachosben,
@@ -245,7 +277,8 @@ class ProcessadorAuxAcidente(Processador):
             'requer_processador': True,
             'requer_pmfagenda': False,
             'requer_protocolo': False,
-            'requer_sibe': False
+            'requer_sibe': False,
+                'requer_sd': False
         }
         self.comandos['pm'] = {
             'funcao': self.exibir_pm,
@@ -257,7 +290,8 @@ class ProcessadorAuxAcidente(Processador):
             'requer_processador': True,
             'requer_pmfagenda': False,
             'requer_protocolo': True,
-            'requer_sibe': False
+            'requer_sibe': False,
+                'requer_sd': False
         }
         self.comandos['transformarpm'] = {
             'funcao': self.transformar_pmtxt_pmestruturado,
@@ -269,87 +303,169 @@ class ProcessadorAuxAcidente(Processador):
             'requer_processador': True,
             'requer_pmfagenda': False,
             'requer_protocolo': False,
-            'requer_sibe': False
-        }
-    # 
-    def definir_filtros(self) -> None:
-        """Define os filtros relaticos a Auxílio-Acidente de consulta à base de dados"""
-        df = self.base_dados.dados
-        filto_sem_imp_conc = df['impedimentos'].isna() & df['concluso'].isna() & df['sub_sobrestado'].isna()
-        
-        super().definir_filtros()
-        self.filtros['geracaosub'] = {
-            'valor': (df['possui_ben_inacumulavel'] == '0') & df['tem_subtarefa'].isna() & filto_sem_imp_conc
-        }
-        self.filtros['analiseacb'] = {
-            'valor': (df['tem_dadosbasicos'] == '1') & df['possui_ben_inacumulavel'].isna() & filto_sem_imp_conc
-        }
-        self.filtros['agendamentopm'] = {
-            'valor': (df['tem_subtarefa'] == '1') & df['tem_agendapm'].isna() & filto_sem_imp_conc
-        }
-        self.filtros['anexacaoagendapm'] = {
-            'valor': (df['tem_agendapm'] == '1') & df['tem_pdfagendapmanexo'].isna() & df['agenda_coletada'].isna() & filto_sem_imp_conc
-        }
-        self.filtros['anexacaoagendacomerro'] = {
-            'valor': (df['tem_agendapm'] == '1') & df['tem_pdfagendapmanexo'].isna() & (df['agenda_coletada'] == '1') & filto_sem_imp_conc
-        }
-        self.filtros['geracaoexig'] = {
-            'valor': (df['tem_pdfagendapmanexo'] == '1') & df['tem_exigencia'].isna() & (df['msgerro_criacaosub'].isna()) & filto_sem_imp_conc
-        }
-        self.filtros['subcomerro'] = {
-            'valor': (df['tem_pdfagendapmanexo'] == '1') & df['tem_exigencia'].isna() & (df['msgerro_criacaosub'].notna()) & filto_sem_imp_conc
-        }
-        self.filtros['aguardapm'] = {
-            'valor': (df['tem_exigencia'] == '1') & df['periciacumprida'].isna() & (df['dataagendamento'] >= pd.to_datetime('today').floor('D')) &
-                     filto_sem_imp_conc
-        }
-        self.filtros['pmvencida'] = {
-            'valor': (df['tem_exigencia'] == '1') & df['periciacumprida'].isna() & (df['dataagendamento'] < pd.to_datetime('today').floor('D')) &
-                     filto_sem_imp_conc
-        }
-        self.filtros['cancelarsub'] = {
-            'valor': (df['periciacumprida'] == '1') & (df ['periciarealizada'] == '0') & df['subtarefacancelada'].isna() &
-                     filto_sem_imp_conc
-        }
-        self.filtros['habilitaben'] = {
-            'valor': ((df['periciarealizada'] == '1') | (df['subtarefacancelada'] == '1') | (df['possui_ben_inacumulavel'] == '1') | 
-                      (df['resultado'] == 'desistencia')) & df['beneficio'].isna() & filto_sem_imp_conc
-        }
-        self.filtros['pmlancar'] = {
-            'valor': (df ['periciarealizada'] == '1') & df['beneficio'].notna() & df ['pericialancada'].isna() &
-                     df['resultado'].isin(['b36Deferido', 'b94Deferido']) & filto_sem_imp_conc
-        }
-        self.filtros['deferir'] = {
-            'valor': (df['pericialancada'] == '1') & df['beneficiodespachado'].isna() & filto_sem_imp_conc
-        }
-        self.filtros['pmindefere'] = {
-            'valor': df['beneficio'].notna() & df['resultado'].isin(['b36SemSequela', 'b36NaoEnquadraA3Decreto']) &
-                     df['beneficiodespachado'].isna() & filto_sem_imp_conc
-        }
-        self.filtros['possuibeninac'] = {
-            'valor': df['beneficio'].notna() & (df['resultado'] == 'b36RecebeBenInac') &
-                     df['beneficiodespachado'].isna() & filto_sem_imp_conc
-        }
-        self.filtros['recebeaa'] = {
-            'valor': df['beneficio'].notna() & (df['resultado'] == 'b36RecebeAA') &
-                     df['beneficiodespachado'].isna() & filto_sem_imp_conc
-        }
-        self.filtros['naocompareceupm'] = {
-            'valor': df['beneficio'].notna() & (df['resultado'] == 'b36NaoComparecePM') &
-                     df['beneficiodespachado'].isna() & filto_sem_imp_conc
-        }
-        self.filtros['desistir'] = {
-            'valor': df['beneficio'].notna() & (df['resultado'] == 'desistencia') &
-                     df['beneficiodespachado'].isna() & filto_sem_imp_conc
-        }
-        self.filtros['concluso'] = {
-            'valor': (df['beneficiodespachado'] == '1') & filto_sem_imp_conc
-        }
-        self.filtros['semnit'] = {
-            'valor': df['nit'].isna()
+            'requer_sibe': False,
+                'requer_sd': False
         }
 
-    def definir_listagens(self) -> None:
+    def coletar_pm(self) -> None:
+        pass
+
+    ###===  ANALISE DAS PERICIAS MEDICAS ===###
+
+    def processar_analisar_pm_base(self) -> None:
+        cont = 0
+        self.pre_processar('ANALISAR PM')
+        for t in self.lista:
+            agendamento = t.obter_agendamento_pm()
+            exigencia = t.obter_exigencia()
+            pericia = t.obter_periciamedica()
+            subtarefa = t.obter_subtarefa()
+            if not exigencia.tem_exigencia().e_verdadeiro or pericia.cumprida().e_verdadeiro or not agendamento.esta_vencido() or subtarefa.cancelada().e_verdadeiro or t.tem_impedimento().e_verdadeiro or t.esta_concluida().e_verdadeiro:
+                continue
+            if self.analisar_pm(t):
+                cont += 1
+        self.pos_processar(cont)
+
+    def processar_analisar_pm_lote(self) -> None:
+        cont = 0
+        self.pre_processar('ANALISAR PM')
+        print("Usando lista personalizada.")
+
+        for item in self.obter_listapersonalizada():
+            if (idx := self.base_dados.pesquisar_indice(item)) == None:
+                print(f"Erro: Tarefa {item} não foi encontrada na fila atual.\n")
+                continue
+            t = TarefaAuxilioAcidente(self.base_dados, idx)
+            if self.analisar_pm(t):
+                cont += 1
+        self.pos_processar(cont)
+    
+    #Analisa a PM da tarefa
+    #>Quando a data da perícia já passou, pesquisa a situação da sub de PM.
+    #>Salva o conteúdo da PM em PDF para lançamento no PRISMA.
+    #>Marca os requerimentos que não houve conclusão da sub de PM.
+    #>Encaminha lista de tarefas para habilitar NB no Accuterm.
+    def analisar_pm(self, tarefa: TarefaAuxilioAcidente) -> bool:
+        buffer_linha = ''
+        cont = 0
+        get = self.get
+        protocolo = ''
+        subtarefa_encontrada = False
+
+        if get is None:
+            return False
+
+        protocolo = str(tarefa.obter_protocolo())
+        buffer_linha = f'Tarefa {protocolo}...'
+        print(buffer_linha, end='\r')
+        if get.pesquisar_tarefa(protocolo):
+
+            #Verifica se tarefa está cancelada/concluída
+            if self.processar_status(tarefa):
+                print(buffer_linha + 'Tarefa cancelada/concluída. PM não analisada.')
+                return False
+            get.abrir_tarefa()
+            subtarefa = tarefa.obter_subtarefa()
+            pericia = tarefa.obter_periciamedica()
+            lista_subs = self.coletar_subtarefas(protocolo, True)
+
+            #Checa se a subtarefa registrada é uma subtarefa da tarefa no GET
+            for item in lista_subs:
+                numsub = item[0]
+                subconcluida = item[1]
+                if numsub == str(subtarefa.obter_protocolo()):
+                    subtarefa_encontrada = True
+                    buffer_linha += f'Subtarefa {numsub} '
+                    print(buffer_linha, end='\r')
+
+                    #Se a subtarefa encontrada estiver concluída, analisa o relatorio,
+                    #envia o protocolo para habilitação de NB no Prisma
+                    if subconcluida:
+                        buffer_linha += ' concluída. '
+                        print(buffer_linha, end='\r')
+                        resultado_id = self.processar_relatorio_pm(protocolo)
+                        if resultado_id is None:
+                            print(buffer_linha + ' Erro: Erro ao processar relatório PM.')
+                            return False
+                        pericia.marcar_realizada()
+                        tarefa.alterar_periciamedica(pericia)
+                        if self.resultados is None:
+                            raise Exception()
+                        resultado = self.resultados.obter(resultado_id)
+                        if resultado is None:
+                            print(buffer_linha + ' Erro: Resultado de benefício não é válido.')
+                        else:
+                            tarefa.alterar_resultado(resultado)
+                        buffer_linha += ' Relatório PM processado. '
+                        print(buffer_linha, end='\r')
+                        if tarefa.beneficio_habilitado():
+                            ben = str(tarefa.obter_beneficio())
+                            print(buffer_linha + f' Benfício já está habilitado. NB: {ben}.')
+                        else:
+                            der = str(tarefa.obter_der())
+                            nit = str(tarefa.obter_nit())
+                            self.enviar_tarefa_habilitacao(protocolo, der, nit)
+                            print(buffer_linha + ' Benefício enviado para habilitação.')
+                                
+                        self.salvar_emarquivo()
+                    else:
+                        print(buffer_linha + ' não concluída.')
+            if not subtarefa_encontrada:
+                print(buffer_linha + ' Erro: Subtarefa não encontrada.')
+            get.irpara_iniciotela()
+            get.fechar_tarefa()
+            return True
+        else:
+            print(buffer_linha + 'Erro: Tarefa não encontrada.')
+            return False
+    
+    def marcar(self, marca: str, protocolos: list[str]) -> None:
+        """Marca a lista de tarefas com a marcação especificada."""
+        buffer_linha = ''
+        cont = 0
+        
+        if marca == 'naocomparecepm':
+            self.pre_processar('MARCAR NÃO COMPARECEU A PM')
+        if marca == 'jarecebeaa':
+            self.pre_processar('JÁ RECEBE AUXÍLIO ACIDENTE')
+
+        for protocolo in protocolos:
+            idx = self.base_dados.pesquisar_indice(protocolo)
+            buffer_linha = f'Tarefa {protocolo}...'
+            print(buffer_linha, end='\r')
+            if idx is None:
+                print(buffer_linha + 'Não encontrada.')
+                continue
+            tarefa = TarefaAuxilioAcidente(self.base_dados, idx)
+            if marca == 'naocomparecepm':
+                pericia = tarefa.obter_periciamedica()
+                pericia.marcar_naocompareceu()
+                tarefa.alterar_periciamedica(pericia)
+                if self.resultados is None: 
+                    return
+                resultado = self.resultados.obter('b36NaoComparecePM')
+                if resultado is None:
+                    raise Exception()
+                tarefa.alterar_resultado(resultado)
+                if tarefa.beneficio_habilitado():
+                    ben = str(tarefa.obter_beneficio())
+                    buffer_linha += f'Não compareceu. Benfício já está habilitado. NB: {ben}.'
+                else:
+                    der = str(tarefa.obter_der())
+                    nit = str(tarefa.obter_nit())
+                    self.enviar_tarefa_habilitacao(protocolo, der, nit)
+                    buffer_linha += 'Não compareceu. Benefício enviado para habilitação.'
+                print(buffer_linha)
+                cont += 1
+            if marca == 'jarecebeaa':
+                #tarefa.alterar_beninacumluavel(True)
+                #tarefa.alterar_resultado('b36RecebeAA')
+                cont += 1
+            self.salvar_emarquivo()
+            
+        self.pos_processar(cont)
+
+    def _definir_listagens(self) -> None:
         """Define as listagens relativas a Auxílio Acidente."""
         super().definir_listagens()
         self.listagens['analiseacb'] = {
@@ -536,21 +652,6 @@ class ProcessadorAuxAcidente(Processador):
             except FileNotFoundError as e:
                 print('A tarefa especificada não possui perícia médica.\n')
 
-    def enviar_tarefa_habilitacao(self, tarefa: TarefaAuxilioAcidente) -> None:
-        nomearquivo_entrada = path.join(Variaveis.obter_pasta_entrada(), 'tarefas_habilitar.txt')
-        cabecalho = ['protocolo', 'nit', 'der']
-        arquivo_prisma = ArquivoPrismaEntrada(nomearquivo_entrada, cabecalho)
-        arquivo_prisma.carregar()
-        if arquivo_prisma.carregado:
-            der = tarefa.obter_der()
-            if not isinstance(der, str):
-                der = der.strftime('%d/%m/%Y')
-            dados = [tarefa.obter_nit(), der]
-            arquivo_prisma.alterar_dados(tarefa.obter_protocolo(), dados)
-            arquivo_prisma.salvar()
-        else:
-            print("Erro. Não foi possível abrir o arquivo de entrada para processamento do Prisma.\n")
-
     def enviar_tarefas_habilitacao(self, tarefas: list[TarefaAuxilioAcidente]) -> None:
         nomearquivo_entrada = path.join(Variaveis.obter_pasta_entrada(), 'tarefas_habilitar.txt')
         cabecalho = ['protocolo', 'nit', 'der']
@@ -565,273 +666,33 @@ class ProcessadorAuxAcidente(Processador):
                 arquivo_prisma.alterar_dados(tarefa.obter_protocolo(), dados)    
         else:
             print("Erro. Não foi possível abrir o arquivo de entrada para processamento do Prisma.\n")
-        arquivo_prisma.salvar()
-
-    def enviar_lancarpm(self, protocolo: str, beneficio: str) -> None:
-        """Envia dados da tarefa para lançamento de PM no Prisma."""
-        cabecalho = ['protocolo', 'beneficio']
-        nomearquivo_entrada = path.join(Variaveis.obter_pasta_entrada(), 'tarefas_lancarpm.txt')
-
-        # Anota as tarefas no arquivo tarefas_lancarpm
-        arquivo_prisma = ArquivoPrismaEntrada(nomearquivo_entrada, cabecalho)
-        arquivo_prisma.carregar()
-        if arquivo_prisma.carregado:
-            arquivo_prisma.alterar_dados(protocolo, [beneficio])
-            arquivo_prisma.salvar()
-        else:
-            print("Erro: Não foi possível abrir o arquivo de entrada para processamento de lançamentos de PM do Prisma.")
-
-    def enviar_indeferir(self, protocolo: str, beneficio: str, res: str) -> None:
-        """Envia dados da tarefa para lançamento de PM no Prisma."""
-        cabecalho = ['protocolo', 'beneficio', 'resultado']
-        nomearquivo_entrada = path.join(Variaveis.obter_pasta_entrada(), 'tarefas_indeferir.txt')
-
-        # Anota as tarefas no arquivo tarefas_lancarpm
-        arquivo_prisma = ArquivoPrismaEntrada(nomearquivo_entrada, cabecalho)
-        arquivo_prisma.carregar()
-        if arquivo_prisma.carregado:
-            arquivo_prisma.alterar_dados(protocolo, [beneficio, res])
-            arquivo_prisma.salvar()
-        else:
-            print("Erro: Não foi possível abrir o arquivo de entrada para processamento de indeferimentos do Prisma.")
-
-    def marcar(self, marca: str, protocolos: list[str]) -> None:
-        """Marca a lista de tarefas com a marcação especificada."""
-        cont = 0
-        
-        if marca == 'naocomparecepm':
-            self.pre_processar('MARCAR NÃO COMPARECEU A PM')
-        if marca == 'jarecebeaa':
-            self.pre_processar('JÁ RECEBE AUXÍLIO ACIDENTE')
-        for protocolo in protocolos:
-            idx = self.base_dados.pesquisar_indice(protocolo)
-            if idx is None:
-                print(f'Tarefa {protocolo} não encontrada.')
-                continue
-            print(f'Tarefa {protocolo}')
-            tarefa = TarefaAuxilioAcidente(self.base_dados, idx)
-            if marca == 'naocomparecepm':
-                if tarefa.obter_fase_agendapm():
-                    tarefa.marcar_pm_naocompareceu()
-                    cont += 1
-            if marca == 'jarecebeaa':
-                tarefa.alterar_beninacumluavel(True)
-                tarefa.alterar_resultado('b36RecebeAA')
-                cont += 1
-            self.salvar_emarquivo()
-            
-        self.pos_processar(cont)
+        arquivo_prisma.salvar()    
 
     #Verifica se houve habilitações de NB no Prisma.
     #>Recebe a lista de NBs do Accuterm
     #>Processa o relatório de PM em PDF para TXT estruturado
     #>Marca as tarefas com NB habilitados para lançar PM
     #>Encaminha lista de NBs para lançar PM no Accuterm
-    def processar_analiseben(self, subcomando: str, lista: list[str]) -> None:
-        buffer_linha = ''
-        cont = 0
-        cont_enviarpm = 0
-        cont_indef = 0
-        lista_sucesso = []
-        nomearquivo_saida = path.join(Variaveis.obter_pasta_entrada(), 'ben_habilitados.txt')
-        self.pre_processar('ANALISAR HABILITAÇÃO DE BENEFÍCIO')
+    def processar_recebimentoben(self, subcomando: str, lista: list[str]) -> None:
+        self.receber_beneficios()
 
-        #Recebe a lista de NBs habilitados no Prisma
-        arquivo_prisma = ArquivoPrismaSaida(nomearquivo_saida, ['protocolo', 'beneficio'])
-        arquivo_prisma.carregar()
-        if not arquivo_prisma.carregado:
-            return
-        for protocolo, dados in arquivo_prisma.dados.items():
-            buffer_linha = f'Tarefa {protocolo}...'
-            print(buffer_linha, end='\r')
-            nb = dados[0]
-            if len(nb) > 0:
-                idx = self.base_dados.pesquisar_indice(protocolo)
-                if idx is None:
-                    print(buffer_linha + 'Tarefa não encontrada.')
-                    continue
-                t = TarefaAuxilioAcidente(self.base_dados, idx)
-                buffer_linha += f'Habilitado com NB {nb}.'
-                print(buffer_linha, end='\r')
-                t.alterar_beneficio(nb)
-                res = t.obter_resultado()
-                if res in ['b36Deferido', 'b94Deferido']:
-                    self.enviar_lancarpm(protocolo, nb)
-                    print(buffer_linha + ' Enviada para lançamento da PM.')
-                    cont_enviarpm += 1
-                else:
-                    self.enviar_indeferir(protocolo, nb, res)
-                    print(buffer_linha + ' Enviada para indeferimento.')
-                    cont_indef += 1
-                self.salvar_emarquivo()
-                lista_sucesso.append(protocolo)
-            cont += 1
-        for p in lista_sucesso:
-            arquivo_prisma.excluir_dados(p)
-        if len(lista_sucesso) > 0:
-            arquivo_prisma.salvar()
-
-        #Envia a tarefa para lançamento de PM no Prisma
-        print(f'{cont_enviarpm} tarefa(s) enviada(s) para lançamento de PM no Prisma.')
-        print(f'{cont_indef} tarefa(s) enviada(s) para indeferimento no Prisma.')
-        self.pos_processar(cont)
-
-    #Analisa a PM da tarefa
-    #>Quando a data da perícia já passou, pesquisa a situação da sub de PM.
-    #>Salva o conteúdo da PM em PDF para lançamento no PRISMA.
-    #>Marca os requerimentos que não houve conclusão da sub de PM.
-    #>Encaminha lista de tarefas para habilitar NB no Accuterm.
     def processar_analisepm(self, subcomando: str, lista: list[str]) -> None:
-        buffer_linha = ''
-        cont = 0
-        cont_enviados = 0
-        protocolo = ''
-        subtarefa = ''
-        usar_lista_personalizada = False
-        subtarefa_encontrada = False
-        buffer_linha = ''
+        if len(lista) > 0 and lista[0] == 'ulp':
+            self.processar_analisar_pm_lote()
+        else:
+            self.processar_analisar_pm_base()
 
-        self.pre_processar('ANALISAR PM')
-        if len(lista) > 0:
-            usar_lista_personalizada = True        
-        for t in self.lista:
-            protocolo = t.obter_protocolo()
-            if usar_lista_personalizada:
-                if not protocolo in lista:
-                    continue
-            else:
-                if not t.tem_exigencia() or t.obter_fase_pericia_cumprida() or not t.pericia_esta_vencida() or t.tem_impedimento():
-                    continue
-            buffer_linha = f'Tarefa {protocolo}...'
-            print(buffer_linha, end='\r')
-            subtarefa = t.obter_subtarefa()
-            if self.get.pesquisar_tarefa(protocolo):
-                self.get.abrir_tarefa()
-                lista_subs = self.coletar_subtarefas(protocolo, True)
-                for item in lista_subs:
-                    numsub = item[0]
-                    subconcluida = item[1]
-                    if numsub == subtarefa:
-                        subtarefa_encontrada = True
-                        buffer_linha += f'Subtarefa {numsub}'
-                        print(buffer_linha, end='\r')
-                        if subconcluida:
-                            print(buffer_linha + ' concluída.')
-                            resultado = self.processar_relatorio_pm(protocolo)
-                            if resultado is None:
-                                print(buffer_linha + '. Erro: Relatório PM não foi processado.')
-                                continue
-                            t.marcar_pm_realizada(resultado)
-                            if not t.obter_fase_beneficio_habilitado:
-                                self.enviar_tarefa_habilitacao(t)
-                                print('Enviada para habilitação.')
-                            self.salvar_emarquivo()
-                            cont_enviados += 1
-                        else:
-                            print(buffer_linha + ' não concluída.')
-                if not subtarefa_encontrada:
-                    print(buffer_linha + 'Erro: Subtarefa não encontrada.')
-                self.get.irpara_iniciotela()
-                self.get.fechar_tarefa()
-                cont += 1
-            else:
-                print(buffer_linha + 'Erro: Tarefa não encontrada.')
-        print(f'{cont_enviados} tarefa(s) enviada(s) para habilitação no Prisma.')
-        self.pos_processar(cont)
-
-    #Anexa o PDF do agendamento da PM na tarefa
-    def processar_anexacaopdf(self, subcomando: str, lista: list[str]) -> None:
-        buffer_linha = ''
-        cont = 0
-        nome_arquivo_pdf = ''  
-        protocolo = ''
-        usar_lista_personalizada = False
-
-        self.pre_processar('ANEXAR PDF AGENDAMENTO PM')
-        if len(lista) > 0:
-            usar_lista_personalizada = True        
-        for t in self.lista:
-            protocolo = t.obter_protocolo()
-            if usar_lista_personalizada:
-                if not protocolo in lista:
-                    continue
-            else:
-                if not t.obter_fase_agendapm() or t.obter_fase_pdfagendapm_anexo() or t.agendamento_foicoletado() or t.tem_erro_anexacaopdfpm() or t.obter_fase_conclusao():
-                    continue
-            buffer_linha = f'Tarefa {protocolo}...'
-            print(buffer_linha, end='\r')
-
-            if self.get.pesquisar_tarefa(protocolo):
-
-                #Verifica se tarefa está cancelada/concluída
-                if self.processar_status(t):
-                    print(buffer_linha + 'Tarefa cancelada/concluída. Anexação de PDF não foi processada.')
-                    cont += 1
-                    continue
-
-                #Anexa o arquivo PDF para os demais casos
-                self.get.abrir_tarefa()
-                nome_arquivo_pdf = f'{protocolo} - AgendaPM.pdf'
-                if self.adicionar_anexo([nome_arquivo_pdf])[0]:
-                    t.alterar_anexacao_comerro(False)
-                    t.concluir_fase_pdfagendapm_anexo()
-                    buffer_linha += 'PDF anexado.'
-                    print(buffer_linha)
-                else:
-                    print(buffer_linha + 'Erro: Arquivo não foi anexado.')
-                    t.alterar_anexacao_comerro(True)
-                self.get.fechar_tarefa()
-                self.salvar_emarquivo()
-                cont += 1
-            else:
-                print(buffer_linha + 'Erro: Tarefa não foi encontrada.')
-        self.pos_processar(cont)
+    def processar_anexopmpdf(self, subcomando: str, lista: list[str]) -> None:
+        self.anexar_agendamentopm()    
     
     def processar_cancelasub(self, subcomando: str, lista: list[str]) -> None:
-        """Processa o cancelamento de subtarefas."""
-        buffer_linha = ''
-        cont = 0
-        protocolo = ''
-        texto_conclusao = 'Não houve comparecimento do titular do requerimento a perícia médica agendada.'
-
-        self.pre_processar('CANCELAR SUBTAREFA')
-        for t in self.lista:
-            if t.tem_pericia_realizada() or not t.obter_fase_pericia_cumprida() or t.obter_fase_subtarefa_cancelada() or t.tem_impedimento():
-                continue
-            protocolo = str(t.obter_protocolo())
-            buffer_linha = f'Tarefa {protocolo}...'
-            print(buffer_linha)
-            if self.get.pesquisar_tarefa(protocolo):
-                self.get.abrir_tarefa()
-                self.get.abrir_guia('Subtarefas')
-                self.get.irpara_finaltela()
-                if self.get.cancelar_sub(t.obter_subtarefa(), self.nome_subservico, texto_conclusao):
-                    t.concluir_fase_subtarefa_cancelada()
-                    print(buffer_linha + 'Cancelada.')
-                self.salvar_emarquivo()
-                self.get.fechar_tarefa()
-                cont += 1
-            else:
-                print('Erro: Tarefa não encontrada.')
-        self.pos_processar(cont)
+        self.cancelar_subtarefa()
 
     def processar_coletanit(self, subcomando: str, lista: list[str]) -> None:
         """
         Coleta o NIT via CNIS da tarefa especificada.
         """
-        cont = 0
-        self.pre_processar('COLETAR NIT')
-        for protocolo in lista:
-            if (idx := self.base_dados.pesquisar_indice(protocolo)) is None:
-                print(f'Tarefa {protocolo} não foi encontrada.')
-                continue
-            t = TarefaAuxilioAcidente(self.base_dados, idx)
-            nit = self.cnis.pesquisar_nit_decpf(protocolo, t.obter_cpf())
-            t.alterar_nit(nit)
-            print(f'Tarefa {protocolo} processada.')
-            self.salvar_emarquivo()
-            cont += 1
-        self.pos_processar(cont)
+        self.coletar_nit_lote()
 
     def processar_dataspm(self, subcomando: str, lista: list[str]) -> None:
         "Consulta novamente as datas das perícias agendadas no PMF Agenda."
@@ -849,89 +710,43 @@ class ProcessadorAuxAcidente(Processador):
         self.pos_processar(cont)
 
     def processar_despachosben(self, subcomando: str, lista: list[str]) -> None:
-        """
-        Verifica se houve despacho do BEN no Prisma.
-        >Recebe a lista de tarefas do Accuterm
-        >Marca as tarefas com BEN despachados
-        """
-        buffer_linha = ''
-        cont = 0
-        lista_sucesso = []
-        nomearquivo_saida = path.join(Variaveis.obter_pasta_entrada(), 'ben_despachados.txt')
-        self.pre_processar('ANALISAR DESPACHOS DE BENEFÍCIO')
+        self.receber_despachos()
 
-        #Recebe a lista de tarefas com benefícios despachados
-        arquivo_prisma = ArquivoPrismaSaida(nomearquivo_saida, ['protocolo', 'beneficiodespachado', 'tem_pdfresumoanexo', 'resultado', 'concluso'])
-        arquivo_prisma.carregar()
-        if not arquivo_prisma.carregado:
-            return
-        for protocolo, dados in arquivo_prisma.dados.items():
-            buffer_linha = f'Tarefa {protocolo}...'
-            print(buffer_linha, end='\r')
-            nb_despachado = dados[0] == '1'
-            pdf_resumo = dados[1] == '1'
-            resultado = dados[2]
-            if nb_despachado:
-                idx = self.base_dados.pesquisar_indice(protocolo)
-                if idx is None:
-                    print(buffer_linha + 'Tarefa não encontrada.')
-                    continue
-                t = TarefaAuxilioAcidente(self.base_dados, idx)
-                t.concluir_fase_benef_despachado()
-                if pdf_resumo:
-                    t.alterar_pdfresumo(True)
-                t.alterar_resultado(resultado)
-                t.concluir_fase_concluso()
-                self.salvar_emarquivo()
-                lista_sucesso.append(protocolo)
-                print(buffer_linha + f'Conclusa com resultado {resultado}.')
-                cont += 1
-        for p in lista_sucesso:
-            arquivo_prisma.excluir_dados(p)
-        if len(lista_sucesso) > 0:
-            arquivo_prisma.salvar()
-        self.pos_processar(cont)
+    def obter_listaauxilio_acidente(self) -> list[TarefaAuxilioAcidente]:
+        lista_tarefas: list[TarefaAuxilioAcidente] = []
+
+        for item in self.obter_listapersonalizada():
+            if (idx := self.base_dados.pesquisar_indice(item)) == None:
+                print(f'Erro: Tarefa {item} não foi encontrada.\n')
+                continue
+            t = TarefaAuxilioAcidente(self.base_dados, idx)
+            lista_tarefas.append(t)
+        return lista_tarefas
+    
+    def processar_enviohabilitacao(self, subcomando: str, lista: list[str]) -> None:
+        """a """
+        self.pre_processar('ENVIAR PARA HABILITAÇÃO')
+        if len(lista) > 0 and lista[0] == 'ulp':
+            self.enviar_habilitacao_lote()
+        else:
+            print("Erro: Sem suporte a envio de processos para habilitação fora do lote lista_protocolos.txt no momento.\n")
+
+    def processar_envioindeferimento(self, subcomando: str, lista: list[str]) -> None:
+        """a"""
+        self.pre_processar('ENVIAR PARA INDEFERIMENTO')
+        if len(lista) > 0 and lista[0] == 'ulp':
+            self.enviar_indeferimento_lote()
+        else:
+            print("Erro: Sem suporte a envio de processos para indeferimento fora do lote lista_protocolos.txt no momento.\n")
 
     def processar_exigenciapm(self, subcomando: str, lista: list[str]) -> None:
         """Cadastra exigência de agendamento de PM."""
-        buffer_linha = ''
-        cont = 0
-        protocolo = ''
-        usar_lista_personalizada = False
 
         self.pre_processar('GERAR EXIGÊNCIA DO AGENDAMENTO DA PM')
-        if len(lista) > 0:
-            usar_lista_personalizada = True        
-        for t in self.lista:
-            protocolo = t.obter_protocolo()
-            if usar_lista_personalizada:
-                if not protocolo in lista:
-                    continue
-            else:
-                if not t.obter_fase_pdfagendapm_anexo() or t.tem_exigencia() or t.tem_erro_exigenciapm() or t.obter_fase_conclusao():
-                    continue
-            buffer_linha = f'Tarefa {protocolo}...'
-            print(buffer_linha, end='\r')
-
-            if self.get.pesquisar_tarefa(protocolo):
-                #Verifica se tarefa está cancelada/concluída
-                if self.processar_status(t):
-                    print(buffer_linha + 'Tarefa cancelada/concluída. Exigência não gerada.')
-                    cont += 1
-                    continue
-
-                if self.definir_exigencia_pm(t.obter_agendamento()):
-                    t.alterar_exigenciapm_comerro(False)
-                    t.concluir_fase_exigencia(True)
-                    print(buffer_linha + "Exigência processada.")
-                else:
-                    print(buffer_linha + "Tarefa já está em exigência. Exigência não gerada.")
-                    t.alterar_exigenciapm_comerro(True)
-                self.salvar_emarquivo()
-                cont += 1
-            else:
-                print(buffer_linha + f'Erro. Tarefa {protocolo} não foi encontrada.')
-        self.pos_processar(cont)
+        if len(lista) > 0 and lista[0] == 'ulp':
+            self.processar_gerarexigencia_pm_lote()
+        else:
+            self.processar_gerarexigencia_pm_base()
 
     def processar_dados(self) -> None:
         """Processa os daods carregados."""
@@ -939,143 +754,20 @@ class ProcessadorAuxAcidente(Processador):
         self.lista.clear()
         for i in range(tamanho):
             tarefa = TarefaAuxilioAcidente(self.base_dados, i)
-            if not tarefa.obter_fase_conclusao():
+            if not tarefa.esta_concluida().e_verdadeiro:
                 self.lista.append(tarefa)
         self.definir_comandos()
-        self.definir_filtros()
-        self.definir_listagens()
         self.definir_marcacoes()
 
-    def processar_enviohabilitacao(self, subcomando: str, lista: list[str]) -> None:
-        """Gera a lista de benefícios para habilitação no Prisma."""
-        cont = 0
-        protocolo = ''
-        lista = []
-
-        self.pre_processar('ENVIAR PARA HABILITAÇÃO')
-        for t in self.lista:
-            if (not t.tem_pericia_realizada() and not t.obter_fase_subtarefa_cancelada() and not t.tem_ben_inacumulavel() and
-                not t.tem_desistencia()) or (t.obter_fase_beneficio_habilitado() or t.tem_impedimento() or t.tem_sobrestamento() or
-                                         t.obter_fase_concluso()):
-                continue
-
-            protocolo = t.obter_protocolo()
-            lista.append(t)
-            print(f'Tarefa {protocolo}.')            
-            cont += 1
-        self.enviar_tarefas_habilitacao(lista)
-        self.pos_processar(cont)
-
-    def processar_geracaosubtarefa(self) -> None:
-        """Gera subtarefa nas tarefas pendentes de geração de subtarefa."""
-        buffer_linha = ''
-        cont = 0
-        necessario_fechartarefa = False
-        get = self.get
-        protocolo = ''
-
-        self.pre_processar('GERAR SUBTAREFA')
-        for t in self.lista:
-            
-            #Não irá gerar subtarefa se:
-            # >não passou pela fase de analise de benefício inacumulável
-            # >tem benefício inacumulável ativo
-            # >ja foi gerada a subtarefa
-            # >houve erro durante a geração de subtarefa no processamento anterior
-            # >tarefa tem impedimento
-            if not t.obter_fase_analise_beninacumulavel() or t.tem_ben_inacumulavel() or t.obter_fase_subtarefa_gerada()  or t.tem_erro_geracaosub() or t.tem_impedimento():
-                continue
-
-            protocolo = str(t.obter_protocolo())
-            buffer_linha = f'Tarefa {protocolo}...'
-            print(buffer_linha, end='\r')
-
-            #Pesquisa a tarefa no GET
-            if get.pesquisar_tarefa(protocolo):
-
-                #Verifica se tarefa está cancelada/concluída
-                if self.processar_status(t):
-                    print(buffer_linha + 'Tarefa cancelada/concluída. Subtarefa não foi gerada.')
-                    cont += 1
-                    continue
-
-                #Abre a tarefa no GET
-                get.abrir_tarefa()
-                necessario_fechartarefa = True
-
-                #Verifica já existe subtarefa gerada e a coleta
-                numsub = get.coletar_subtarefa(self.nome_subservico)
-                if numsub != 0:
-                    t.alterar_msg_criacaosub('')
-                    t.alterar_subtarefa_coletada(True)
-                    t.alterar_subtarefa(numsub)
-                    t.concluir_fase_subtarefa()
-                    print(buffer_linha + 'Subtarefa coletada.')
-                else:
-                    #Cria a subtarefa
-                    res = get.gerar_subtarefa(self.nome_subservico, self.id_subtarefa, {})
-                    if res['sucesso']:
-                        t.alterar_msg_criacaosub('')
-                        t.alterar_subtarefa_coletada(False)
-                        t.alterar_subtarefa(res['numerosub'][0])
-                        t.concluir_fase_subtarefa()
-                        print(buffer_linha + 'Subtarefa gerada.')
-                    else:
-                        #Erro na geração de sub. Registra.
-                        t.alterar_msg_criacaosub(res['mensagem'])
-                        print(buffer_linha + 'Subtarefa não foi gerada.')
-                        necessario_fechartarefa = False
-                if necessario_fechartarefa:
-                    get.fechar_tarefa()
-                self.salvar_emarquivo()
-                cont += 1                    
-            else:
-                print(buffer_linha + 'Erro: Tarefa não foi encontrada.')
-        self.pos_processar(cont)
-
     def processar_lancamentopm(self, subcomando: str, lista: list[str]) -> None:
-        """
-        Verifica se houve lançamento de PM no Prisma.
-        >Recebe a lista de tarefas do Accuterm
-        >Marca as tarefas com PM lançada
-        """
-        buffer_linha = ''
-        cont = 0
-        lista_sucesso = []
-        nomearquivo_saida = path.join(Variaveis.obter_pasta_entrada(), 'pm_lancadas.txt')
-        self.pre_processar('ANALISAR LANÇAMENTO DE PERÍCIA MÉDICA')
-
-        #Recebe a lista de tarefas com PM lançadas no Prisma
-        arquivo_prisma = ArquivoPrismaSaida(nomearquivo_saida, ['protocolo', 'pericialancada'])
-        arquivo_prisma.carregar()
-        if not arquivo_prisma.carregado:
-            return
-        for protocolo, dados in arquivo_prisma.dados.items():
-            buffer_linha = f'Tarefa {protocolo}...'
-            print(buffer_linha, end='\r')
-            pm_lancada = dados[0] == '1'
-            if pm_lancada:
-                idx = self.base_dados.pesquisar_indice(protocolo)
-                if idx is None:
-                    print(buffer_linha + 'Tarefa não encontrada.')
-                    continue
-                t = TarefaAuxilioAcidente(self.base_dados, idx)
-                t.concluir_fase_pericia_lancada()
-                self.salvar_emarquivo()
-                print(buffer_linha + 'Tarefa processada.')
-                cont += 1
-        for p in lista_sucesso:
-            arquivo_prisma.excluir_dados(p)
-        if len(lista_sucesso) > 0:
-            arquivo_prisma.salvar()
-        self.pos_processar(cont)
+        self.receber_lancamentospm()
 
     def processar_lista(self, processamento: str, lista: list[str]) -> None:
         num_itens = len(lista)
         super().processar_lista(lista)
 
-    def processar_relatorio_pm(self, protocolo: str) -> str:
-        """Processa o relatório PDF da PM."""
+    def processar_relatorio_pm(self, protocolo: str) -> str | None:
+        """Processa o relatório PDF da PM. Retornao ID do resultado."""
         nomearquivo_dadospm = path.join(Variaveis.obter_pasta_entrada(), f'{protocolo} - pmparalancar.txt')
         nomearquivo_relatpm = path.join(Variaveis.obter_pasta_entrada(), f'{protocolo} - relatoriopm.txt')
         
@@ -1087,7 +779,7 @@ class ProcessadorAuxAcidente(Processador):
         #Envia somente se a pericia tiver deferido o benefício.
         dados_pm = analisar_relatoriopm(nomearquivo_relatpm)
         if dados_pm is None:
-            return None
+            return 'None'
         if dados_pm[11] != 'b36SemSequela' and dados_pm[11] != 'b36NaoEnquadraA3Decreto':
             with open(nomearquivo_dadospm, 'w') as arquivo:
                 arquivo.writelines(item + '\r\n' for item in dados_pm)
@@ -1105,21 +797,6 @@ class ProcessadorAuxAcidente(Processador):
                 self.registrar_subgerada(tarefa, numsub)
                 if subconcluida:
                     self.registrar_pmfoi_realizada(tarefa)
-
-    def registrar_subgerada(self, tarefa: TarefaAuxilioAcidente, subtarefa: str) -> None:
-        """Registra que já foi gerada subtarefa"""
-        tarefa.alterar_subtarefa(subtarefa)
-        tarefa.concluir_fase_subtarefa()
-
-    def registrar_exigenciagerada(self, tarefa: TarefaAuxilioAcidente) -> None:
-        """Registra que já foi gerada exigência"""
-        tarefa.concluir_fase_exigencia(False)
-
-    def registrar_pmfoi_realizada(self, resultado: str, tarefa: TarefaAuxilioAcidente) -> None:
-        """Registra que já foi realizada perícia."""
-        tarefa.marcar_pm_realizada(resultado)
-        if not tarefa.obter_fase_beneficio_habilitado:
-            self.enviar_tarefa_habilitacao(tarefa)
 
     def transformar_pmtxt_pmestruturado(self, subcomando: str, lista: list[str]) -> None:
         cont = 0

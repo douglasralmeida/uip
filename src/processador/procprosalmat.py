@@ -23,7 +23,7 @@ tipocolunas = {'beneficio': 'string',
                'msgerro_criacaosub': 'string'
 }
 
-colunasdata = []
+colunasdata = ['vencim_exigencia']
 
 atributos = {'tembenefinac': {'coluna': 'possui_ben_inacumulavel',
                               'tipo': 'booleano',

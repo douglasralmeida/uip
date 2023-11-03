@@ -3,19 +3,20 @@
 """Processador base do UIP"""
 
 import pandas as pd
-from agendamento import Agendamento
-from arquivo import carregar_dados
-from basedados import BaseDados
-from datetime import datetime
+import time
+from arquivo import carregar_texto
+from basedados import BaseDados, TipoBooleano, TipoData, TipoTexto
+from filtro import Filtro, Filtros
+from impedimento import Impedimento
+from listagem import Listagem
 from lote import Lote
-from navegador import Cnis, Get, Pmfagenda, Sibe
+from manipuladorpdf import ManipuladorPDF
+from modelos_exigencias import ListaModelosExigencia
+from navegador import Cnis, Get, Pmfagenda, Sibe, SD
 from os import path
+from resultado import Resultado, Resultados
 from tarefa import Tarefa
 from variaveis import Variaveis
-
-ARQUIVO_EXIGENCIAS = 'exigencias.json'
-
-ARQUIVO_DESPACHOS = 'despachos.json'
 
 RES_SUBTAREFA_ERRO = 0
 
@@ -23,40 +24,15 @@ RES_SUBTAREFA_GERADA = 1
 
 RES_SUBTAREFA_COLETADA = 2
 
-colunas_padrao = {'protocolo': 'string',
-                  'tem_dadosbasicos': 'string',
-                  'cpf': 'string',
-                  'nit': 'string',
-                  'tem_prim_subtarefa': 'string',
-                  'tem_prim_exigencia': 'string',
-                  'ms': 'string',
-                  'possui_ben_inacumulavel': 'string',
-                  'tem_subtarefa': 'string',
-                  'subtarefa': 'string',
-                  'tem_exigencia': 'string',
-                  'subtarefacancelada': 'string',
-                  'nb_inacumulavel': 'string',
-                  'especie_inacumulavel': 'string',   
-                  'tem_pdfresumoanexo': 'string',
-                  'resultado': 'string',
-                  'impedimentos': 'string',
-                  'concluso': 'string',
-                  'concluida': 'string',
-                  'obs': 'string'
-              }
+SEGUNDOS_VISUALIZACAO_RAPIDA = 3
 
-datas_padrao = []
-
-#datas_padrao = ['der', 'data_subtarefa', 'data_exigencia', 'data_conclusao', 'vencim_exigencia']
+datas_padrao = ['der', 'data_conclusao', 'data_exigencia', 'vencim_exigencia']
 
 class Processador:
     """Classe base para o processador do UIP."""
     def __init__(self, base_dados: BaseDados) -> None:
         #Objeto da base de dados
         self.base_dados = base_dados
-
-        #Objeto do Automatizador do Portal CNIS.
-        self.cnis = None
 
         #Comandos disponíveis para o usuário.
         self.comandos = {}
@@ -67,89 +43,403 @@ class Processador:
         #Informa se a fila foi aberta.
         self.fila_aberta = False
 
-        #Filtros diponíveis para pesquisa.
-        self.filtros = {}
-
-        #Objeto do Automatizador do GET.
-        self.get = None
-
-        #Lista de impedimentos para conclusão de tarefa.
-        self.impedimentos = None
-
         #Lista de tarefas carregadas da base de dados.
-        self.lista = [Tarefa]
-
-        #Listagens disponíveis para o usuário.
-        self.listagens = {}
+        self.lista: list[Tarefa] = []
 
         #Marcações disponíveis para o usuário.
         self.marcacoes = {}
 
-        #Objeto do Automatizador do PMF Agenda.
-        self.pmfagenda = None
+        self.modelos_exigencia = None
 
-        #Objeto do Automatizador do SIBE PU.
-        self.sibe = None
+        #Marcas
+        self.tags = ['todos']
 
         #Colunas e tipos de dados 'Data' padrão para todas filas.
-        self.base_dados.definir_colunas(colunas_padrao, datas_padrao)
+        self.base_dados.definir_colunas(datas_padrao)
+
+        #Campos de outros
+        self.nome_servico = ""
+
+        self.nome_subservico = ""
+
+        self.resultados = None
+
+        self.tipo_docs = []
+
+        self.criarsub_modolinha = False
 
     def __str__(self) -> str:
-        quant_tarefas = len(self.lista)
+        quant_tarefas = self.obter_info("tudo")
         resultado = f'TAREFAS DE {self.nome_servico.upper()}\n'
         linha = ''.join(['=' for _ in resultado])
         resultado += linha
         resultado += f'\nTotal: {quant_tarefas} tarefa(s)\n'
         return resultado
-
-    def adicionar_anexo(self, arquivos: list[str]) -> list[bool]:
-        """Anexa os arquivos especificados na tarefa do GET."""
-        nav = self.get
-        resultados = []
-
-        nav.irpara_iniciotela()
-        nav.abrir_guia('Anexos')
-        nav.irpara_finaltela()
-        for arquivo in arquivos:
-            arquivopdf = path.join(Variaveis.obter_pasta_pdf(), arquivo)
-
-            ## Checar se arquivo existe
-            if path.exists(arquivopdf):
-                nav.clicar_botao('formDetalharTarefa:detalheTarefaTabView:btnIncluirAnexo')
-                nav.adicionar_anexo(arquivopdf)
-                resultados.append(True)
-            else:
-                resultados.append(False)
-        return resultados
     
     def adicionar_tarefas(self, protocolos: list[str]) -> None:
         """Adiciona uma lista de tarefas a base de dados."""
         self.base_dados.adicionar_registros(protocolos)
         self.salvar_emarquivo()
         print("\nInclusões processadas com sucesso.\n")
-     
-    def carregar_despachos(self) -> None:
-        """Carrega os despachos"""
-        with carregar_dados(ARQUIVO_EXIGENCIAS) as dados:
-            self.exigencias = dados
-        with carregar_dados(ARQUIVO_DESPACHOS) as dados:
-            self.despachos = dados
+             
+    def carregar_fila(self) -> bool:
+        """"""
+        try:
+            self.fila_aberta = self.base_dados.carregar_dearquivo()
+        except OSError as err:
+            print(f"Erro ao abrir fila de tarefas: {err.strerror}")
+            return False
+        return True
+    
+    def coletar_nit_lote(self) -> None:
+        """."""
+        cont = 0
+        protocolo = ''
+        self.pre_processar('COLETAR NIT')
+        print("Usando lista personalizada.")
 
-    def carregar_entidades(self) -> None:
-        """Carrega pessoas"""
-        pass
-        
-    def carregar_fila(self) -> None:
-        self.fila_aberta = self.base_dados.carregar_dearquivo()
+        for item in self.obter_listapersonalizada():
+            if (idx := self.base_dados.pesquisar_indice(item)) == None:
+                print(f"Erro: Tarefa {item} não foi encontrada na fila atual.\n")
+                continue
+            t = Tarefa(self.base_dados, idx)
+            if self.coletar_nit(t):
+                cont += 1
+        self.pos_processar(cont)
+    
+    def coletar_nit(self, tarefa: Tarefa) -> bool:
+        """
+        Coleta o NIT via CNIS da tarefa especificada.
+        """
+        cont = 0
 
+        if self.cnis is None:
+            return False
+
+        cpf = str(tarefa.obter_cpf())
+        protocolo = str(tarefa.obter_protocolo())
+        nit = self.cnis.pesquisar_nit_decpf(protocolo, cpf)
+        tarefa.alterar_nit(TipoTexto(nit))
+        print(f'Tarefa {protocolo} processada.')
+        self.salvar_emarquivo()
+        return True
+    
+    def coletar_status(self, t: Tarefa) -> bool:
+        """
+        Coleta o status da tarefa pesquisada e registra a conclusão se concluída/cancelada.
+        Retorna True se concluída/cancelada.
+        """
+        nav = self.get
+        if nav is None:
+            return False
+
+        (status, data) = nav.coletar_status()
+        if status in ['Cancelada', 'Concluída']:
+            t.marcar_conclusa()
+            t.concluir(TipoData(data))
+            return True
+        return False
+    
     def coletar_subtarefas(self, protocolo: str, imprimirpdf: bool) -> list[tuple[str, bool]]:
         """Coleta as subtarefas no GET."""
         nav = self.get
 
+        if nav is None:
+            return []
+
         nav.abrir_guia('Subtarefas')
         nav.irpara_finaltela()
         return nav.coletar_subtarefas(protocolo, self.nome_subservico, imprimirpdf)
+    
+    def concluir_tarefa(self, ulp: bool) -> None:
+        """Processa a conclusão de tarefas."""
+        buffer_linha = ''
+        cont = 0
+        get = self.get
+        protocolo = ''
 
+        if get is None:
+            return
+        if self.resultados is None:
+            return
+
+        self.pre_processar('CONCLUSÃO DE TAREFAS')
+        for t in self.lista:
+
+            if get.suspender_processamento:
+                print('Processamento suspenso.\n')
+                break
+            anexacao = t.obter_anexacao_analise()
+            if not t.esta_concluso().e_verdadeiro or t.esta_concluida().e_verdadeiro or t.tem_impedimento().e_verdadeiro:
+                continue
+            protocolo = str(t.obter_protocolo())
+            buffer_linha = f'Tarefa {protocolo}...'
+            print(buffer_linha, end='\r')
+            if get.pesquisar_tarefa(protocolo):
+                
+                #Verifica se tarefa está cancelada/concluída
+                if self.processar_status(t):
+                    print(buffer_linha + 'Tarefa já cancelada/concluída. Conclusão não foi processada.')
+                    cont += 1
+                    continue
+                get.abrir_tarefa()
+                if anexacao.tem_anexo().e_verdadeiro:
+                    arquivo_pdf = f'{protocolo} - Analise.pdf'
+                    caminho_pdf = path.join(Variaveis.obter_pasta_pdf(), arquivo_pdf)
+                    res_anexacao = get.adicionar_anexos([caminho_pdf])
+                    if len(res_anexacao) > 0 and res_anexacao[0]:
+                        buffer_linha += "PDF Anexado."
+                        print(buffer_linha, end='\r')
+                        anexacao.alterar_anexacao(TipoBooleano(True))
+                        anexacao.marcar_erro(TipoBooleano(None))
+                        t.alterar_anexacao_analise(anexacao)
+                    else:
+                        buffer_linha += "Erro ao anexar arquivo."
+                        print(buffer_linha)
+                        anexacao.marcar_erro(TipoBooleano(True))
+                        t.alterar_anexacao_analise(anexacao)
+                        self.salvar_emarquivo()
+                        get.fechar_tarefa()
+                        continue
+                get.irpara_iniciotela()
+                get.abrir_guia("Detalhes")
+                get.irpara_finaltela()
+                resultado_id = str(t.obter_resultado().valor)
+                resultado = self.resultados.obter(resultado_id)
+                if resultado is None:
+                    buffer_linha += " Erro ao obter resultado do requerimento."
+                    print(buffer_linha)
+                    get.fechar_tarefa()
+                    continue
+                despacho_texto = self.formatar_textodespacho(t.obter_idx(), resultado)
+                get.adicionar_despacho(despacho_texto)
+                buffer_linha += " Despacho gerado e incluído."
+                print(buffer_linha, end='\r')
+                get.irpara_iniciotela()
+                conclusao_texto = self.formatar_textoconclusao(t.obter_idx(), resultado)
+                get.irpara_iniciotela()
+                get.clicar_botao('formDetalharTarefa:detalhe_concluir')
+                get.aguardar_telaprocessamento()
+                numero_processo = ''
+                if 'ben' in self.tags:
+                    numero_processo = t.obter_beneficio()
+                elif 'sd' in self.tags:
+                    numero_processo = t.obter_segurodefeso()
+                res_conclusao = get.concluir_tarefa(numero_processo, conclusao_texto)
+                if res_conclusao['houve_conclusao']:
+                    buffer_linha += ' Concluída.'
+                    print(buffer_linha)
+                    t.concluir(None)
+                    self.salvar_emarquivo()
+                    cont += 1
+                else:
+                    buffer_linha += f' Erro ao concluir tarefa: {res_conclusao["msg"]}'
+                    print(buffer_linha)
+                get.fechar_tarefa()
+            else:
+                buffer_linha += 'Erro: Tarefa não encontrada.\n'
+                print(buffer_linha)
+        self.pos_processar(cont)
+
+    def definir_cnis(self, nav: Cnis | None) -> None:
+        """a"""
+        self.cnis = nav
+    
+    def definir_filtros(self, filtros: Filtros) -> None:
+        self.filtros = filtros        
+
+    def definir_get(self, nav: Get | None) -> None:
+        """a"""
+        self.get = nav
+        if self.get is not None:
+            self.get.alterar_modolinha(self.criarsub_modolinha)
+
+    def definir_mod_exigencias(self, lista: ListaModelosExigencia) -> None:
+        """"""
+        self.modelos_exigencia = lista
+
+    def definir_pmfagenda(self, nav: Pmfagenda | None) -> None:
+        """Define o automatizador do PMF Agenda."""
+        self.pmfagenda = nav
+
+    def definir_resultados(self, resultados: Resultados) -> None:
+        self.resultados = resultados
+
+    def definir_sibe(self, nav: Sibe | None) -> None:
+        """Define o automatizador do SIBE PU."""
+        self.sibe = nav
+
+    def definir_sd(self, nav: SD | None) -> None:
+        """a"""
+        self.sd = nav
+
+    def formatar_textoconclusao(self, idx: int, resultado: Resultado) -> str:
+        """Retorna o texto do comunicado de conclusão especificado."""
+        texto_modelo = resultado.conclusao
+        vars_necessarias = resultado.vars_conclusao.split(' ')
+        variaveis = {}
+        for var in vars_necessarias:
+            variaveis[var] =  self.base_dados.obter_atributo(idx, var)
+        return texto_modelo.format(**variaveis)        
+
+    def formatar_textodespacho(self, idx: int, resultado: Resultado) -> str:
+        """Retorna o texto do despacho especificado."""
+        texto_modelo = resultado.despacho
+        vars_necessarias = resultado.vars_despacho.split(' ')
+        variaveis = {}
+        for var in vars_necessarias:
+            variaveis[var] =  self.base_dados.obter_atributo(idx, var)
+        return texto_modelo.format(**variaveis)
+    
+    #== GERAR PA ==#
+    
+    def gerar_pa_base(self) -> None:
+        cont = 0
+        self.pre_processar('GERAR PA')
+        for t in self.lista:
+            tem_db = t.tem_dadosbasicos().e_verdadeiro
+            esta_concluida = t.esta_concluida().e_verdadeiro
+            if tem_db or esta_concluida:
+                continue
+            if self.gerar_pa(t):
+                cont += 1
+        self.pos_processar(cont)
+
+    def gerar_pa_lote(self) -> None:
+        cont = 0
+        self.pre_processar('GERAR PA')
+        print("Usando lista personalizada.")
+        for item in self.obter_listapersonalizada():
+            if (idx := self.base_dados.pesquisar_indice(item)) == None:
+                print(f"Erro: Tarefa {item} não foi encontrada na fila atual.\n")
+                continue
+            t = Tarefa(self.base_dados, idx)
+            if self.gerar_pa(t):
+                cont += 1
+        self.pos_processar(cont)
+
+    def gerar_pa(self, tarefa: Tarefa) -> bool:
+        """Gerar cópia do PA da tarefa GE."""
+        buffer_linha = ''
+        get = self.get
+
+        if get is None:
+            return False
+        protocolo = str(tarefa.obter_protocolo())
+        buffer_linha = f"Tarefa {protocolo}..."
+        print(buffer_linha, end='\r')
+        if get.pesquisar_tarefa(protocolo):
+
+            #Verifica se tarefa está cancelada/concluída
+            if self.coletar_status(tarefa):
+                buffer_linha += "Concluida/Cancelada. Coleta não processada."
+                print(buffer_linha)
+                return False
+            
+            #GET gera PDF do PA
+            if get.gerar_pa(protocolo):
+                buffer_linha += "PA gerado."
+            print(buffer_linha)
+            #self.salvar_emarquivo()
+        else:
+            buffer_linha += "Erro: Tarefa não foi encontrada."
+            print(buffer_linha)
+            return False
+        return True
+    
+    def juntar_docs(self):
+        cont = 0
+        lista = []
+        self.pre_processar('JUNTAR DOCUMENTOS DA ANÁLISE')
+        print("Usando lista personalizada.")
+        manipulador = ManipuladorPDF()
+        for item in self.obter_listapersonalizada():
+            if (idx := self.base_dados.pesquisar_indice(item)) == None:
+                print(f"Erro: Tarefa {item} não foi encontrada na fila atual.\n")
+                continue
+            for tipo_doc in self.tipo_docs:
+                lista.append(f'{item} - {tipo_doc}')
+            manipulador.juntar(lista, f'{item} - PreAnalise')
+            print(f'Tarefa {item}...Juntado.')
+            cont += 1
+            lista.clear()
+        self.pos_processar(cont)
+
+    def listar(self, listagem: Listagem, filtro: Filtro) -> tuple[int, str]:
+        """Retorna uma lista de tarefas."""
+        return self.base_dados.obter_lista(listagem, filtro)
+
+    def obter_info(self, nome_filtro) -> int:
+        if (filtro := self.filtros.obter(nome_filtro)) is not None:
+            res = self.base_dados.obter_quantidades(filtro)
+        else:
+            res = 0
+        return res
+    
+    def obter_listapersonalizada(self) -> list[str]:
+        print("Abrindo lote de protocolos...")
+        with carregar_texto('lista_protocolos.txt') as lista:
+            if len(lista) == 0:
+                print('Erro: Lista com lote de protocolos está vazia.\n')
+            return lista
+        
+    def obter_textoexigencia(self, tipo: str) -> str:
+        """Retorna o texto para geração de exigência especificado."""
+        if self.modelos_exigencia is None:
+            return ''
+        modelo = self.modelos_exigencia.obter(tipo)
+        if modelo is None:
+            return ''
+        else:
+            return modelo.texto
+        
+    def registrar_exigenciagerada(self, tarefa: Tarefa) -> None:
+        """Registra que já foi gerada uma exigência na tarefa"""
+        exigencia = tarefa.obter_exigencia()
+        exigencia.cumprir(TipoBooleano(True))
+        tarefa.alterar_exigencia(exigencia)
+
+    def visualizar_rapido(self, segundos: int, tarefa: Tarefa) -> None:
+        """Abre a tarefa na lista de despachos por segundos"""
+        get = self.get
+
+        if get is None:
+            return
+        protocolo = str(tarefa.obter_protocolo())
+        if get.pesquisar_tarefa(protocolo):
+            if self.coletar_status(tarefa):
+                self.salvar_emarquivo()
+                print(f'Tarefa {protocolo} concluída/cancelada.')
+                return
+            get.abrir_tarefa()
+            get.irpara_finaltela()
+            get.subir_pagina()
+            time.sleep(segundos)
+            get.irpara_iniciotela()
+            get.fechar_tarefa()
+            print(f'Tarefa {protocolo} visualizada.')
+        else:
+            print(f'Tarefa {protocolo} não encontrada.')
+        return
+    
+    def visualizar_rapido_lote(self) -> None:
+        """."""
+        cont = 0
+        protocolo = ''
+        self.pre_processar('VISUALIZAR TAREFA')
+        print("Usando lista personalizada.")
+
+        for item in self.obter_listapersonalizada():
+            if (idx := self.base_dados.pesquisar_indice(item)) == None:
+                print(f"Erro: Tarefa {item} não foi encontrada na fila atual.\n")
+                continue
+            t = Tarefa(self.base_dados, idx)
+            if self.visualizar_rapido(SEGUNDOS_VISUALIZACAO_RAPIDA, t):
+                cont += 1
+        self.pos_processar(cont)
+
+    #===========================================================================================================#
+    
     def contar_exigencias(self, protocolos: list[str]) -> None:
         """Conta a quantidade de exigências das tarefas especificadas."""
         cont = 0
@@ -175,104 +465,24 @@ class Processador:
                 self.get.fechar_tarefa()
                 print(f'Tarefa {p:<12} {cont}')
             else:
-                print(f'Tarefa {p:<12} não encontrada.')
+                print(f'Tarefa {p:<12} não encontrada.')    
 
-    def concluir_tarefa(self, numero: str, texto: str) -> dict:
-        """Conclui a tarefa especificada no GET."""
-        nav = self.get
-
-        nav.irpara_iniciotela()
-        nav.clicar_botao('formDetalharTarefa:detalhe_concluir')
-        nav.aguardar_telaprocessamento()
-        return nav.concluir_tarefa(numero, texto)
+    #def definir_exigencia_simples(self, tarefa: Tarefa, codigo_exig: str) -> None:
+        #"""Cadastra uma exigência na tarefa"""
+        #texto = self.obter_textoexigencia(codigo_exig)
+        #return self.get.definir_exigencia(texto)
     
-    def definir_cnis(self, nav: Cnis) -> None:
-        """a"""
-        self.cnis = nav
+    #def definir_filtros(self, filtros: Filtros) -> None:
+        """"""
+        #for filtro in filtros:
+            #if filtro.processador == 'todos':
+                #self.filtros_processador.adicionar(filtro)
 
-    def definir_exigencia_pm(self, agendamento: Agendamento) -> None:
-        """Cadastra uma exigência na tarefa com o agendameto da PM."""
-        texto = self.obter_textoexigencia("agendamentoPM")
-        local = agendamento.obter_local()
-        texto_formatado = texto.format(str(agendamento), local)
-        return self.get.definir_exigencia(texto_formatado)
-
-    def definir_exigencia_simples(self, tarefa: Tarefa, codigo_exig: str) -> None:
-        """Cadastra uma exigência na tarefa"""
-        texto = self.obter_textoexigencia(codigo_exig)
-        return self.get.definir_exigencia(texto)
-
-    def definir_filtros(self) -> None:
-        """Define os filtros básicos de consulta à base de dados"""
-        df = self.base_dados.dados
-        filto_sem_imp_conc = df['impedimentos'].isna() & df['concluso'].isna() & df['sub_sobrestado'].isna()
-
-        self.filtros['tudo'] = {
-            'valor': df['concluida'].isna()
-        }
-        self.filtros['coletadb'] = {
-            'valor': df['tem_dadosbasicos'].isna() & ~df['resultado'].isin(['desistencia']) & filto_sem_imp_conc
-        }
-        self.filtros['sobrestado'] = {
-            'valor': df['sub_sobrestado'].notna()
-        }
-        self.filtros['impedimentos'] = {
-            'valor': df['impedimentos'].notna()
-        }
-        self.filtros['conclusao'] = {
-            'valor': (df['concluso'] == '1') & df['concluida'].isna() & df['impedimentos'].isna() & df['sub_sobrestado'].isna()
-        }
-
-    def definir_listagens(self) -> None:
-        """Define as listagens básicas"""
-        self.listagens['tudo'] = {
-            "desc": "Exibe a lista de tarefas não concluídas.",
-            "filtro": self.filtros['tudo']['valor'],
-            'colunas': ['protocolo'],
-            'ordenacao': ['der'],
-            'ordem_crescente': True
-        }
-        self.listagens['coletadb'] = {
-            'desc': 'Exibe a lista de tarefas pendentes de coleta de dados básicos.',
-            'filtro': self.filtros['coletadb']['valor'],
-            'colunas': ['protocolo'],
-            'ordenacao': ['der'],
-            'ordem_crescente': True
-        }
-        self.listagens['sobrestado'] = {
-            "desc": "Exibe a lista de tarefas sobrestadas.",
-            "filtro": (self.filtros['sobrestado']['valor']),
-            'colunas': ['protocolo', 'sub_sobrestado'],
-            'ordenacao': ['der'],
-            'ordem_crescente': True
-        }
-        self.listagens['conclusao'] = {
-            "desc": "Exibe a lista de tarefas com benefício despachado aguardando conclusão da tarefa.",
-            "filtro": (self.filtros['conclusao']['valor']),
-            'colunas': ['protocolo', 'der', 'resultado'],
-            'ordenacao': ['der'],
-            'ordem_crescente': True
-        }
-        self.listagens['impedimentos'] = {
-            "desc": "Exibe a lista de tarefas com impedimentos para conclusão.",
-            "filtro": (self.filtros['impedimentos']['valor']),
-            'colunas': ['protocolo', 'der', 'impedimentos'],
-            'ordenacao': ['der'],
-            'ordem_crescente': True
-        }
-
-    def definir_get(self, nav: Get) -> None:
-        """a"""
-        self.get = nav
-        self.get.alterar_modolinha(self.criarsub_modolinha)
-
-    def definir_pmfagenda(self, nav: Pmfagenda) -> None:
-        """Define o automatizador do PMF Agenda."""
-        self.pmfagenda = nav
-
-    def definir_sibe(self, nav: Sibe) -> None:
-        """Define o automatizador do SIBE PU."""
-        self.sibe = nav
+    #def definir_listagens(self, listagens: Listagens) -> None:
+        """"""
+        #for listagem in listagem:
+            #if listagem.processador == 'todos':
+                #self.listagem_processador.adicionar(listagem)
 
     def editar_tarefas(self, atributo: str, valor: str, protocolos: list[str]) -> None:
         """Edita uma lista de tarefas"""
@@ -314,70 +524,14 @@ class Processador:
         else:            
             print(f'Erro: O atributo \'{atributo}\' não foi reconhecido como um atributo editável válido.\n')
             return
-
-    def gerar_subtarefa(self, tarefa: Tarefa, dados_adicionais: dict) -> tuple[bool, bool]:
-        """
-        Gera a subtarefa obrigatória da tarefa especificada.
-        Primeiro valor booleano indica que a subtarefa foi coletada ou gerada.
-        Segundo valor booleano indica que a subtrarefa foi coletada.
-        """
-        res = self.get.gerar_subtarefa(self.nome_subservico, self.id_subtarefa, dados_adicionais)
-        if res['sucesso']:
-            tarefa.alterar_subtarefa_coletada(False)
-            tarefa.alterar_subtarefa(res['numerosub'][0])
-            tarefa.concluir_fase_subtarefa()
-            return True
-        else:
-            tarefa.alterar_msg_criacaosub(res['mensagem'])
-        return False
     
     def obter_comandos(self) -> dict:
         """Retorna os comandos exclusivos do processador."""
         return self.comandos
-
-    def obter_dados_comfiltro(self, filtro: str):
-        """Retorna um conjunto de dados com filtro aplicado."""
-        return self.base_dados.obter_dados(self.filtros[filtro]['valor'])
-    
-    def obter_info(self, filtro: str, texto: str) -> str:
-        """Retorna a quantidade de registros retornados na pesquisa com filtro."""
-        dd = self.obter_dados_comfiltro(filtro)
-        return texto.format(len(dd))
-    
-    def obter_listagem(self, nome: str, sublista: list[str]) -> tuple[int, str]:
-        """Retorna uma lista de tarefas."""
-        listagem = self.listagens[nome]
-        return self.base_dados.obter_lista(listagem)
-
-    def obter_listagens(self):
-        """Retorna as listagems disponíveis."""
-        return self.listagens
     
     def obter_marcacoes(self):
         """Retorna as marcações disponíveis."""
         return self.marcacoes
-    
-    def obter_textoconclusao(self, idx: int, tipo: str) -> str:
-        """Retorna o texto do comunicado de conclusão especificado."""
-        texto_modelo = self.despachos['dados'][tipo]['conclusao']
-        vars_necessarias = self.despachos['dados'][tipo]['conclusao_vars'].split(' ')
-        variaveis = {}
-        for var in vars_necessarias:
-            variaveis[var] =  self.base_dados.obter_atributo(idx, var)
-        return texto_modelo.format(**variaveis)    
-    
-    def obter_textodespacho(self, idx: int, tipo: str) -> str:
-        """Retorna o texto do despacho especificado."""
-        texto_modelo = self.despachos['dados'][tipo]['despacho']
-        vars_necessarias = self.despachos['dados'][tipo]['despacho_vars'].split(' ')
-        variaveis = {}
-        for var in vars_necessarias:
-            variaveis[var] =  self.base_dados.obter_atributo(idx, var)
-        return texto_modelo.format(**variaveis)
-    
-    def obter_textoexigencia(self, tipo: str) -> str:
-        """Retorna o texto para geração de exigência especificado."""
-        return self.exigencias['dados'][tipo]['texto']
     
     def marcar_resultado(self, tarefa: Tarefa, resultado: str) -> bool:
         """Salva o resultado na lista de tarefas especificada."""
@@ -410,11 +564,15 @@ class Processador:
         if (idx := self.base_dados.pesquisar_indice(protocolo)) == None:
             print(f'Erro: Tarefa {protocolo} não foi encontrada.\n')
             return
-        resultado = self.base_dados.obter_atributo(idx, 'resultado')
-        if pd.isna(resultado):
+        resultado_id = self.base_dados.obter_atributo(idx, 'resultado')
+        if pd.isna(resultado_id):
             print(f'Erro: Tarefa {protocolo} ainda não possui resultado registrado.\n')
             return
-        texto = self.obter_textoconclusao(idx, resultado)
+        resultado = self.resultados.obter(resultado_id)
+        if resultado is None:
+            print(" Erro ao obter resultado do requerimento.")
+            return
+        texto = self.formatar_textoconclusao(idx, resultado)
         print(texto)
     
     def mostrar_despacho(self, protocolo: str) -> None:
@@ -422,11 +580,15 @@ class Processador:
         if (idx := self.base_dados.pesquisar_indice(protocolo)) == None:
             print(f'Erro: Tarefa {protocolo} não foi encontrada.\n')
             return
-        resultado = self.base_dados.obter_atributo(idx, 'resultado')
-        if pd.isna(resultado):
+        resultado_id = self.base_dados.obter_atributo(idx, 'resultado')
+        if pd.isna(resultado_id):
             print(f'Erro: Tarefa {protocolo} ainda não possui resultado registrado.\n')
             return
-        texto = self.obter_textodespacho(idx, resultado)
+        resultado = self.resultados.obter(resultado_id)
+        if resultado is None:
+            print(" Erro ao obter resultado do requerimento.")
+            return        
+        texto = self.formatar_textodespacho(idx, resultado)
         print(texto)
 
     def pre_processar(self, titulo: str) -> None:
@@ -442,7 +604,6 @@ class Processador:
     def pos_processar(self, cont: int) -> None:
         """Exibe o rodapé com o número de processamentos."""
         print('\nFinalizando...')
-        self.processar_dados()
         print(f'{cont} tarefa(s) processada(s) com sucesso.\n')
 
     def possui_benativos(self, protocolo: str, cpf: str) -> bool:
@@ -472,141 +633,6 @@ class Processador:
                 t.alterar_beninacumluavel(False)
             self.salvar_emarquivo()
             cont +=1            
-        self.pos_processar(cont)
-
-    def processar_agendamentopm(self, subcomando: str, lista: list[str]) -> None:
-        """Agenda uma PM no PMF Agenda."""
-        cont = 0
-        buffer_linha = ''
-        num_agendamentos = 0
-        protocolo = ''
-        usar_lista_personalizada = False
-
-        self.pre_processar('AGENDAR PM')
-        if len(lista) > 0:
-            usar_lista_personalizada = True        
-        for t in self.lista:
-            protocolo = t.obter_protocolo()
-            if usar_lista_personalizada:
-                if not protocolo in lista:
-                    continue
-            else:
-                if not t.obter_fase_subtarefa_gerada() or t.obter_fase_agendapm() or t.tem_impedimento() or t.obter_fase_conclusao():
-                    continue
-            buffer_linha = f'Tarefa {protocolo}...'
-            print(buffer_linha, end='\r')
-
-            cpf = t.obter_cpf()
-            subtarefa = t.obter_subtarefa()
-            olm = t.obter_olm()
-            if self.pmfagenda is not None:
-                dados = self.pmfagenda.agendar(protocolo, cpf, self.nome_servicopm, str(subtarefa), olm)
-                t.alterar_agendamento(Agendamento(datetime.strptime(dados[0], "%d/%m/%Y"), datetime.time(datetime.strptime(dados[1], "%H:%M")), dados[2]))
-                t.concluir_fase_agendapm()
-                print(f'{buffer_linha}...Dia {dados[0]} às {dados[1]}.')
-                num_agendamentos += 1
-            cont += 1
-
-            self.salvar_emarquivo()
-        self.pos_processar(cont)
-
-    def processar_coletadados(self) -> None:
-        """Coleta os dados básicos da tarefa no GET."""
-        cont = 0        
-        protocolo = ''
-
-        self.pre_processar('COLETAR DADOS BÁSICOS')
-        for t in self.lista:
-            if t.tem_dadosbasicos():
-                continue
-            protocolo = str(t.obter_protocolo())
-            print(f'Tarefa {protocolo}...', end=' ')
-            if self.get.pesquisar_tarefa(protocolo):
-                self.get.abrir_tarefa()
-
-                dados_coletados = self.get.coletar_dados(protocolo, self.nome_subservico, self.dadosparacoletar)
-
-                if 'der' in self.dadosparacoletar:
-                    t.alterar_der(dados_coletados['der'])
-                if 'beneficio' in self.dadosparacoletar:
-                    t.alterar_beneficio(dados_coletados['nb'])
-                if 'cpf' in self.dadosparacoletar:
-                    t.alterar_cpf(dados_coletados['cpf'])
-                if 'nit' in self.dadosparacoletar:
-                    t.alterar_nit(dados_coletados['nit'])
-                if 'quantexig' in self.dadosparacoletar:
-                    if int(dados_coletados['quantexig']) > 0:
-                        t.marcar_japossui_exigencia()
-                if 'quantsub' in self.dadosparacoletar:
-                    if int(dados_coletados['quantsub']) > 0:
-                        t.marcar_japossui_subtarefa()
-                if 'subtarefa' in self.dadosparacoletar:
-                    if 'subtarefa' in dados_coletados:
-                        self.registrar_subgerada(t, dados_coletados['subtarefa'])
-                        t.alterar_subtarefa_coletada(True)
-                if 'pm' in self.dadosparacoletar:
-                    if dados_coletados['pmrealizada']:
-                        self.registrar_exigenciagerada(t)
-                        resultado = self.processar_relatorio_pm(protocolo)
-                        self.registrar_pmfoi_realizada(resultado, t)
-                if 'olm' in self.dadosparacoletar:
-                    if dados_coletados['olm']:
-                        t.alterar_olm(dados_coletados['olm'])
-                if 'esta_acamado' in self.dadosparacoletar:
-                    t.alterar_esta_acamado(dados_coletados['esta_acamado'])
-                t.concluir_fase_dadoscoletados()
-                print('Dados coletados.')
-                self.get.fechar_tarefa()
-                self.salvar_emarquivo()
-                cont += 1
-            else:
-                print('Erro: Tarefa não foi encontrada.')
-        self.pos_processar(cont)
-
-    def processar_conclusao(self) -> None:
-        """Processa a conclusão de tarefas."""
-        cont = 0
-        protocolo = ''
-        nomearquivo = ''
-        texto = ''
-        numero = 0
-
-        self.pre_processar('CONCLUSÃO DE TAREFAS')
-        for t in self.lista:
-            if self.get.suspender_processamento:
-                print('Processamento suspenso.\n')
-                break
-            if not t.obter_fase_concluso() or t.tem_impedimento():
-                continue
-            protocolo = str(t.obter_protocolo())
-            print(f'Tarefa {protocolo}')
-            if self.get.pesquisar_tarefa(protocolo):
-                self.get.abrir_tarefa()
-                if t.tem_arquivopdfresumo():
-                    nomearquivo = path.join(Variaveis.obter_pasta_pdf(), f'{protocolo} - Analise.pdf')
-                    resultados = self.adicionar_anexo([nomearquivo])
-                    if resultados[0] == False:
-                        self.get.fechar_tarefa()
-                        print('Erro ao anexar arquivo.')
-                        continue
-                    self.get.irpara_iniciotela()
-                    self.get.abrir_guia("Detalhes")
-                self.get.irpara_finaltela()
-                texto = self.obter_textodespacho(t.obter_idx(), t.obter_resultado())
-                self.get.adicionar_despacho(texto)
-                self.get.irpara_iniciotela()
-                texto = self.obter_textoconclusao(t.obter_idx(), t.obter_resultado())
-                numero = t.obter_beneficio()
-                resultado = self.concluir_tarefa(numero, texto)
-                if resultado['houve_conclusao']:
-                    t.concluir_fase_conclusao()
-                    self.salvar_emarquivo()
-                    cont += 1
-                else:
-                    print(f'Erro ao concluir tarefa: {resultado["msg"]}')
-                self.get.fechar_tarefa()
-            else:
-                print(f'Erro: Tarefa {protocolo} não foi encontrada.\n')
         self.pos_processar(cont)
 
     def processar_desimpedimento(self, lista: list[str]) -> None:
@@ -650,7 +676,7 @@ class Processador:
         self.salvar_emarquivo()
         print(f'{num_itens-1} tarefa(s) alterada(s) com sucesso.')
 
-    def processar_impedimento(self, impedimento_id: str, lista: list[str]) -> None:
+    def processar_impedimento(self, impedimento: Impedimento, lista: list[str]) -> None:
         """Marca cada tarefa da lista com o impedimento de conclusão especificado."""
         cont = 0
         self.pre_processar('ADICIONAR IMPEDIMENTO')
@@ -659,7 +685,7 @@ class Processador:
                 print(f'Tarefa {protocolo} não foi encontrada.')
                 continue
             t = Tarefa(self.base_dados, idx)
-            t.alterar_impedimento(impedimento_id)
+            t.alterar_impedimento(impedimento)
             print(f'Tarefa {protocolo} processada.')
             cont += 1
         self.salvar_emarquivo()
@@ -686,10 +712,12 @@ class Processador:
         """
         nav = self.get
 
+        if nav is None:
+            return False
         status = nav.coletar_status()
-        if status in ['Cancelada', 'Concluída']:
-            t.concluir_fase_concluso()
-            t.concluir_fase_conclusao()
+        if status[0] in ['Cancelada', 'Concluída']:
+            t.marcar_conclusa()
+            t.concluir(TipoData(status[1]))
             return True
         return False
 
@@ -701,3 +729,43 @@ class Processador:
         """Gera uma tarefa de sobrestamento no GET."""
         numsub = self.get.sobrestar()
         tarefa.alterar_sub_sobrestado(numsub)
+
+    def _definir_filtros(self) -> None:
+        df = self.base_dados.dados
+        filto_sem_imp_conc = df['impedimentos'].isna() & df['concluso'].isna() & df['sub_sobrestado'].isna()
+
+        self.filtros['coletadb'] = {
+            'valor': df['tem_dadosbasicos'].isna() & ~df['resultado'].isin(['desistencia']) & filto_sem_imp_conc
+        }
+        self.filtros['sobrestado'] = {
+            'valor': df['sub_sobrestado'].notna()
+        }
+        self.filtros['impedimentos'] = {
+            'valor': df['impedimentos'].notna()
+        }
+        self.filtros['conclusao'] = {
+            'valor': (df['concluso'] == '1') & df['concluida'].isna() & df['impedimentos'].isna() & df['sub_sobrestado'].isna()
+        }
+
+    def _definir_listagens(self) -> None:
+        self.listagens['sobrestado'] = {
+            "desc": "Exibe a lista de tarefas sobrestadas.",
+            "filtro": (self.filtros['sobrestado']['valor']),
+            'colunas': ['protocolo', 'sub_sobrestado'],
+            'ordenacao': ['der'],
+            'ordem_crescente': True
+        }
+        self.listagens['conclusao'] = {
+            "desc": "Exibe a lista de tarefas com benefício despachado aguardando conclusão da tarefa.",
+            "filtro": (self.filtros['conclusao']['valor']),
+            'colunas': ['protocolo', 'der', 'resultado'],
+            'ordenacao': ['der'],
+            'ordem_crescente': True
+        }
+        self.listagens['impedimentos'] = {
+            "desc": "Exibe a lista de tarefas com impedimentos para conclusão.",
+            "filtro": (self.filtros['impedimentos']['valor']),
+            'colunas': ['protocolo', 'der', 'impedimentos'],
+            'ordenacao': ['der'],
+            'ordem_crescente': True
+        }

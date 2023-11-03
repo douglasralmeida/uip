@@ -17,7 +17,7 @@ colunas_especificas = {
                'atualizacaodespachada': 'string'
               }
 
-datas_especificas = []
+datas_especificas = ['vencim_exigencia']
 
 atributos = {'ms':           {'coluna': 'ms',
                               'tipo': 'booleano',
@@ -120,7 +120,8 @@ class ProcessadorIsencaoIR(Processador):
             'requer_processador': True,
             'requer_pmfagenda': False,
             'requer_protocolo': False,
-            'requer_sibe': False
+            'requer_sibe': False,
+            'requer_sd': False
         }
 
     def definir_filtros(self) -> None:

@@ -91,6 +91,10 @@ class ProcessadorMajoracao25(Processador):
         resultado = super().__str__()
         resultado += self.obter_info('coletadb', 'Pendentes de coleta de dados básicos: {0} tarefa(s).\n')
         resultado += self.obter_info('coletaben', 'Pendentes de coleta de dados do benefício: {0} tarefa(s).\n')
+
+        resultado += self.obter_info('aguardasub', 'Pendentes de geração de subtarefa: {0} tarefa(s).\n')
+        resultado += self.obter_info('aguardaagendapmsabi', 'Pendentes de agendamento de perícia no SABI: {0} tarefa(s).\n')
+        resultado += self.obter_info('aguardaagendapmtarefa', 'Pendentes de agendamento de perícia no PMF Tarefas: {0} tarefa(s).\n')
         
         resultado += self.obter_info('aguardaexig', 'Aguardando cumprimento de exigência: {0} tarefa(s).\n')
         resultado += self.obter_info('exigvencida', 'Com exigência vencida: {0} tarefa(s).\n')
@@ -256,6 +260,12 @@ class ProcessadorMajoracao25(Processador):
                 t.alterar_dib(dados['dib'])
                 t.alterar_situacaobeneficio(dados['status_beneficio'])
                 t.alterar_especie(dados['especie'])
+
+                #Se espécie não é B32, já encaminha para indeferimento.
+                if not dados['especie'] in ['32', '92']:
+                    t.alterar_resultado('maj25NaoAposentadoriaInv')
+                    t.concluir_fase_concluso()
+
                 if len(dados['dcb']) > 0:
                     t.alterar_dcb(dados['dcb'])
                 t.concluir_fase_dadosbencoletados()
