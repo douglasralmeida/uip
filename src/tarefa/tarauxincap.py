@@ -40,10 +40,6 @@ class TarefaAuxilioIncapacidade(Tarefa):
         """Informa que a PM foi realizada."""
         self.base_dados.alterar_atributo(self.pos, "periciarealizada", "1")
 
-    def concluir_fase_benef_despachado(self) -> None:
-        """Informa que o benefício foi desapachado no Sabi."""
-        self.base_dados.alterar_atributo(self.pos, "beneficiodespachado", "1")
-
     def concluir_fase_subtarefa(self) -> None:
         """Informa que a tarefa possui subtarefa."""
         self.base_dados.alterar_atributo(self.pos, "tem_subtarefa", "1")
