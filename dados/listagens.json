@@ -1,0 +1,142 @@
+{
+    "tudo": {
+        "desc": "Exibe a lista de tarefas não concluídas.",
+        "processador": "todos",
+        "colunas": "protocolo",
+        "ordenacao": "der",
+        "ordem_crescente": "True"
+    },
+    "coletadb": {
+        "desc": "Exibe a lista de tarefas pendentes de coleta de dados básicos.",
+        "processador": "todos",
+        "colunas": "protocolo",
+        "ordenacao": "der",
+        "ordem_crescente": "True"
+    },
+    "analiseacb": {
+        "desc": "Exibe a lista de tarefas pendentes de análise sobre acumulação de benefícios.",
+        "processador": "ben",
+        "colunas": "protocolo",
+        "ordenacao": "der",
+        "ordem_crescente": "True"
+    },
+    "geracaosub": {
+        "desc": "Exibe a lista de tarefas pendentes de análise sobre geração de subtarefa.",
+        "processador": "ben",
+        "colunas": "protocolo",
+        "ordenacao": "der",
+        "ordem_crescente": "True"
+    },
+    "subcomerro": {
+        "desc": "Exibe a lista de tarefas com erro na geração de subtarefa.",
+        "processador": "ben",
+        "colunas": "protocolo",
+        "ordenacao": "der",
+        "ordem_crescente": "True"
+    },
+    "agendamentopm": {
+        "desc": "Exibe a lista de tarefas pendentes de agendamento de perícia médica.",
+        "processador": "ben",
+        "colunas": "protocolo",
+        "ordenacao": "der",
+        "ordem_crescente": "True"
+    },
+    "anexacaoagendapm": {
+        "desc": "Exibe a lista de tarefas pendentes de anexação do comprovante de agendamento de PM na tarefa.",
+        "processador": "ben",
+        "colunas": "protocolo",
+        "ordenacao": "der",
+        "ordem_crescente": "True"
+    },
+    "anexacaoagendacomerro": {
+        "desc": "Exibe a lista de tarefas com erro na anexação do comprovante de agendamento de PM.",
+        "processador": "ben",
+        "colunas": "protocolo;dataagendamento",
+        "ordenacao": "der",
+        "ordem_crescente": "True"
+    },
+    "gerarexig": {
+        "desc": "Exibe a lista de tarefas pendentes de geração da exigência para o agendamento de PM.",
+        "processador": "ben",
+        "colunas": "protocolo;dataagendamento",
+        "ordenacao": "der",
+        "ordem_crescente": "True"
+    },
+    "aguardapm": {
+        "desc": "Exibe a lista de tarefas com agendamento e aguardando a realização da PM.",
+        "processador": "ben",
+        "colunas": "protocolo;dataagendamento",
+        "ordenacao": "der",
+        "ordem_crescente": "True"
+    },
+    "pmvencida": {
+        "desc": "Exibe a lista de tarefas com agendamento, aguradando a realização da PM com data vencida.",
+        "processador": "ben",
+        "colunas": "protocolo;cpf;dataagendamento;horaagendamento",
+        "ordenacao": "der",
+        "ordem_crescente": "True"
+    },
+    "cancelarsub": {
+        "desc": "Exibe a lista de tarefas pendentes de cancelamneto da subtarefa no GET",
+        "processador": "ben",
+        "colunas": "protocolo",
+        "ordenacao": "der",
+        "ordem_crescente": "True"
+    },
+    "habilitaben": {
+        "desc": "Exibe a lista de tarefas pendentes de habilitação no Prisma.",
+        "processador": "ben",
+        "colunas": "protocolo",
+        "ordenacao": "der",
+        "ordem_crescente": "True"
+    },
+    "pmlancar": {
+        "desc": "Exibe a lista de tarefas pendentes de lançamento da PM no Prisma.",
+        "processador": "ben",
+        "colunas": "protocolo;beneficio",
+        "ordenacao": "der",
+        "ordem_crescente": "True"
+    },
+    "deferir": {
+        "desc": "Exibe a lista de tarefas pendentes de deferimento no Prisma.",
+        "processador": "ben",
+        "colunas": "protocolo;beneficio",
+        "ordenacao": "der",
+        "ordem_crescente": "True"
+    },
+    "indeferir": {
+        "desc": "Exibe a lista de tarefas pendentes de indeferimento no Prisma.",
+        "processador": "ben",
+        "colunas": "protocolo;beneficio",
+        "ordenacao": "der",
+        "ordem_crescente": "True"
+    },
+    "indeferirinac": {
+        "desc": "Exibe a lista de tarefas pendente de indeferimento por acumulação não permitida.",
+        "processador": "ben",
+        "colunas": "protocolo;beneficio",
+        "ordenacao": "der",
+        "ordem_crescente": "True"
+    },
+    "impedimentos": {
+        "desc": "Exibe a lista de tarefas com impedimentos.",
+        "processador": "todos",
+        "colunas": "protocolo;impedimentos",
+        "ordenacao": "der",
+        "ordem_crescente": "True"
+    },
+    "conclusos": {
+        "desc": "Exibe a lista de tarefas conclusas.",
+        "processador": "todos",
+        "colunas": "protocolo",
+        "ordenacao": "der",
+        "ordem_crescente": "True"
+    },
+    "semnit": {
+        "desc": "Exibe a lista de tarefas com dados cadastrais coletados e sem NIT.",
+        "processador": "todos",
+        "colunas": "protocolo",
+        "ordenacao": "der",
+        "ordem_crescente": "True"
+    }
+}
