@@ -13,6 +13,11 @@ Option Explicit
 'File|New Module|Class Module
 'Edit|Properties|Name=Prisma
 
+'Beneficio Inacumulavel
+Dim BeneficioInacumulavel As String
+
+'DIB Inacumulavel
+Dim DIBInacumulavel As String
 
 'Especie do beneficio
 Dim Especie As Integer
@@ -40,14 +45,18 @@ End Sub
 
 'Processa o despacho de um beneficio para o SUB
 Sub Prisma_DespacharBeneficio(NB As String, Resultado As String)
+	Dim InformarAcumulacao As Boolean
+	Dim Der As String
 	Dim I As Integer
 	Dim NumRepeticoes As Integer
+
+	InformarAcumulacao = False
 
 	With ActiveSession
 		.SetSelection 0, 0, 0, 0
 		.InputMode = 0
 
-		Debug.Print("Prisma: Abrindo o benefício...")
+		Debug.Print("Prisma: Abrindo o beneficio...")
 		.Output NB & ChrW$(13) 'Entrar no BEN
 
 		Debug.Print("Prisma: Ir para Tela Despacho...")
@@ -56,8 +65,9 @@ Sub Prisma_DespacharBeneficio(NB As String, Resultado As String)
 			Sleep(1000)
 		Wend
 		If TextoNaTela(24, 7, "          ") Then
-			.Output ChrW$(13) 'DRD
-			Debug.Print("DRD em branco.")
+			Der = .GetText(67, 4, 10, 0)
+			.Output Der & ChrW$(13) 'DRD
+			Debug.Print("DER em " & Der & ". DRD na DER.")
 		End If
 		.Output "35" & ChrW$(13) 'Despacho
 
@@ -69,6 +79,12 @@ Sub Prisma_DespacharBeneficio(NB As String, Resultado As String)
 			NumRepeticoes = 10
 		Elseif Resultado = "b36NaoComparecePM" Then
 			NumRepeticoes = 11
+		Elseif Resultado = "b36RecebeAA" Then
+			NumRepeticoes = 0
+			InformarAcumulacao = True
+		Elseif Resultado = "b36RecebeBenInac" Then
+			NumRepeticoes = 0
+			InformarAcumulacao = True
 		Else
 			Debug.Print("Erro: Tipo de despacho nao reconhecido.")
 			Exit Sub
@@ -89,6 +105,14 @@ Sub Prisma_DespacharBeneficio(NB As String, Resultado As String)
 		'Debug.Print("Nao imprimir resumo.")
 		.Output "N" 'Nao Imprimir Resumo
 		Sleep(200)
+
+		if InformarAcumulacao Then
+			.Output BeneficioInacumulavel & ChrW$(13) 'BEN Anterior
+			.Output DIBInacumulavel & ChrW$(13) 'DIB BEN Anterior
+			Sleep(1000)
+			.Output ChrW$(13)
+		End If
+
 		'Debug.Print("Nao imprimir comunicado de decisao.")
 		.Output "N" 'Nao Imprimir Comunicado de Decisao
 		Sleep(200)
@@ -128,6 +152,10 @@ Sub Prisma_DespacharBeneficio(NB As String, Resultado As String)
 	End With
 End Sub
 
+Function Prisma_EsperaPorStatusOK()
+	Prisma_EsperaPorStatusOK =  TextoNaTela(1, 21, "OK <ENTER>")
+End Function
+
 'Processa a habilitacao de um beneficio
 Public Sub Prisma_HabilitarBeneficio()
 	Dim DerColetada, BenColetado As String
@@ -160,7 +188,7 @@ Public Sub Prisma_HabilitarBeneficio()
 
 		'Pergunta Comunicar com o CNIS novamente?
 		If TextoNaTela(1, 22, "Houve alteracao nos dados do CNIS apos esta data ?") Then
-            Debug.Print("Prisma: Pergunta exibida: Houve alteração dos dados no CNIS? -> SIM")
+            Debug.Print("Prisma: Pergunta exibida: Houve alteraï¿½ï¿½o dos dados no CNIS? -> SIM")
 			.Output "S" & ChrW$(13) 'Sim
 		End If
 		Sleep(250)
@@ -174,8 +202,8 @@ Public Sub Prisma_HabilitarBeneficio()
 
 		'Aguardando comunicacao SUB...
 		While ManterLoopSub
-			If TextoNaTela(1, 22, "Nao encontrou benefício.") Then
-                Debug.Print("Prisma: Mensagem exibida: Não encontrou benefícios")
+			If TextoNaTela(1, 22, "Nao encontrou benefï¿½cio.") Then
+                Debug.Print("Prisma: Mensagem exibida: Nï¿½o encontrou benefï¿½cios")
 				.Output ChrW$(13) 'Sim
 				ManterLoopSub = False
 				Sleep(1000)
@@ -192,7 +220,7 @@ Public Sub Prisma_HabilitarBeneficio()
 
 		'Caso apareca a tela de homonimos
 		If TextoNaTela(23, 10, "Existem Homonimos") Then
-            Debug.Print("Prisma: Mensagem exibida: Existe homï¿½nimos")
+            Debug.Print("Prisma: Mensagem exibida: Existe homonimos")
 			.Output "N" & ChrW$(13) 'Nao enviar para impressora
 			.Output ChrW$(13) 'Fim de Pesquisa
 			Sleep(1000)
@@ -203,18 +231,27 @@ Public Sub Prisma_HabilitarBeneficio()
 			Wend
 		End If
 
-		Debug.Print("Prisma: Ir para tela de habilitação...")
-		While Not TextoNaTela(57, 19, "PROT.GET..")
+		Debug.Print("Prisma: Ir para tela de habilitacao...")
+		While Not TextoNaTela(57, 19, "PROT.TRAB.")
 			Sleep(500)
 		Wend
+		
+		If TextoNaTela(21, 1, "Segurado/titular com data de obito") Then
+			Debug.Print("Prisma: Mensagem exibida: Titular com data de obito")
+			.Output "S" & ChrW$(13) 'Confirma habilitacao
+		End If
 		.Output "25" 'Campo Protocolo GET
-		.Output Protocolo & ChrW$(13) 'Protocolo GET
-        .Output ChrW$(13) 'Msg DER alerada, DIB e DIP serao recalculadas
+		.Output Protocolo & ChrW$(13) 'Num Protocolo
+		While Not TextoNaTela(1, 22, "DIB e DIP serao recalculadas")
+			Sleep(1000)
+		Wend
+		.Output ChrW$(13) 'Msg DER alerada, DIB e DIP serao recalculadas
+		.Output "26" 'Campo Protocolo GET Trab.
+		.Output Protocolo & ChrW$(13) 'Num Protocolo
 		While Not TextoNaTela(17, 21, "Tela Anterior, ou Modificar")
 			Sleep(500)
 		Wend
 		.Output ChrW$(13) 'Prox Tela
-
 		Sleep(250)
 		If TextoNaTela(1, 22, "Os campos do documento de IDENTIDADE estao incompletos.") Then
 			Debug.Print("Prisma: ensagem exibida: Doc RG incompletos.")
@@ -249,6 +286,7 @@ Public Sub Prisma_HabilitarBeneficio()
 		.Output "N" & ChrW$(13) 'Ex combatente Nao
 		Sleep(500)
 
+
 		If TextoNaTela(2, 21, "Nome ou Sobrenome nao pode ser abreviado.") Then
 			Debug.Print("Mensagem exibida: Nome ou Sobrenome nao pode ser abreviado.")
 			.Output "S" & ChrW$(13)
@@ -274,6 +312,7 @@ Public Sub Prisma_HabilitarBeneficio()
 
 		While Not TextoNaTela(1, 21, "O Segurado ja' e' Aposentado")
 			Sleep(500)
+
 		Wend
 		.Output "N" 'Nao e aposentado
 		Sleep(500)
@@ -305,6 +344,182 @@ Public Sub Prisma_HabilitarBeneficio()
 	End With
 End Sub
 
+Sub Prisma_LancarPM(NB As String, Protocolo As String)
+	Dim Arquivo As Integer
+	Dim NomeArquivo As String
+	Dim Did As String
+	Dim Dii As String
+	Dim HouveAcidente As String
+	Dim DataAcidente As String
+	Dim DeferirB94 As String
+	Dim SequelaEnquadra As String
+	Dim DataMarcacao As String
+	Dim Conclusao As String
+	Dim Cid As String
+	Dim CodigoPerito As String
+	Dim DataConclusao As String
+	Dim Processando As Boolean
+	Dim Texto As String
+
+	Debug.Print("Abrindo arquivo de PM...")
+	NomeArquivo	= "C:\Dev\uip\arquivosentrada\" & Protocolo & " - pmparalancar.txt"
+	Arquivo = FreeFile
+	If FileExists(NomeArquivo) Then
+		Open NomeArquivo For Input As #Arquivo
+		Line Input #Arquivo,Texto$
+		Did = Trim(Texto)
+		Line Input #Arquivo,Texto$
+		Line Input #Arquivo,Texto$
+		Dii = Trim(Texto)
+		Line Input #Arquivo,Texto$
+		Line Input #Arquivo,Texto$
+		HouveAcidente = Trim(Texto)
+		Line Input #Arquivo,Texto$
+		Line Input #Arquivo,Texto$
+		DataAcidente = Trim(Texto)
+		Line Input #Arquivo,Texto$
+		Line Input #Arquivo,Texto$
+		DeferirB94 = Trim(Texto)
+		Line Input #Arquivo,Texto$
+		Line Input #Arquivo,Texto$
+		SequelaEnquadra = Trim(Texto)
+		Line Input #Arquivo,Texto$
+		Line Input #Arquivo,Texto$
+		DataMarcacao = Trim(Texto)
+		Line Input #Arquivo,Texto$
+		Line Input #Arquivo,Texto$
+		Conclusao = Trim(Texto)
+		Line Input #Arquivo,Texto$
+		Line Input #Arquivo,Texto$
+		Cid = Trim(Texto)
+		Line Input #Arquivo,Texto$
+		Line Input #Arquivo,Texto$
+		CodigoPerito = Trim(Texto)
+		Line Input #Arquivo,Texto$
+		Line Input #Arquivo,Texto$
+		DataConclusao = Trim(Texto)
+		Close #Arquivo
+	Else
+		ErroProcessamento = True
+		Exit Sub
+	End If
+
+	Debug.Print("DID: " & Did)
+	Debug.Print("DII: " & Dii)
+	Debug.Print("HouveAcidente: " & HouveAcidente)
+	Debug.Print("DataAcidente: " & DataAcidente)
+	Debug.Print("DeferirB94: " & DeferirB94)
+	Debug.Print("SequelaEnquadra: " & SequelaEnquadra)
+	Debug.Print("DataMarcacao: " & DataMarcacao)
+	Debug.Print("Conclusao: " & Conclusao)
+	Debug.Print("CID: " & Cid)
+	Debug.Print("CodigoPerito: " & CodigoPerito)
+	Debug.Print("DataConclusao: " & DataConclusao)
+
+	With ActiveSession
+		.SetSelection 0, 0, 0, 0
+		.InputMode = 0
+
+		Debug.Print("Prisma: Abrir beneficio...")
+		.Output NB & ChrW$(13) 'Digita o NB
+
+		'Aguarda os campos de PM - Tela 01
+		While Not TextoNaTela(7, 7, "D.I.D")
+			Sleep(1000)
+		Wend
+		Debug.Print("Prisma: Informar dados basicos da PM...")
+		.Output Did & ChrW$(13)
+		'Sleep(1000)
+		.Output Dii & ChrW$(13)
+		'Sleep(1000)
+		.Output "N" & ChrW$(13) 'Nexo Tecnico
+		'Sleep(1000)
+		.Output "848505" & ChrW$(13) 'Profissao
+		'Sleep(1000)
+		.Output "50" & ChrW$(13) 'Perc. Reducao
+		'Sleep(100)
+		.Output HouveAcidente & ChrW$(13) 'Acidente?
+		'Sleep(1000)
+		.Output DataAcidente & ChrW$(13)
+		'Sleep(100)
+		.Output DeferirB94 & ChrW$(13) 'Acidente Trabalho?
+		'Sleep(100)
+		.Output SequelaEnquadra & ChrW$(13) 'Sequela
+		'Sleep(100)
+
+		.Output ChrW$(13) 'Mudar de Tela
+
+		'Aguarda os campos do exame - Tela 02
+		While Not TextoNaTela(5, 7, "ORDEM DO EXAME")
+			Sleep(1000)
+		Wend
+		Debug.Print("Prisma: Informar dados do exame...")
+		.Output DataMarcacao & ChrW$(13)
+		'Sleep(100)
+		.Output "4" & ChrW$(13) 'Conclusao
+		'Sleep(100)
+		.Output "888888" & ChrW$(13) 'Data Limite
+		'Sleep(100)
+		.Output "N" & ChrW$(13) 'Acrescimo
+		'Sleep(100)
+		.Output Cid & ChrW$(13)
+		'Sleep 100
+		.Output ChrW$(13) 'CID Secundario
+		'Sleep(100)
+		.Output "0" & ChrW$(13) 'Codigo da Fase
+		'Sleep(100)
+		.Output "1" & ChrW$(13) 'Local do Exame
+		'Sleep(100)
+		.Output "N" & ChrW$(13) 'Exame Requisitado
+		'Sleep(100)
+		.Output "N" & ChrW$(13) 'Diligencia
+		'Sleep(100)
+		.Output ChrW$(13) 'Codigo do Perito
+		.Output CodigoPerito & ChrW$(13)
+		Sleep(100)
+		.Output DataConclusao & ChrW$(13)
+		'Sleep(100)
+		.Output ChrW$(13) 'Dados OK
+		Debug.Print("Prisma: Responder perguntas...")
+
+		'Aguarda a pergunta de Impressao da Comunicacao
+		While Not TextoNaTela(1, 21, "Deseja imprimir a Comunicacao de Decisao")
+			Sleep(1000)
+		Wend
+		.Output "S" & ChrW$(13)
+		.Output ChrW$(13) 'Carta de deferimento nao sera impressa
+
+		Processando = True
+		Debug.Print("Prisma: Aguardando processamento...")
+		While Processando
+			Sleep(1000)
+			While TextoNaTela(1, 21, "Formatando")
+				Sleep(1000)
+			Wend
+			If TextoNaTela(1, 22, "Beneficio ainda nao retornou. <TECLE ENTER>") Then
+				.Output ChrW$(13)
+				Sleep(1000)
+			End If
+			If TextoNaTela(1, 22, "Deseja continuar aguardando resultado") Then
+				.Output "S" & ChrW$(13)
+				Sleep(1000)
+			End If
+			While TextoNaTela(1, 21, "Aguarde")
+				Sleep(1000)
+			Wend
+			If TextoNaTela(1, 22, "Escolha a opcao") Then
+				Processando = False
+			End If
+		Wend
+		.Output "/" & ChrW$(13) 'Sair
+
+		Debug.Print("Prisma: Finalizando...")
+		While Not TextoNaTela(3, 13, "   ")
+			Sleep(1000)
+		Wend
+	End With
+End Sub
+
 Public Function Prisma_GetNumero() As String
 	Prisma_GetNumero = Numero
 End Function
@@ -312,6 +527,11 @@ End Function
 Public Function Prisma_HouveErroProcessamento() As Boolean
 	Prisma_HouveErroProcessamento = ErroProcessamento
 End Function
+
+Public Sub Prisma_SetAcumulacao(DIB As String, Numero As String)
+	BeneficioInacumulavel = Numero
+	DIBInacumulavel = DIB
+End Sub
 
 Public Sub Prisma_SetEspecie(NovaEspecie As Integer)
     Especie = NovaEspecie

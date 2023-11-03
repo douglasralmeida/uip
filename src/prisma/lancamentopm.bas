@@ -1,10 +1,10 @@
-'INDEFERIMENTO.BAS
+'LANCAMENTOPM.BAS
 '#Uses "prisma.cls"
 '#Uses "arquivoentrada.cls"
 '#Uses "arquivosaida.cls"
 '#Uses "utils.bas"
 
-'Indeferimento Automatico
+'Lancamento PM Automatico
 'UIP v.1.0
 
 Dim ProcessamentoComErro As Boolean
@@ -14,31 +14,18 @@ Function Processar(ItemEntrada As String) As String
 	Dim Protocolo As String
 	Dim Resultado As String
 	
-	'Extrai as vari�veis da entrada
+	'Extrai as variaveis da entrada
 	Variaveis = Split(ItemEntrada, " ")
 	NB = RemoverCaracteresInvalidos(Variaveis(1))
 	Protocolo = Variaveis(0)
-	Resultado = Variaveis(2)
-	DIB_Anterior = "0"
-	NB_Anterior = "0"
 
 	'Realiza o processamento
 	Debug.Print("")
 	Debug.Print("Tarefa " & Protocolo)
 
-	Prisma_SetAcumulacao(DIB_Anterior, NB_Anterior)
-	Prisma_DespacharBeneficio(NB, Resultado)
-	If Resultado = "b36NaoComparecePM" Then
-		TemResumo = "1"
-	ElseIf Resultado = "b36RecebeAA" Then
-		TemResumo = "1"
-	ElseIf Resultado = "b36RecebeBenInac" Then
-		TemResumo = "1"
-	Else
-		TemResumo = "0"
-	End If
+	Prisma_LancarPM(NB, Protocolo)
 
-	Processar = Protocolo & " 1 " & TemResumo & " " & Resultado & " 1"
+	Processar = Protocolo & " 1"
 	Sleep(250)
 
 	Debug.Print("Tarefa " & Protocolo & " processada.")
@@ -49,8 +36,8 @@ Sub Main()
 	Dim Item As String
 	Dim Entrada() As String
 
-	LocalArquivoEntrada = "C:\Dev\uip\arquivosentrada\tarefas_indeferir.txt"
-	LocalArquivoSaida = "C:\Dev\uip\arquivosentrada\ben_despachados.txt"
+	LocalArquivoEntrada = "C:\Dev\uip\arquivosentrada\tarefas_lancarpm.txt"
+	LocalArquivoSaida = "C:\Dev\uip\arquivosentrada\pm_lancadas.txt"
 	QuantidadeProcessados = 0
 
 	Debug.Print("Iniciando processamento...")

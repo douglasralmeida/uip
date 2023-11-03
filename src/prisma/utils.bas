@@ -1,5 +1,5 @@
 'UTILS.BAS
-'Automação do Prisma
+'Automaï¿½ï¿½o do Prisma
 'UIP v.1.0
 
 Sub ExibirErro(Msg As String)
@@ -20,12 +20,13 @@ Function RemoverCaracteresInvalidos(Texto As String) As String
 End Function
 
 Function TextoNaTela(X As Integer, Y As Integer, Texto As String) As Boolean
+'X comeÃ§a com 1 e Y comeÃ§a com 0
 	Dim Tam As Integer
 	Dim TextoObtido As String
 
 	Tam = Len(Texto)
 	TextoObtido = ActiveSession.GetText(X, Y, Tam, 0)
-	'Debug.Print("'" & TextoObtido & "'")
+	Debug.Print("'" & TextoObtido & "'")
 	If Texto = TextoObtido Then
 		TextoNaTela = True
 	Else
