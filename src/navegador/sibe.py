@@ -4,11 +4,9 @@
 """Automatizador do SIBE BU."""
 
 import time
-from os import path
 from .navegador import Navegador
-from selenium.common.exceptions import StaleElementReferenceException
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 URL_SIBE = 'http://www-portalsibe/'
@@ -73,7 +71,10 @@ class Sibe(Navegador):
                 continue            
             if campo.get_dom_attribute('chave').casefold() == 'espécie':
                 texto = campo.find_element(By.TAG_NAME, 'span').get_attribute('textContent')
-                res['especie'] = texto[:2].strip()
+                if texto is not None:
+                    res['especie'] = texto[:2].strip()
+                else:
+                    res['especie'] = ''
                 continue
             if campo.get_dom_attribute('chave').casefold() == 'dib':
                 texto = campo.find_element(By.TAG_NAME, 'span').get_attribute('textContent')
@@ -81,7 +82,10 @@ class Sibe(Navegador):
                 continue
             if campo.get_dom_attribute('chave').casefold() == 'ol mantenedor':
                 texto = campo.find_element(By.TAG_NAME, 'span').get_attribute('textContent')
-                res['olm'] = texto[:10]
+                if texto is not None:
+                    res['olm'] = texto[:10]
+                else:
+                    res['olm'] = ''
                 continue
             if campo.get_dom_attribute('chave').casefold() == 'sistema de origem':
                 texto = campo.find_element(By.TAG_NAME, 'span').get_attribute('textContent')
