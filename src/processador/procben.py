@@ -503,7 +503,26 @@ class ProcessadorBeneficio(Processador):
             arquivo_prisma.alterar_dados(protocolo, dados)
             arquivo_prisma.salvar()
 
-    #== A ==
+    #== ENVIO LANÇAMENTO PM PRISMA ==#
+
+    def enviar_lancarpm_lote(self) -> None:
+        """Gera a lista de benefícios para lançamento de PM no Prisma."""
+
+        cont = 0
+        protocolo = ''
+        print("Usando lista personalizada.")
+
+        for item in self.obter_listapersonalizada():
+            if (idx := self.base_dados.pesquisar_indice(item)) == None:
+                print(f"Erro: Tarefa {item} não foi encontrada na fila atual.\n")
+                continue
+            t = TarefaBeneficio(self.base_dados, idx)
+            protocolo = str(t.obter_protocolo())
+            print(f'Tarefa {protocolo}.')
+            beneficio = str(t.obter_beneficio())
+            self.enviar_tarefa_lancarpm(protocolo, beneficio)
+            cont += 1
+        self.pos_processar(cont)
 
     def enviar_tarefa_lancarpm(self, protocolo: str, beneficio: str) -> None:
         """Envia dados da tarefa para lançamento de PM no Prisma."""
