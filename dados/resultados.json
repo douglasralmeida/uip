@@ -276,7 +276,7 @@
             "descricao": "Indeferido por atividade pesqueira diversa daquela vedada pelo período do defeso",
             "despacho": "Ref.:\t{sd}\n\nAss.: Indeferimento do Benefício\n\n1.\t\tTrata-se de requerimento de seguro defeso do pescador artesanal indeferido por exercício de atividade pesqueira diferente daquela vedada pelo período de defeso.\n\n2.\t\tEm consulta ao RGP, verifica-se que o requerente exerce atividade pesqueira diferente daquela vedada do período do defeso.\n\n3.\t\tFoi solicitada a apresentação de documentação indispensável à análise do requerimento, elencando providências/documentos necessários,  mas o prazo transcorreu sem a apresentação da documentação necessária nem houve manifestação do(a) requerente a respeito.\n\n4.\t\tSem mais diligências. Arquive-se.\n",
             "despacho_vars": "sd",
-            "conclusao": "NSD: {sd}\n\n\nPrezado(a) Senhor(a),\n\nO requerimento de seguro defeso do pescador artesanal foi INDEFERIDO por exercício de atividade pesqueira diversa daquela vedada pelo período do defeso.\n\nDe acordo com o art. item V do art. 2º do Decreto 8.424/2015, o seguro defeso do pescador artesanal não é devido ao pescador com fonte de renda diferente daqeula vedada pelo período do defeso.\n\nDesta decisão poderá ser interposto recurso à Junta de Recursos da Previdência Social, dentro do prazo de 30 (trinta) dias, contados da data do recebimento da presente comunicação.\n\nO recurso deverá ser requerido através do serviço Meu INSS (meu.inss.gov.br) ou Central de Atendimento 135.\n",
+            "conclusao": "NSD: {sd}\n\n\nPrezado(a) Senhor(a),\n\nO requerimento de seguro defeso do pescador artesanal foi INDEFERIDO por exercício de atividade pesqueira diversa daquela vedada pelo período do defeso.\n\nDe acordo com o art. item V do art. 2º do Decreto 8.424/2015, o seguro defeso do pescador artesanal não é devido ao pescador com fonte de renda diferente daquela vedada pelo período do defeso.\n\nDesta decisão poderá ser interposto recurso à Junta de Recursos da Previdência Social, dentro do prazo de 30 (trinta) dias, contados da data do recebimento da presente comunicação.\n\nO recurso deverá ser requerido através do serviço Meu INSS (meu.inss.gov.br) ou Central de Atendimento 135.\n",
             "conclusao_vars": "sd"
         },
         "sdPerdaDePrazo": {
@@ -285,5 +285,26 @@
             "despacho_vars": "sd der",
             "conclusao": "NSD: {sd}\n\n\nPrezado(a) Senhor(a),\n\nO requerimento de seguro defeso do pescador artesanal foi INDEFERIDO por perda do prazo para o requerimento do benefício.\n\nDe acordo com o art. 4º da Lei 10.779/2003, o seguro defeso deverar ser requerido no prazo de até 120 dias após o início do defeso da atividade pesqueira.\n\nDesta decisão poderá ser interposto recurso à Junta de Recursos da Previdência Social, dentro do prazo de 30 (trinta) dias, contados da data do recebimento da presente comunicação.\n\nO recurso deverá ser requerido através do serviço Meu INSS (meu.inss.gov.br) ou Central de Atendimento 135.\n",
             "conclusao_vars": "sd"
-        }
+        },
+        "sdCaepfRural": {
+            "descricao": "Indeferido por atividade diversa da pesca artesanal",
+            "despacho": "Ref.:\t{sd}\n\nAss.: Indeferimento do Benefício\n\n1.\t\tTrata-se de requerimento de seguro defeso do pescador artesanal indeferido por atividade diversa da pesca artesanal.\n\n2.\t\t O requerente possui registro no Cadastro de Atividades Econômicas da Pessoa Física - CAEPF como segurado especial - trabalhador rural, não atendendo o disposto no §4º do art. 2º do Decreto 8.424/2015.\n\n3.\t\tSem mais diligências. Arquive-se.\n",
+            "despacho_vars": "sd",
+            "conclusao": "NSD: {sd}\n\n\nPrezado(a) Senhor(a),\n\nO requerimento de seguro defeso do pescador artesanal foi INDEFERIDO por exercício de atividade diversa da pesca artesanal.\n\nDe acordo com o §4º do art. 1º do Decreto 8.424/2015, o seguro defeso do pescador artesanal não é devido ao pescador com fonte de renda diferente da decorrente da atividade pesqueira.\n\nDesta decisão poderá ser interposto recurso à Junta de Recursos da Previdência Social, dentro do prazo de 30 (trinta) dias, contados da data do recebimento da presente comunicação.\n\nO recurso deverá ser requerido através do serviço Meu INSS (meu.inss.gov.br) ou Central de Atendimento 135.\n",
+            "conclusao_vars": "sd"
+           },
+        "sdCaepfCI": {
+            "descricao": "Indeferido por atividade diversa da pesca artesanal",
+            "despacho": "Ref.:\t{sd}\n\nAss.: Indeferimento do Benefício\n\n1.\t\tTrata-se de requerimento de seguro defeso do pescador artesanal indeferido por atividade diversa da pesca artesanal.\n\n2.\t\t O requerente possui registro no Cadastro de Atividades Econômicas da Pessoa Física - CAEPF como contribuinte individual - pessoa física com empregados, não atendendo o disposto no §4º do art. 2º do Decreto 8.424/2015.\n\n3.\t\tSem mais diligências. Arquive-se.\n",
+            "despacho_vars": "sd",
+            "conclusao": "NSD: {sd}\n\n\nPrezado(a) Senhor(a),\n\nO requerimento de seguro defeso do pescador artesanal foi INDEFERIDO por exercício de atividade diversa da pesca artesanal.\n\nDe acordo com o §4º do art. 1º do Decreto 8.424/2015, o seguro defeso do pescador artesanal não é devido ao pescador com fonte de renda diferente da decorrente da atividade pesqueira.\n\nDesta decisão poderá ser interposto recurso à Junta de Recursos da Previdência Social, dentro do prazo de 30 (trinta) dias, contados da data do recebimento da presente comunicação.\n\nO recurso deverá ser requerido através do serviço Meu INSS (meu.inss.gov.br) ou Central de Atendimento 135.\n",
+            "conclusao_vars": "sd"
+           },
+        "sdProdutoDiferente": {
+            "descricao": "Indeferido por atividade pesqueira diversa daquela vedada pelo período do defeso",
+            "despacho": "Ref.:\t{sd}\n\nAss.: Indeferimento do Benefício\n\n1.\t\tTrata-se de requerimento de seguro defeso do pescador artesanal indeferido por atividade pesqueira diversa daquela vedada pelo período do defeso.\n\n2.\t\t O requerente possui registro no Registro Geral da Pesca - RGP com exploração de produtos diferentes daqueles previstos no defeso informado, não atendendo o disposto no §12º do art. 1º do Decreto 8.424/2015.\n\n3.\t\tSem mais diligências. Arquive-se.\n",
+            "despacho_vars": "sd",
+            "conclusao": "NSD: {sd}\n\n\nPrezado(a) Senhor(a),\n\nO requerimento de seguro defeso do pescador artesanal foi INDEFERIDO por exercício de atividade diversa da pesca artesanal.\n\nDe acordo com o § 12º do art. 1º do Decreto 8.424/2015, o seguro defeso do pescador artesanal não é devido ao pescador que possua disponibilidade de alternativas de pesca nos Municípios alcançados pelos períodos de defeso.\n\nDesta decisão poderá ser interposto recurso à Junta de Recursos da Previdência Social, dentro do prazo de 30 (trinta) dias, contados da data do recebimento da presente comunicação.\n\nO recurso deverá ser requerido através do serviço Meu INSS (meu.inss.gov.br) ou Central de Atendimento 135.\n",
+            "conclusao_vars": "sd"
+           }        
 }
