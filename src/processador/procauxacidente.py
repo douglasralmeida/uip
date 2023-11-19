@@ -226,7 +226,7 @@ class ProcessadorAuxAcidente(ProcessadorBeneficio):
             'requer_pmfagenda': False,
             'requer_protocolo': False,
             'requer_sibe': False,
-                'requer_sd': False
+            'requer_sd': False
         }
         self.comandos['enviarindeferimento'] = {
             'funcao': self.processar_envioindeferimento,
@@ -239,7 +239,20 @@ class ProcessadorAuxAcidente(ProcessadorBeneficio):
             'requer_pmfagenda': False,
             'requer_protocolo': False,
             'requer_sibe': False,
-                'requer_sd': False
+            'requer_sd': False
+        }
+        self.comandos['enviarlancarpm'] = {
+            'funcao': self.processar_enviolancarpm,
+            'argsmin': 0,
+            'desc': 'Gera a lista de benefícios para lançar PM no Prisma.',
+            'requer_subcomando': False,
+            'requer_cnis': False,
+			'requer_get': False,
+            'requer_processador': True,
+            'requer_pmfagenda': False,
+            'requer_protocolo': False,
+            'requer_sibe': False,
+            'requer_sd': False
         }
         self.comandos['processardataspm'] = {
             'funcao': self.processar_dataspm,
@@ -738,6 +751,14 @@ class ProcessadorAuxAcidente(ProcessadorBeneficio):
             self.enviar_indeferimento_lote()
         else:
             print("Erro: Sem suporte a envio de processos para indeferimento fora do lote lista_protocolos.txt no momento.\n")
+
+    def processar_enviolancarpm(self, sucomando: str, lista: list[str]) -> None:
+        """a"""
+        self.pre_processar('ENVIAR PARA LANÇAMENTO DE PM')
+        if len(lista) > 0 and lista[0] == 'ulp':
+            self.enviar_lancarpm_lote()
+        else:
+            print("Erro: Sem suporte a envio de processos para lançamento de PM fora do lotelista_protocolos.txt no momento.\n")
 
     def processar_exigenciapm(self, subcomando: str, lista: list[str]) -> None:
         """Cadastra exigência de agendamento de PM."""
