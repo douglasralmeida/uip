@@ -1,4 +1,5 @@
 from .processador import Processador
+from .procapos import ProcessadorAposentadoria
 from .procauxacidente import ProcessadorAuxAcidente
 from .procauxincap import ProcessadorAuxIncapacidade
 from .procben import ProcessadorBeneficio
@@ -10,6 +11,6 @@ from .procprosalmat import ProcessadorProrrogSalMaternidade
 from .procsd import ProcessadorSeguroDefeso
 from .procsm import ProcessadorSalMaternidade
 
-__all__ = ["Processador", "ProcessadorAuxAcidente", "ProcessadorAuxIncapacidade", 
+__all__ = ["Processador", "ProcessadorAposentadoria", "ProcessadorAuxAcidente", "ProcessadorAuxIncapacidade", 
            "ProcessadorBenAssDeficiente", "ProcessadorBeneficio", "ProcessadorBenAssIdoso", "ProcessadorIsencaoIR",
             "ProcessadorMajoracao25", "ProcessadorProrrogSalMaternidade", "ProcessadorSeguroDefeso", "ProcessadorSalMaternidade"]
