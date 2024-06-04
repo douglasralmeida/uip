@@ -105,7 +105,7 @@ class ProcessadorSeguroDefeso(Processador):
         buffer_linha = f"Tarefa {protocolo}..."
         print(buffer_linha, end='\r')
         if get.pesquisar_tarefa(protocolo):
-            if self.coletar_status(tarefa):
+            if self.checar_concluida(tarefa):
                 buffer_linha += "Concluida/Cancelada. Coleta não processada."
                 print(buffer_linha)
                 return False
@@ -141,12 +141,12 @@ class ProcessadorSeguroDefeso(Processador):
         return True
 
     #== CONSULTAR SD ==#    
-    def consultar_sd(self, subcomando: str, lista: list[str]) -> None:
+    def consultar_sd(self, subcomandos: list[str]) -> None:
         """Executa o programa 'Consulta SD' do processador."""
         if self.sd is None:
             return
         self.sd.abrir_consulta()
-        if len(lista) > 0 and (lista[0] == 'ulp'):
+        if len(subcomandos) > 0 and (subcomandos[0] == 'ulp'):
             self.consultar_sd_lote()
         else:
             self.consultar_sd_base()
@@ -323,13 +323,13 @@ class ProcessadorSeguroDefeso(Processador):
         """Define as marcações relativas a Auxílio Acidente."""
         pass
 
-    def exibir_defeso(self, subcomando: str, lista: list[str]) -> None:
+    def exibir_defeso(self, subcomandos: list[str]) -> None:
         """"""
-        if len(lista) < 2:
+        if len(subcomandos) < 2:
             print("Erro: Número de argumentos insuficientes. Informe o número da portaria e o número do defeso e tente novamente.\n")
             return
-        portaria_info = lista[0]
-        defeso_info = lista[1]
+        portaria_info = subcomandos[0]
+        defeso_info = subcomandos[1]
         consulta = f'{portaria_info},{defeso_info}'
 
         if consulta in self.defesos:
@@ -344,11 +344,11 @@ class ProcessadorSeguroDefeso(Processador):
         else:
             print("Erro: Não foi encontrado nenhum defeso com os parâmetros informados.\n")
 
-    def exibir_proc(self, subcomando: str, lista: list[str]) -> None:
-        if len(lista) < 1:
+    def exibir_proc(self, subcomandos: list[str]) -> None:
+        if len(subcomandos) < 1:
             print("Erro: Necessário informar os números de protocolo.\n")
             return
-        for item in lista:
+        for item in subcomandos:
             nomearquivo = path.join(Variaveis.obter_pasta_pdf(), f'{item} - PA.pdf')
             system(f'"{nomearquivo}"')
             nomearquivo = path.join(Variaveis.obter_pasta_pdf(), f'{item} - PreAnalise.pdf')
@@ -356,16 +356,16 @@ class ProcessadorSeguroDefeso(Processador):
             print(f'Tarefa {item}...Arquivo aberto.')
         print('')
         
-    def finalizar_doc(self, subcomando: str, lista: list[str]) -> None:
+    def finalizar_doc(self, subcomandos: list[str]) -> None:
         cont = 0
-        if len(lista) < 1:
+        if len(subcomandos) < 1:
             print("Erro: Necessário informar os números de protocolo ou ULP.\n")
             return
-        if (lista[0] == 'ulp'):
+        if (subcomandos[0] == 'ulp'):
             self.finalizar_doc_lote()
         else:
             self.pre_processar('FINALIZAR DOCS ANÁLISE')
-            for item in lista:
+            for item in subcomandos:
                 if (idx := self.base_dados.pesquisar_indice(item)) == None:
                     print(f"Erro: Tarefa {item} não foi encontrada na fila atual.\n")
                     continue
@@ -399,9 +399,9 @@ class ProcessadorSeguroDefeso(Processador):
         return True
 
     #== GERAR DOCUMENTO DE ARRECADACAO ==#
-    def gerar_docarrecada(self, subcomando: str, lista: list[str]) -> None:
+    def gerar_docarrecada(self, subcomandos: list[str]) -> None:
         """Executa o programa 'Extrair Doc. Arrecadação' do processador."""
-        if len(lista) > 0 and (lista[0] == 'ulp'):
+        if len(subcomandos) > 0 and (subcomandos[0] == 'ulp'):
             self.gerar_docarrecada_lote()
         else:
             self.gerar_docarrecada_base()
@@ -452,9 +452,9 @@ class ProcessadorSeguroDefeso(Processador):
             return False
 
     #== GERAR EXTRATO CNIS ==#
-    def gerar_cnis(self, subcomando: str, lista: list[str]) -> None:
+    def gerar_cnis(self, subcomandos: list[str]) -> None:
         """Executa o programa 'Extrair CNIS' do processador."""
-        if len(lista) > 0 and (lista[0] == 'ulp'):
+        if len(subcomandos) > 0 and (subcomandos[0] == 'ulp'):
             self.gerar_cnis_lote()
         else:
             self.gerar_cnis_base()
@@ -505,9 +505,9 @@ class ProcessadorSeguroDefeso(Processador):
             return False
         
     #== GERAR EXTRATO PJ ==#
-    def gerar_extratopj(self, subcomando: str, lista: list[str]) -> None:
+    def gerar_extratopj(self,subcomandos: list[str]) -> None:
         """Executa o programa 'Extrair PJ' do processador."""
-        if len(lista) > 0 and (lista[0] == 'ulp'):
+        if len(subcomandos) > 0 and (subcomandos[0] == 'ulp'):
             self.gerar_extratopj_lote()
         else:
             self.gerar_extratopj_base()
@@ -558,9 +558,9 @@ class ProcessadorSeguroDefeso(Processador):
             return False
         
     #== GERAR RGP ==#
-    def gerar_rgp(self, subcomando: str, lista: list[str]) -> None:
+    def gerar_rgp(self, subcomandos: list[str]) -> None:
         """Executa o programa 'Extrair Doc. Arrecadação' do processador."""
-        if len(lista) > 0 and (lista[0] == 'ulp'):
+        if len(subcomandos) > 0 and (subcomandos[0] == 'ulp'):
             self.gerar_rgp_lote()
         else:
             self.gerar_rgp_base()
@@ -611,12 +611,12 @@ class ProcessadorSeguroDefeso(Processador):
             return False
         
     #== GERAR REQ. RESULTADO ==#    
-    def gerar_resultaoo(self, subcomando: str, lista: list[str]) -> None:
+    def gerar_resultaoo(self, subcomandos: list[str]) -> None:
         """Gera o PDF com req. do SD processado."""
         if self.sd is None:
             return
         self.sd.abrir_consulta()
-        if len(lista) > 0 and (lista[0] == 'ulp'):
+        if len(subcomandos) > 0 and (subcomandos[0] == 'ulp'):
             self.gerar_resultado_lote()
         else:
             self.gerar_resultado_base()
