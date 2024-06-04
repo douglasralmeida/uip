@@ -1,6 +1,8 @@
 import time
+from arquivo import carregar_texto
 from conversor import Conversor
 from datetime import date
+from despacho import Despachos
 from fila import Filas
 from filtro import Filtros
 from gestaometas import GestaoMetas
@@ -8,14 +10,15 @@ from impedimento import Impedimentos
 from listagem import Listagens
 from lote import Lotes
 from modelos_exigencias import ListaModelosExigencia
-from navegador import Cnis, Get, Pmfagenda, Sibe, SD
+from navegador import Cnis, Get, Pmfagenda, Sibe, SD, Gpa
 from puxador import Puxador
-from processador import Processador, ProcessadorAuxAcidente, ProcessadorAuxIncapacidade, ProcessadorBenAssDeficiente, ProcessadorBenAssIdoso, ProcessadorMajoracao25, ProcessadorProrrogSalMaternidade, ProcessadorIsencaoIR, ProcessadorSalMaternidade, ProcessadorSeguroDefeso
+from processador import Processador, ProcessadorAposentadoria, ProcessadorAuxAcidente, ProcessadorAuxIncapacidade, ProcessadorBenAssDeficiente, ProcessadorBenAssIdoso, ProcessadorMajoracao25, ProcessadorProrrogSalMaternidade, ProcessadorIsencaoIR, ProcessadorSalMaternidade, ProcessadorSeguroDefeso
 from resultado import Resultados
 
 perfis_disponiveis: dict[str, type[Processador]] = {
     'aa': ProcessadorAuxAcidente,
     'ai': ProcessadorAuxIncapacidade,
+    'ap': ProcessadorAposentadoria,
     'bpcd': ProcessadorBenAssDeficiente,
     'bpci': ProcessadorBenAssIdoso,
     'iir': ProcessadorIsencaoIR,
@@ -32,6 +35,9 @@ class Sistema:
 
         #Versão da aplicação
         self.ver = '1.0.0 protótipo'
+
+        #Despachos
+        self.despachos = Despachos([])
 
         #Fila aberta
         self.fila_aberta = None
@@ -58,6 +64,9 @@ class Sistema:
         #Automatizador do CNIS
         self.cnis = None
 
+        #Automatizador do GERID GPA
+        self.gpa = None
+
         #Automatizador do GET
         self.get = None
 
@@ -82,14 +91,14 @@ class Sistema:
 
         self.usarintranet = True
 
-    def abrir_cnis(self, subcomando: str, lista: list[str]) -> None:
+    def abrir_cnis(self, subcomandos: list[str]) -> None:
         """Abre o navegador Edge e vai para o site do Portal CNIS."""
         self.cnis = Cnis()
         self.cnis.abrir()
         if self.processador is not None:
             self.processador.definir_cnis(self.cnis)
 
-    def abrir_get(self, subcomando: str, lista: list[str]) -> None:
+    def abrir_get(self, subcomandos: list[str]) -> None:
         """Abre o navegador Edge e vai para o site do GET."""
         self.get = Get(False)
         self.get.abrir(self.usarintranet)
@@ -100,7 +109,12 @@ class Sistema:
             self.processador.definir_get(self.get)
         self.puxador.definir_get(self.get)
 
-    def abrir_pmfagenda(self, subcomando: str, lista: list[str]) -> None:
+    def abrir_gpa(self, subcomandos: list[str]) -> None:
+        """Abre o navegador Edge e vai para o site do GERID GPA."""
+        self.gpa = Gpa()
+        self.gpa.abrir()
+
+    def abrir_pmfagenda(self, subcomandos: list[str]) -> None:
         """Abre o navegador Edge e vai para o site do PMF Agenda."""
         self.pmfagenda = Pmfagenda()
         self.pmfagenda.carregar_dados()
@@ -108,21 +122,21 @@ class Sistema:
         if self.processador is not None:
             self.processador.definir_pmfagenda(self.pmfagenda)
 
-    def abrir_sibe(self, subcomando: str, lista: list[str]) -> None:
+    def abrir_sibe(self, subcomandos: list[str]) -> None:
         """Abre o navegador Edge e vai para o site do SIBE PU."""
         self.sibe = Sibe()
         self.sibe.abrir()
         if self.processador is not None:
             self.processador.definir_sibe(self.sibe)
 
-    def abrir_sd(self, subcomando: str, lista: list[str]) -> None:
+    def abrir_sd(self, subcomandos: list[str]) -> None:
         """Abre o navegador Edge e vai para o site do SD."""
         self.sd = SD()
         self.sd.abrir()
         if self.processador is not None:
             self.processador.definir_sd(self.sd)
 
-    def acumula_ben(self, subcomando: str, lista: list[str]) -> None:
+    def acumula_ben(self, subcomandos: list[str]) -> None:
         """Analisa a acumulação de benefícios."""
         if self.processador is None:
             return
@@ -132,12 +146,14 @@ class Sistema:
         #    self.processador.coletar_dadosbasicos_base()
         self.processador.analisar_acumulaben()
 
-    def adicionar_tarefas(self, subcomando: str, lista: list[str]) -> None:
+    def adicionar_tarefas(self, subcomandos: list[str]) -> None:
         """Adiciona uma lista de tarefas a base de dados."""
-        self.processador.adicionar_tarefas(lista)
+        self.processador.adicionar_tarefas(subcomandos)
 
     def carregar_dados(self) -> bool:
         """Carrega dados utilizados pelo sistema."""
+        if not self.despachos.carregar():
+            return False
         if not self.filas.carregar():
             return False
         if not self.filtros.carregar():
@@ -155,12 +171,11 @@ class Sistema:
 
         return True
 
-    def carregar_perfil(self, subcomando: str, lista: list[str]) -> None:
+    def carregar_perfil(self, subcomandos: list[str]) -> None:
         """Abre o perfil de tarefas do GET especificado."""
-        perfil = subcomando
-        _fila = lista[0]
+        perfil = subcomandos[0]
+        nome_fila = perfil + '_' + subcomandos[1]
 
-        nome_fila = perfil + '_' + _fila
         if nome_fila == self.perfil_aberto:
             print('Erro: O perfil informado já está aberto.\n')
             return
@@ -186,6 +201,7 @@ class Sistema:
             self.processador.definir_sibe(self.sibe)
             self.processador.definir_sd(self.sd)
             self.processador.definir_mod_exigencias(self.modelos_exigencia)
+            self.processador.definir_despachos(self.despachos)
             self.processador.definir_filtros(self.filtros)
             self.processador.definir_resultados(self.resultados)
             self.processador.processar_dados()
@@ -212,11 +228,23 @@ class Sistema:
         else:
             self.processador.coletar_dadosbasicos_base()
     
-    def concluir(self, subcomando: str, lista: list[str]) -> None:
+    def concluir(self, subcomandos: list[str]) -> None:
         """Executa o programa 'Concluir Tarefa' do processador."""
-        usar_lista = len(lista) > 0 and lista[0] == 'ulp'
+        usar_lista = len(subcomandos) > 0 and subcomandos[0] == 'ulp'
         if self.processador is not None:
             self.processador.concluir_tarefa(usar_lista)
+
+    def consultarcpf_ben(self, subcomando: str, lista: list[str]) -> None:
+        """aa."""
+        cnis = self.cnis
+        if cnis is None:
+            print('Erro. CNIS não está aberto.')
+            return
+        usar_lista = len(lista) > 0 and lista[0] == 'ulp'
+        if usar_lista:
+            lista_cpf = self.obter_listapersonalizada()
+            for cpf in lista_cpf:
+                cnis.pesquisar_ben_ativos('', cpf, ['25'])
 
     def contar_exig(self, subcomando: str, lista: list[str]) -> None:
         """Conta o número de exigências registradas na tarefa especificada."""
@@ -235,6 +263,15 @@ class Sistema:
         conv = Conversor()
         conv.processar('pdf', 'txt', relat, protocolos)
         print(f'\n{len(protocolos)} processada(s) com sucesso.\n')
+
+    def gpa_cadastrarusuarios(self, subcomandos: list[str]) -> None:
+        """a"""
+        if self.gpa is None:
+            print('Erro: Este comando requer o GERID GPA aberto.')
+        else:
+            self.gpa.abrir_novo_multiplos_papeis()
+            self.gpa.cadastrar_usuario_lista()
+            print("\nProcessamento concluído.")
 
     def desimpedir(self, subcomando: str, lista: list[str]) -> None:
         """Remove os impedimentos de conclusão da tarefa especificada."""
@@ -295,15 +332,15 @@ class Sistema:
                 return
         print("Erro. Tarefa não foi encontrada.\n")
 
-    def exibir_resumo(self, subcomando: str, lista: list[str]) -> None:
+    def exibir_resumo(self, subcomandos: list[str]) -> None:
         """Exibe o resumo das tarefas do perfil aberto."""
         print(self.processador)
 
-    def gerar_pa(self, subcomando: str, lista: list[str]) -> None:
+    def gerar_pa(self, subcomandos: list[str]) -> None:
         """Gerar PA da tarefa"""
         if self.processador is None:
             return
-        if len(lista) > 0 and (lista[0]) == 'ulp':
+        if len(subcomandos) > 0 and (subcomandos[0]) == 'ulp':
             self.processador.gerar_pa_lote()
         else:
             self.processador.gerar_pa_base()
@@ -326,18 +363,18 @@ class Sistema:
         else:
             print(f'O impedimento {impedimento_id} não existe.\n')
 
-    def juntar_docs(self, subcomando: str, lista: list[str]) -> None:
+    def juntar_docs(self, subcomandos: list[str]) -> None:
         """Junta documentos da análise."""
         if self.processador is None:
             return
-        if len(lista) > 0 and (lista[0] == 'ulp'):
+        if len(subcomandos) > 0 and (subcomandos[0] == 'ulp'):
             self.processador.juntar_docs()
         else:
             print('Requer ulp.')
     
-    def listar(self, subcomando: str, sublistas: list[str]) -> None:
+    def listar(self, subcomandos: list[str]) -> None:
         """Exibe uma lista de tarefas de acordo com o filtro especificado."""
-        nome_lista = subcomando
+        nome_lista = subcomandos[0]
         if self.processador is None:
             return
         listagem = self.listagens.obter(nome_lista, self.processador.tags)
@@ -362,11 +399,11 @@ class Sistema:
                 _lista.adicionar(lista)
         print(_lista)
 
-    def marcar(self, subcomando: str, lista: list[str]) -> None:
+    def marcar(self, subcomandos: list[str]) -> None:
         """Marca a tarefa especificada com uma marcação."""
-        marca = subcomando
+        marca = subcomandos[0]
         marcas_disponiveis = self.processador.obter_marcacoes()
-        protocolos = lista          
+        protocolos = subcomandos[1:]
         if marca in marcas_disponiveis.keys():
             self.processador.marcar(marca, protocolos)
         else:
@@ -403,11 +440,18 @@ class Sistema:
             return {}
         return self.processador.obter_comandos()
     
-    def processar_lote(self, subcomando: str, lista: list[str]) -> None:
+    def obter_listapersonalizada(self) -> list[str]:
+        print("Abrindo lote de protocolos...")
+        with carregar_texto('lista_protocolos.txt') as lista:
+            if len(lista) == 0:
+                print('Erro: Lista com lote de protocolos está vazia.\n')
+            return lista    
+    
+    def processar_lote(self, subcomandos: list[str]) -> None:
         if self.processador is None:
             return
         if self.lotes is not None:
-            lote = self.lotes.obter(subcomando)
+            lote = self.lotes.obter(subcomandos[0])
             if lote is not None:
                 self.processador.processar_lote(lote)
             else:
@@ -438,21 +482,31 @@ class Sistema:
             print('Nenhuma tarefa foi puxada.\n')
         return True
     
+    def registrar_despacho(self, subcomando: str, lista: list[str]) -> None:
+        """a"""
+        if self.processador is None:
+            return
+        tipo_despacho = subcomando
+        if len(lista) > 0 and (lista[0] == 'ulp'):
+            self.processador.registrar_despacho_lote(tipo_despacho)
+        else:
+            print('Requer ulp.')
+    
     def reprocessar_bpc(self, subcomando: str, lista: list[str]) -> None:
         """Reprocessa um lote de BPC com erro de validação PAT-Portal SIBE."""
         if self.pat is None:
             return        
 
-    def usar_intranet(self, subcomando: str, lista: list[str]) -> None:
+    def usar_intranet(self, subcomandos: list[str]) -> None:
         """Altera o parâmetro de uso do GET via intranet ou Internet."""
-        if len(lista) == 0:
+        if len(subcomandos) == 0:
             if self.usarintranet:
                 valor = 'sim'
             else:
                 valor = 'não'
             print(f'A confirugação usar_intranet está configurada para {valor}.\n')
             return
-        valor = lista[0]
+        valor = subcomandos[0]
         if valor != 'sim' and valor != 'nao':
             print('Erro. O argumento esperado era \'sim\' ou \'nao\', mas outro arqumento foi informado.\n')
             return
