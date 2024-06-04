@@ -266,6 +266,8 @@ class ProcessadorBeneficio(Processador):
         protocolo_agenda = str(agendamento.obter_protocolo())
         cpf = str(tarefa.obter_cpf())
         buffer_linha = f'Tarefa {protocolo}...'
+        if not protocolo_agenda.isnumeric():
+            buffer_linha += 'Sem protocolo de agendamento.'
         print(buffer_linha, end='\r')
         status = self.pmfagenda.checar_comparecimento(self.nome_servicopm, protocolo_agenda, protocolo, cpf)
         if status == '(não compareceu)':
@@ -294,11 +296,17 @@ class ProcessadorBeneficio(Processador):
 
         self.pre_processar('CANCELAR SUBTAREFA')
 
-        for t in self.lista:
+        for item in self.obter_listapersonalizada():
+            if (idx := self.base_dados.pesquisar_indice(item)) == None:
+                print(f"Erro: Tarefa {item} não foi encontrada na fila atual.\n")
+                continue
+            t = TarefaBeneficio(self.base_dados, idx)
+
+        #for t in self.lista:
             pericia = t.obter_periciamedica()
             subtarefa = t.obter_subtarefa()
-            if pericia.realizada().e_verdadeiro or not pericia.cumprida().e_verdadeiro or subtarefa.cancelada().e_verdadeiro or t.tem_impedimento().e_verdadeiro or t.esta_concluida().e_verdadeiro:
-                continue
+            #if pericia.realizada().e_verdadeiro or not pericia.cumprida().e_verdadeiro or subtarefa.cancelada().e_verdadeiro or t.tem_impedimento().e_verdadeiro or t.esta_concluida().e_verdadeiro:
+                #continue
             protocolo = str(t.obter_protocolo())
             buffer_linha = f'Tarefa {protocolo}...'
             print(buffer_linha, end='\r')
@@ -367,7 +375,7 @@ class ProcessadorBeneficio(Processador):
         buffer_linha = f"Tarefa {protocolo}..."
         print(buffer_linha, end='\r')
         if get.pesquisar_tarefa(protocolo):
-            if self.coletar_status(tarefa):
+            if self.checar_concluida(tarefa):
                 buffer_linha += "Concluida/Cancelada. Coleta não processada."
                 print(buffer_linha)
                 return False
@@ -396,7 +404,7 @@ class ProcessadorBeneficio(Processador):
             if 'pm' in self.dadosparacoletar:
                 if dados_coletados['pmrealizada']:
                     self.registrar_subgerada(tarefa, dados_coletados['subtarefa'])
-                    resultado = self.processar_relatorio_pm(protocolo)
+                    resultado = self.analisar_relatoriopm_auxacidente(protocolo)
                     self.registrar_pmfoi_realizada(resultado, tarefa)
             if 'esta_acamado' in self.dadosparacoletar:
                 tarefa.alterar_esta_acamado(dados_coletados['esta_acamado'])
@@ -617,7 +625,7 @@ class ProcessadorBeneficio(Processador):
             #Gera o conteúdo da exigência
             texto = self.obter_textoexigencia("agendamentoPM")
             if len(texto) == 0:
-                print(buffer_linha + "Tipo de modelo de exigência não contrado.")
+                print(buffer_linha + "Tipo de modelo de exigência não encontrado.")
                 return False
             agendamento = tarefa.obter_agendamento_pm()
             exigencia = tarefa.obter_exigencia()
@@ -694,7 +702,7 @@ class ProcessadorBeneficio(Processador):
         if get.pesquisar_tarefa(protocolo):
 
             #Verifica se tarefa está cancelada/concluída
-            if self.coletar_status(tarefa):
+            if self.checar_concluida(tarefa):
                 print(buffer_linha + 'Concluída/Cancelada. Subtarefa não foi gerada.')
                 return False
 

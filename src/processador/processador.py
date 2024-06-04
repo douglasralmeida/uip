@@ -6,6 +6,7 @@ import pandas as pd
 import time
 from arquivo import carregar_texto
 from basedados import BaseDados, TipoBooleano, TipoData, TipoTexto
+from despacho import Despacho, Despachos
 from filtro import Filtro, Filtros
 from impedimento import Impedimento
 from listagem import Listagem
@@ -39,6 +40,9 @@ class Processador:
 
         #Dados coletados no processo Coleta de Dados Básicos.
         self.dadosparacoletar = []
+
+        #
+        self.despachos = None
 
         #Informa se a fila foi aberta.
         self.fila_aberta = False
@@ -124,7 +128,7 @@ class Processador:
         self.salvar_emarquivo()
         return True
     
-    def coletar_status(self, t: Tarefa) -> bool:
+    def checar_concluida(self, t: Tarefa) -> bool:
         """
         Coleta o status da tarefa pesquisada e registra a conclusão se concluída/cancelada.
         Retorna True se concluída/cancelada.
@@ -222,9 +226,9 @@ class Processador:
                 get.aguardar_telaprocessamento()
                 numero_processo = ''
                 if 'ben' in self.tags:
-                    numero_processo = t.obter_beneficio()
+                    numero_processo = str(t.obter_beneficio())
                 elif 'sd' in self.tags:
-                    numero_processo = t.obter_segurodefeso()
+                    numero_processo = str(t.obter_segurodefeso())
                 res_conclusao = get.concluir_tarefa(numero_processo, conclusao_texto)
                 if res_conclusao['houve_conclusao']:
                     buffer_linha += ' Concluída.'
@@ -244,6 +248,9 @@ class Processador:
     def definir_cnis(self, nav: Cnis | None) -> None:
         """a"""
         self.cnis = nav
+
+    def definir_despachos(self, despachos: Despachos) -> None:
+        self.despachos = despachos
     
     def definir_filtros(self, filtros: Filtros) -> None:
         self.filtros = filtros        
@@ -331,7 +338,7 @@ class Processador:
         if get.pesquisar_tarefa(protocolo):
 
             #Verifica se tarefa está cancelada/concluída
-            if self.coletar_status(tarefa):
+            if self.checar_concluida(tarefa):
                 buffer_linha += "Concluida/Cancelada. Coleta não processada."
                 print(buffer_linha)
                 return False
@@ -346,6 +353,65 @@ class Processador:
             print(buffer_linha)
             return False
         return True
+
+    
+    #== REGISTRAR DESPACHOS ==#
+    def registrar_despacho_lote(self, tipo: str) -> None:
+        cont = 0
+        self.pre_processar('REGISTRAR DESPACHO')
+        print("Usando lista personalizada.")
+        for item in self.obter_listapersonalizada():
+            if (idx := self.base_dados.pesquisar_indice(item)) == None:
+                print(f"Erro: Tarefa {item} não foi encontrada na fila atual.\n")
+                continue
+            t = Tarefa(self.base_dados, idx)
+            if self.registrar_despacho(t, tipo):
+                cont += 1
+        self.pos_processar(cont)
+
+    def registrar_despacho(self, tarefa: Tarefa, tipo: str) -> bool:
+        """Registra um despacho no GET."""
+        buffer_linha = ''
+        get = self.get
+
+        if get is None:
+            return False
+        if self.despachos is None:
+            return False
+        protocolo = str(tarefa.obter_protocolo())
+        buffer_linha = f"Tarefa {protocolo}..."
+        print(buffer_linha, end='\r')
+        modelo = tarefa.obter_modelo_despacho(tipo)
+        if modelo.e_nulo:
+            buffer_linha += " Sem despacho para registrar."
+            print(buffer_linha)
+            return False
+        despacho = self.despachos.obter(str(modelo))
+        if despacho is None:
+            buffer_linha += f' Tipo de despacho ({modelo}) não disponível.'
+            print(buffer_linha)
+            return False
+        conteudo_despacho = despacho.conteudo
+        if get.pesquisar_tarefa(protocolo):
+
+            #Verifica se tarefa está cancelada/concluída
+            if self.checar_concluida(tarefa):
+                buffer_linha += " Concluida/Cancelada. Despacho não registrado."
+                print(buffer_linha)
+                return False            
+            get.abrir_tarefa()
+            get.irpara_finaltela()
+            get.adicionar_despacho(conteudo_despacho)
+
+            buffer_linha += " Despacho gerado e incluído."
+            print(buffer_linha)
+            get.irpara_iniciotela()
+            get.fechar_tarefa()
+            return True
+        else:
+            buffer_linha += " Tarefa não encontrada no GET."
+            print(buffer_linha)
+            return False
     
     def juntar_docs(self):
         cont = 0
@@ -407,7 +473,7 @@ class Processador:
             return
         protocolo = str(tarefa.obter_protocolo())
         if get.pesquisar_tarefa(protocolo):
-            if self.coletar_status(tarefa):
+            if self.checar_concluida(tarefa):
                 self.salvar_emarquivo()
                 print(f'Tarefa {protocolo} concluída/cancelada.')
                 return
