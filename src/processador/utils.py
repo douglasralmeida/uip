@@ -13,7 +13,7 @@ def pesquisar_texto(lista: list[str], info: str) -> int:
         pos += 1
     return -1
 
-def analisar_relatoriopm(nome_arquivo: str) -> list[str]:
+def analisar_relatoriopm_auxacidente(nome_arquivo: str) -> list[str]:
     """Analisa o arquivo texto da PM."""
     pos = 0
     resultado_pm = 'vazio'
@@ -108,4 +108,27 @@ def analisar_relatoriopm(nome_arquivo: str) -> list[str]:
         dados_estruturados[10] = dados_crus[pos+1][:10]
     else:
         dados_estruturados[10] = 'data_conclusao'
+    return dados_estruturados
+
+def analisar_relatoriopm_iir(nome_arquivo: str) -> list[str]:
+    pos = 0
+    resultado_pm = 'vazio'
+    siape_pm = '0'
+    dados_estruturados = ['','','','','','','','','','','', '']
+    if path.exists(nome_arquivo):
+        with open(nome_arquivo, 'r') as arquivo:
+            dados_crus = arquivo.readlines()
+    else:
+        return None
+    pos = pesquisar_texto(dados_crus, 'no § 2º do art. 30')
+    if pos >= 0:
+        texto = dados_crus[pos].strip()
+        resultado = texto[-3:]
+        if resultado == 'Sim':
+            dados_estruturados[0] = 'iirDeferido'
+        else:
+            dados_estruturados[0] = 'iirPMContraria'
+    else:
+        dados_estruturados[0] = 'iirSemResultado'
+    
     return dados_estruturados
