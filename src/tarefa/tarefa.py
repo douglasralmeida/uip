@@ -147,8 +147,8 @@ class Tarefa:
         exigencia.alterar_vencimento(TipoData(data))
         valor = self.base_dados.obter_atributo(self.pos, 'tem_prim_exigencia')
         exigencia.alterar_primeira_exig(TipoBooleano(valor))
-        valor = self.base_dados.obter_atributo(self.pos, "exigenciapm_comerro")
-        exigencia.marcar_erro(TipoBooleano(valor))
+        #valor = self.base_dados.obter_atributo(self.pos, "exigenciapm_comerro")
+        #exigencia.marcar_erro(TipoBooleano(valor))
         return exigencia
         
     def obter_idx(self) -> int:
@@ -164,6 +164,11 @@ class Tarefa:
         """Retorna o NIT."""
         nit = self.base_dados.obter_atributo(self.pos, 'nit')
         return TipoTexto(nit)
+    
+    def obter_modelo_despacho(self, tipo: str) -> TipoTexto:
+        """a."""
+        texto = self.base_dados.obter_atributo(self.pos, tipo)
+        return TipoTexto(texto)
     
     def obter_observacoes(self) -> TipoTexto:
         """"""
