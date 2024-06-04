@@ -23,9 +23,9 @@ class LinhaComando:
         Retorna Verdadeiro se o comando existe na lista de comandos disponíveis.
         Retorna Falso se não existe.
         """
-        subcomando = ''
         lista = []
-        protocolos = []
+        if self.cmds is None:
+            return False
         comandos_disponiveis = self.cmds.obter_comandos()
         comandos_disponiveis |= self.sistema.obter_comando_doprocessador()
         if nome_comando == '?':
@@ -64,17 +64,7 @@ class LinhaComando:
         if len(lista) < comando['argsmin']:
             print(f'Erro: Pelo menos {comando["argsmin"]} argumento(s) era(m) esperado(s), mas foi(ram) informado(s) {len(lista)} argumento(s).\n')
             return True
-        if comando['requer_subcomando']:
-            subcomando = lista[0]
-            protocolos = lista[1:]
-        else:
-            protocolos = lista
-        if comando['requer_protocolo']:
-            for item in protocolos:
-                if not item.isnumeric():
-                    print(f'Erro: {item} não é um número de protocolo de tarefa válido.\n')
-                    return True
-        comando['funcao'](subcomando, protocolos)
+        comando['funcao'](lista)
         return True
         
     def carregar(self) -> None:

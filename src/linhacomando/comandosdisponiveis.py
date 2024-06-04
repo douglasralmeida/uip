@@ -19,7 +19,6 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': False,
                 'requer_pmfagenda': False,
-                'requer_protocolo': False,
                 'requer_sibe': False,
 				'requer_sd': False
             },            
@@ -33,7 +32,19 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': False,
                 'requer_pmfagenda': False,
-                'requer_protocolo': False,
+                'requer_sibe': False,
+				'requer_sd': False
+            },
+            'abrirgpa': {
+                'funcao': sistema.abrir_gpa,
+                'argsmin': 0,
+                'desc': 'Abre o navegador Edge e vai para o site do GERID GPA.',
+                'requer_subcomando': False,
+                'requer_cnis': False,
+				'requer_get': False,
+                'requer_pat': False,
+				'requer_processador': False,
+                'requer_pmfagenda': False,
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -47,7 +58,6 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': False,
                 'requer_pmfagenda': False,
-                'requer_protocolo': False,
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -61,7 +71,6 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': False,
                 'requer_pmfagenda': False,
-                'requer_protocolo': False,
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -75,7 +84,6 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': False,
                 'requer_pmfagenda': False,
-                'requer_protocolo': False,
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -89,7 +97,6 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': False,
                 'requer_pmfagenda': False,
-                'requer_protocolo': False,
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -103,7 +110,6 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': True,
                 'requer_pmfagenda': False,
-                'requer_protocolo': False,
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -117,7 +123,6 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': True,
                 'requer_pmfagenda': False,
-                'requer_protocolo': True,
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -131,7 +136,19 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': True,
                 'requer_pmfagenda': False,
-                'requer_protocolo': True,
+                'requer_sibe': False,
+				'requer_sd': False
+            },
+            'cadastrarusuarios': {
+                'funcao': sistema.gpa_cadastrarusuarios,
+                'argsmin': 0,
+                'desc': 'Cadastra perfil de uma lista de usuários no GERID GPA.',
+                'requer_subcomando': False,
+                'requer_cnis': False,
+				'requer_get': False,
+                'requer_pat': False,
+				'requer_processador': False,
+                'requer_pmfagenda': False,
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -145,7 +162,6 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': True,
                 'requer_pmfagenda': False,
-                'requer_protocolo': False,
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -159,7 +175,6 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': True,
                 'requer_pmfagenda': False,
-                'requer_protocolo': False,
                 'requer_sibe': True
             },
             'comunicado': {
@@ -172,7 +187,6 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': True,
                 'requer_pmfagenda': False,
-                'requer_protocolo': True,
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -186,7 +200,6 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': True,
                 'requer_pmfagenda': False,
-                'requer_protocolo': False,
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -200,7 +213,6 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': True,
                 'requer_pmfagenda': False,
-                'requer_protocolo': True,
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -214,7 +226,19 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': True,
                 'requer_pmfagenda': False,
-                'requer_protocolo': True,
+                'requer_sibe': False,
+				'requer_sd': False
+            },
+            'consultarbenporcpf': {
+                'funcao': sistema.consultarcpf_ben,
+                'argsmin': 1,
+                'desc': 'Consulta benefícios pelo CPF informado no CNIS.',
+                'requer_subcomando': False,
+                'requer_cnis': True,
+				'requer_get': False,
+                'requer_pat': False,
+				'requer_processador': False,
+                'requer_pmfagenda': False,
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -228,7 +252,6 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': True,
                 'requer_pmfagenda': False,
-                'requer_protocolo': True,
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -242,7 +265,6 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': True,
                 'requer_pmfagenda': False,
-                'requer_protocolo': True,
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -256,7 +278,6 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': True,
                 'requer_pmfagenda': False,
-                'requer_protocolo': True,
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -270,7 +291,6 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': True,
                 'requer_pmfagenda': False,
-                'requer_protocolo': True,
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -284,7 +304,6 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': True,
                 'requer_pmfagenda': False,
-                'requer_protocolo': False,
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -298,7 +317,6 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': False,
                 'requer_pmfagenda': False,
-                'requer_protocolo': False,
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -312,7 +330,6 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': True,
                 'requer_pmfagenda': False,
-                'requer_protocolo': False,
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -326,7 +343,6 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': True,
                 'requer_pmfagenda': False,
-                'requer_protocolo': False,
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -340,7 +356,6 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': True,
                 'requer_pmfagenda': False,
-                'requer_protocolo': True,
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -354,7 +369,6 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': True,
                 'requer_pmfagenda': False,
-                'requer_protocolo': False,
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -368,7 +382,6 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': False,
                 'requer_pmfagenda': False,
-                'requer_protocolo': False,
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -383,7 +396,7 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': True,
                 'requer_pmfagenda': False,
-                'requer_protocolo': False,
+                
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -397,7 +410,7 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': False,
                 'requer_pmfagenda': False,
-                'requer_protocolo': False,
+                
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -412,7 +425,7 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': True,
                 'requer_pmfagenda': False,
-                'requer_protocolo': True,
+                
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -426,7 +439,7 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': False,
                 'requer_pmfagenda': False,
-                'requer_protocolo': False,
+                
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -440,7 +453,21 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': False,
                 'requer_pmfagenda': False,
-                'requer_protocolo': True,
+                
+                'requer_sibe': False,
+				'requer_sd': False
+            },
+            'regdespacho': {
+                'funcao': sistema.registrar_despacho,
+                'argsmin': 1,
+                'desc': 'Registra um despacho na tarefa.',
+                'requer_subcomando': True,
+                'requer_cnis': False,
+				'requer_get': True,
+                'requer_pat': False,
+				'requer_processador': True,
+                'requer_pmfagenda': False,
+                
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -454,7 +481,7 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': True,
                 'requer_pmfagenda': False,
-                'requer_protocolo': False,
+                
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -468,7 +495,7 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': True,
                 'requer_pmfagenda': False,
-                'requer_protocolo': True,
+                
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -482,7 +509,7 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': True,
                 'requer_pmfagenda': False,
-                'requer_protocolo': False,
+                
                 'requer_sibe': False,
 				'requer_sd': False
             },            
@@ -496,7 +523,7 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': False,
                 'requer_pmfagenda': False,
-                'requer_protocolo': False,
+                
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -510,7 +537,7 @@ class ComandosDisponiveis:
                 'requer_pat': True,
 				'requer_processador': False,
                 'requer_pmfagenda': False,
-                'requer_protocolo': False,
+                
                 'requer_sibe': False,
 				'requer_sd': False
             },            
@@ -524,7 +551,7 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': False,
                 'requer_pmfagenda': False,
-                'requer_protocolo': False,
+                
                 'requer_sibe': False,
 				'requer_sd': False
             },
@@ -538,7 +565,7 @@ class ComandosDisponiveis:
                 'requer_pat': False,
 				'requer_processador': True,
                 'requer_pmfagenda': False,
-                'requer_protocolo': False,
+                
                 'requer_sibe': False,
 				'requer_sd': False         
             }
@@ -557,6 +584,6 @@ class ComandosDisponiveis:
         for nome, cmd in self._lista.items():
             print(f'{nome} - {cmd["desc"]}')
     
-    def obter_comandos(self) -> None:
+    def obter_comandos(self) -> dict:
         """Retorna a lista de comandos especificado."""
         return self._lista
