@@ -240,7 +240,7 @@ class Get(Navegador):
                 time.sleep(1)
             idx += 1
         return True
-
+    
     def coletar_dados(self, tarefa: str, nome_servico: str, atributos: list) -> dict:
         """Coleta os dados especificados no GET."""
         drv = self.driver
@@ -370,30 +370,35 @@ class Get(Navegador):
     def coletar_subtarefas(self, tarefa: str, nome_servico: str, gerarpdf: bool) -> list[tuple[str, bool]]:
         """Coleta no. da subtarefa, seu status e gera relatorio da PM."""
         TEXTO_CONCLUIDA = 'Concluída'
+        TEXTO_CANCELADA = 'Cancelada'
         numero_sub = ''
         subconcluida = False
         resultado = []
+
+        tipo_subs = ["formDetalharTarefa:detalheTarefaTabView:dtblSubtarefasManuais_data",
+                   "formDetalharTarefa:detalheTarefaTabView:dtblSubtarefasPericias_data"]
                 
         self.tarefa = tarefa
         self.irpara_finaltela()
-        campo = self.driver.find_element(By.ID, value="formDetalharTarefa:detalheTarefaTabView:dtblSubtarefasPericias_data")
-        lista_sub = campo.find_elements(By.TAG_NAME, "tr")
-        item_id = 0
-        for item_sub in lista_sub:
-            campos = item_sub.find_elements(By.TAG_NAME, "td")            
-            if len(campos[0].find_elements(By.TAG_NAME, "span")) > 0:
-                if campos[1].find_element(By.TAG_NAME, "span").text == nome_servico:
-                    numero_sub = campos[0].find_element(By.TAG_NAME, "span").text
-                    subconcluida = campos[2].find_element(By.TAG_NAME, "span").text == TEXTO_CONCLUIDA
-                    resultado.append((numero_sub.strip(), subconcluida))
-                    if subconcluida and gerarpdf:
-                        botao = campos[3].find_element(By.ID, f'formDetalharTarefa:detalheTarefaTabView:dtblSubtarefasPericias:{item_id}:cmdLinkLaudoPericia')
-                        botao.click()
-                        self.aguardar_telaprocessamento()                        
-                        arquivo_gerado = path.join(self.dir_downloads, f'relatorio_tarefa_pericia_{numero_sub}.pdf')
-                        arquivo_novo = path.join(self.dir_downloads, f'{self.tarefa} - RelatorioPM.pdf')
-                        aguardar_geracao_arquivo(arquivo_gerado, arquivo_novo)
-            item_id = item_id + 1
+        for tiposub in tipo_subs:
+            campo = self.driver.find_element(By.ID, value=tiposub)
+            lista_sub = campo.find_elements(By.TAG_NAME, "tr")
+            item_id = 0
+            for item_sub in lista_sub:
+                campos = item_sub.find_elements(By.TAG_NAME, "td")            
+                if len(campos[0].find_elements(By.TAG_NAME, "span")) > 0:
+                    if campos[1].find_element(By.TAG_NAME, "span").text == nome_servico:
+                        numero_sub = campos[0].find_element(By.TAG_NAME, "span").text
+                        subconcluida = campos[2].find_element(By.TAG_NAME, "span").text == TEXTO_CONCLUIDA
+                        resultado.append((numero_sub.strip(), subconcluida))
+                        if subconcluida and gerarpdf:
+                            botao = campos[3].find_element(By.ID, f'formDetalharTarefa:detalheTarefaTabView:dtblSubtarefasPericias:{item_id}:cmdLinkLaudoPericia')
+                            botao.click()
+                            self.aguardar_telaprocessamento()                        
+                            arquivo_gerado = path.join(self.dir_downloads, f'relatorio_tarefa_pericia_{numero_sub}.pdf')
+                            arquivo_novo = path.join(self.dir_downloads, f'{self.tarefa} - RelatorioPM.pdf')
+                            aguardar_geracao_arquivo(arquivo_gerado, arquivo_novo)
+                item_id = item_id + 1
         self.irpara_iniciotela()
         return resultado
     
@@ -423,6 +428,21 @@ class Get(Navegador):
             return (int(subs[len(subs)-1][0]), True)
         else:
             return (0, False)
+        
+    def coletar_subtarefas_canceladas(self, servico: str) -> str:
+        """Coleta o número da subtarefa do serviço informado"""
+        resultado = ''
+
+        #Clica em Subtarefa
+        self.abrir_guia('Subtarefas')
+
+        #coleta a subtarefa, se existir
+        subs = self.coletar_subtarefas('', servico, False)
+        resultado = ''
+        for item in subs:
+            if item[1]:
+                resultado += (item[0] + ' ')
+        return resultado
 
     def concluir_tarefa(self, numero: str, texto: str) -> dict:
         """Conclui a tarefa especificada no GET."""
@@ -437,8 +457,11 @@ class Get(Navegador):
 
         #Informa NB/NCTC
         elementos = drv.find_elements(By.ID, value="formMudancaSituacaoTarefaDialog_concluir:camposModelo:0:campoAdicionalModelo")
+        time.sleep(2)
         if len(elementos) > 0:
             campo = elementos[0]
+            campo.send_keys(Keys.CONTROL, 'A')
+            campo.send_keys(Keys.DELETE)  
             campo.send_keys(numero)
     
         ##Insere texto
@@ -608,6 +631,8 @@ class Get(Navegador):
         
         #Clica no botao Solicitar Perícia
         botao = nav.find_element(By.ID, value="formDetalharTarefa:detalheTarefaTabView:btnSolicitarPericia")
+        #botao = nav.find_element(By.ID, value="formDetalharTarefa:detalheTarefaTabView:btnCriarSubtarefa")
+
         botao.click()
         WebDriverWait(nav, self.tempo_espera).until(EC.element_to_be_clickable((By.ID, "formNovaTarefa:gridPanelNovaTarefa")))
         
@@ -635,7 +660,7 @@ class Get(Navegador):
         
             #Preenche os campos adicionais da subtarefa
             self.preencher_camposadic(numero_id, tipo_sub, dados_camposadic)
-       
+        
         #Clica no botão Salvar
         self.aguardar_telaprocessamento()
         campo  = nav.find_element(By.ID, value="formNovaTarefa:btCriarTarefa")
