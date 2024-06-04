@@ -4,7 +4,7 @@
 
 import pandas as pd
 from .procben import ProcessadorBeneficio
-from .utils import analisar_relatoriopm
+from .utils import analisar_relatoriopm_auxacidente
 from arquivo import ArquivoPrismaEntrada
 from conversor import Conversor
 from os import path
@@ -686,11 +686,11 @@ class ProcessadorAuxAcidente(ProcessadorBeneficio):
     #>Processa o relatório de PM em PDF para TXT estruturado
     #>Marca as tarefas com NB habilitados para lançar PM
     #>Encaminha lista de NBs para lançar PM no Accuterm
-    def processar_recebimentoben(self, subcomando: str, lista: list[str]) -> None:
+    def processar_recebimentoben(self, subcomandos: list[str]) -> None:
         self.receber_beneficios()
 
-    def processar_analisepm(self, subcomando: str, lista: list[str]) -> None:
-        if len(lista) > 0 and lista[0] == 'ulp':
+    def processar_analisepm(self, subcomandos: list[str]) -> None:
+        if len(subcomandos) > 0 and subcomandos[0] == 'ulp':
             self.processar_analisar_pm_lote()
         else:
             self.processar_analisar_pm_base()
@@ -698,7 +698,7 @@ class ProcessadorAuxAcidente(ProcessadorBeneficio):
     def processar_anexopmpdf(self, subcomando: str, lista: list[str]) -> None:
         self.anexar_agendamentopm()    
     
-    def processar_cancelasub(self, subcomando: str, lista: list[str]) -> None:
+    def processar_cancelasub(self, subcomandos: list[str]) -> None:
         self.cancelar_subtarefa()
 
     def processar_coletanit(self, subcomando: str, lista: list[str]) -> None:
@@ -722,7 +722,7 @@ class ProcessadorAuxAcidente(ProcessadorBeneficio):
                 cont += 1
         self.pos_processar(cont)
 
-    def processar_despachosben(self, subcomando: str, lista: list[str]) -> None:
+    def processar_despachosben(self, subcomandos: list[str]) -> None:
         self.receber_despachos()
 
     def obter_listaauxilio_acidente(self) -> list[TarefaAuxilioAcidente]:
@@ -744,10 +744,10 @@ class ProcessadorAuxAcidente(ProcessadorBeneficio):
         else:
             print("Erro: Sem suporte a envio de processos para habilitação fora do lote lista_protocolos.txt no momento.\n")
 
-    def processar_envioindeferimento(self, subcomando: str, lista: list[str]) -> None:
+    def processar_envioindeferimento(self, subcomandos: list[str]) -> None:
         """a"""
         self.pre_processar('ENVIAR PARA INDEFERIMENTO')
-        if len(lista) > 0 and lista[0] == 'ulp':
+        if len(subcomandos) > 0 and subcomandos[0] == 'ulp':
             self.enviar_indeferimento_lote()
         else:
             print("Erro: Sem suporte a envio de processos para indeferimento fora do lote lista_protocolos.txt no momento.\n")
@@ -770,7 +770,7 @@ class ProcessadorAuxAcidente(ProcessadorBeneficio):
             self.processar_gerarexigencia_pm_base()
 
     def processar_dados(self) -> None:
-        """Processa os daods carregados."""
+        """Processa os dados carregados."""
         tamanho = self.base_dados.tamanho
         self.lista.clear()
         for i in range(tamanho):
@@ -822,7 +822,7 @@ class ProcessadorAuxAcidente(ProcessadorBeneficio):
     def transformar_pmtxt_pmestruturado(self, subcomando: str, lista: list[str]) -> None:
         cont = 0
         for protocolo in lista:
-            self.processar_relatorio_pm(protocolo)
+            self.analisar_relatoriopm(protocolo)
             print(f'Tarefa {protocolo}.')
             cont += 1
         print(f'Processados: {cont} item(ns).')
