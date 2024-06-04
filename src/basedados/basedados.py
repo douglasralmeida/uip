@@ -93,7 +93,9 @@ class BaseDados:
         """Carrega a base de dados do arquivo CSV."""
         if self.colunas_data is None:
             raise Exception("Colunas tipo data não foram definidas.")
-        self.dados = pd.read_csv(filepath_or_buffer=self.arquivo_dados, sep=';', dtype=str, parse_dates=self.colunas_data)
+        self.dados = pd.read_csv(filepath_or_buffer=self.arquivo_dados, sep=';', dtype=str)
+        for item in self.colunas_data:
+            self.dados[item] = pd.to_datetime(self.dados[item], format='%Y-%m-%d')
         self._tamanho = len(self.dados)
 
     def checar_atributo_nulo(self, idx: int, atributo: str) -> bool:
