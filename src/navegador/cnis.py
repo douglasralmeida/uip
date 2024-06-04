@@ -355,6 +355,58 @@ class Cnis(Navegador):
                 num_itens = 0
         nit = itens[1].text
         return f'{nit[0:3]}.{nit[3:8]}.{nit[8:10]}-{nit[10]}'
+    
+    def pesquisar_ben_filtro(self, protocolo: str, cpf: str, especies: list[str], filtro_status: int) -> str:
+        """Verifica se existe BEN ativo para o CPF informado e gera seu relatório."""
+        STATUS_ATIVO = '0 - ATIVO'
+        STATUS_INDEFERIDO = '1 - INDEFERIDO'
+        STATUS_CESSADO = '2 - CESSADO'
+        STATUS_SUSPENSO = '3 - SUSPENSO'
+        LISTA_STATUS = [STATUS_ATIVO, STATUS_INDEFERIDO, STATUS_CESSADO, STATUS_SUSPENSO]
+        drv = self.driver        
+
+        #1 - Somente os ativos
+        #2 - Somente os Indeferidos
+        #3 - Indeferidos e Ativos
+        #4 - Somente os cessados
+        #5 - Cessados e Indeferidos
+        #6 - Cessados e Ativos
+        #7 - Cessados, Indeferidos e Ativos
+        #8 - Somente os suspensos 
+        #9 - Suspensos e Ativos
+        #10- Suspensos e Indeferidos
+        #11- Suspensos, Indeferidos e Ativos
+        #12- Suspensos e Cessados
+        #13- Suspensos, Cessados e Ativos
+        #14- Suspensos, Cessados e Indeferidos
+        #15- Tudo
+
+        #Clicar no menu e reabrir a tela de pesquisa.
+        drv.find_element(By.ID, 'itemMenuConsultasDoSistema').click()
+        drv.find_element(By.ID, 'formMenu:historicoBeneficio').click()
+        
+        #Pesuisar o CPF especificado.
+        self.abrir_cpf(cpf)
+        self.tarefa = protocolo
+        try:
+            WebDriverWait(self.driver, timeout=4).until(EC.presence_of_element_located((By.ID, 'exibirHistoricoBeneficios')))
+        except:
+            if len((campos := drv.find_elements(By.CLASS_NAME, 'ui-messages-error-detail'))) > 0:
+                if campos[0].text == 'Filiado sem benefícios':
+                    return ''
+                
+        #Raspagem no histórico de benefícios
+        form = drv.find_element(By.ID, 'exibirHistoricoBeneficios')           
+        campo = form.find_element(By.ID, 'exibirHistoricoBeneficios:list:tbody_element')
+        for item in campo.find_elements(By.TAG_NAME, 'tr'):
+            nb = item.find_elements(By.TAG_NAME, 'td')[0].text.strip()
+            status = item.find_elements(By.TAG_NAME, 'td')[3].text.strip()
+            especie = item.find_elements(By.TAG_NAME, 'td')[4].text.strip()[2]
+            if especie in especies:
+                for i in range(len(LISTA_STATUS)):
+                    if filtro_status >> i & 1:
+                        if status == LISTA_STATUS[i]:
+                            print(nb)
 
     def pesquisar_ben_ativos(self, protocolo: str, cpf: str, especies: list[str]) -> bool:
         """Verifica se existe BEN ativo para o CPF informado e gera seu relatório."""
