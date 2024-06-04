@@ -144,7 +144,7 @@ class Processador:
             return True
         return False
     
-    def coletar_subtarefas(self, protocolo: str, imprimirpdf: bool) -> list[tuple[str, bool]]:
+    def coletar_subtarefas(self, protocolo: str, imprimirpdf: bool) -> list[tuple[str, str]]:
         """Coleta as subtarefas no GET."""
         nav = self.get
 

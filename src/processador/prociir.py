@@ -321,6 +321,10 @@ class ProcessadorIsencaoIR(Processador):
         self.pos_processar(cont) 
 
     def analisar_pm(self, tarefa: TarefaIsencaoIR) -> bool:
+        TEXTO_CONCLUIDA = 'Concluída'
+        TEXTO_CANCELADA = 'Cancelada'
+        TEXTO_EXIGENCIA = 'Exigencia'
+
         buffer_linha = ''
         necessario_fechartarefa = False
         get = self.get
@@ -347,7 +351,7 @@ class ProcessadorIsencaoIR(Processador):
             #Checa se a subtarefa registrada é uma subtarefa da tarefa no GET
             for item in lista_subs:
                 numsub = item[0]
-                subconcluida = item[1]
+                statussub = item[1]
                 if numsub == str(subtarefa.obter_protocolo()):
                     subtarefa_encontrada = True
                     buffer_linha += f'Subtarefa {numsub} '
@@ -355,15 +359,13 @@ class ProcessadorIsencaoIR(Processador):
 
                     #Se a subtarefa encontrada estiver concluída, analisa o relatorio,
                     #envia o protocolo para habilitação de NB no Prisma
-                    if subconcluida:
-                        buffer_linha += 'concluída. '
+                    if statussub in [TEXTO_CONCLUIDA, TEXTO_CANCELADA]:
+                        buffer_linha += 'cancelada/concluída. '
                         print(buffer_linha, end='\r')
                         resultado_id = self.processar_relatorio_pm(protocolo)
                         if resultado_id is None:
                             print(buffer_linha + ' Erro: Erro ao processar relatório PM.')
                             return False
-                        #pericia.marcar_realizada()
-                        #tarefa.alterar_periciamedica(pericia)
                         if self.resultados is None:
                             raise Exception()
                         resultado = self.resultados.obter(resultado_id)
@@ -380,7 +382,10 @@ class ProcessadorIsencaoIR(Processador):
                         else:
                             tarefa.marcar_conclusa()
                             print(buffer_linha + ' Tarefa marcada para conclusão.')
-                                
+                        self.salvar_emarquivo()
+                    elif statussub == TEXTO_EXIGENCIA:
+                        print(buffer_linha + ' em exigência.')
+                        tarefa.alterar_exigpm(TipoBooleano(True))
                         self.salvar_emarquivo()
                     else:
                         print(buffer_linha + ' não concluída.')
