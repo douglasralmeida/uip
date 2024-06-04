@@ -138,5 +138,25 @@
             "areas": "rio,lago",
             "produtos": "peixe",
             "descricao": "Bacia do Rio Paraguai"
+        },
+        "48,147": {
+            "estados": "AM",
+            "inicio_periodo": "15/11/2023",
+            "fim_periodo": "15/03/2024",
+            "inicio_contribuicao": "03/2023",
+            "fim_contribuicao": "11/2023",
+            "areas": "rio,lago",
+            "produtos": "peixe",
+            "descricao": "Bacia Amazônica"
+        },
+        "48,149": {
+            "estados": "PA",
+            "inicio_periodo": "15/11/2023",
+            "fim_periodo": "15/03/2024",
+            "inicio_contribuicao": "03/2023",
+            "fim_contribuicao": "11/2023",
+            "areas": "rio,lago",
+            "produtos": "peixe",
+            "descricao": "Bacia Amazônica e rios do Pará"
         }
 }

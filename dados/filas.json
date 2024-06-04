@@ -1,4 +1,13 @@
 {
+    "aposent_rjceab": {
+        "nome": "Aposentadorias (CEAB RJ)",
+        "id": "ap",
+        "codigo": "17.150.521",
+        "valor_exigencia": 0.0,
+        "valor_subtarefa": 0.0,
+        "valor_conclusao": 0.0,
+        "ativa": 1
+    },
     "auxacidente_rjceab": {
         "nome": "Auxílio Acidente (CEAB RJ)",
         "id": "aa",
@@ -52,6 +61,15 @@
         "valor_subtarefa": 0.0,
         "valor_conclusao": 0.33,
         "ativa": 0
+    },
+    "auxincap_ncoceab": {
+        "nome": "Auxílio por Incapacidade (CEAB NCO)",
+        "id": "ai",
+        "codigo": "23.150.521",
+        "valor_exigencia": 0.0,
+        "valor_subtarefa": 0.0,
+        "valor_conclusao": 0.0,
+        "ativa": 1
     },
     "bpcdef_rjceab": {
         "nome": "Benefício Assistencial ao Deficiente (CEAB RJ)",

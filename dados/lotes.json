@@ -18,5 +18,10 @@
         "desc": "Lote de Tarefas com Análise de Direito do Seguro Defeso",
         "atributos": "protocolo;sd;resultado;nomeempresa;datafiliacao;tem_pdfresumoanexo;concluso",
         "entrada": "analisesd.csv"
+    },
+    "analiseai": {
+        "desc": "Lote de Tarefas com Análise de Direito do Auxílio por Incapacidade Temporária",
+        "atributos": "protocolo;resultado;beneficio;tem_exigencia;exig_cumprida;did;dii;pqs;ingresso;aar;tem_pdfresumoanexo;concluso",
+        "entrada": "analiseai.csv"
     }
 }

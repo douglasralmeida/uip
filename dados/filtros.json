@@ -54,6 +54,11 @@
         "valor": "periciacumprida.isna() & tem_exigencia == '1' & dataagendamento >= @hoje",
         "sem_desis_conc_imp": "1"
     },
+    "sub_aguardapm": {
+        "processador": "ben",
+        "valor": "periciacumprida.isna()",
+        "sem_desis_conc_imp": "1"
+    },
     "pmvencida": {
         "processador": "ben",
         "valor": "periciacumprida.isna() & tem_exigencia == '1' & dataagendamento < @hoje",
@@ -102,6 +107,56 @@
     "semnit": {
         "processador": "todos",
         "valor": "nit.isna() & tem_dadosbasicos == '1'",
+        "sem_desis_conc_imp": "1"
+    },
+    "iir_analisedoc": {
+        "processador": "iir",
+        "valor": "tem_dadosbasicos == '1' & tem_documentacao.isna()",
+        "sem_desis_conc_imp": "1"
+    },
+    "iir_abrirexig": {
+        "processador": "iir",
+        "valor": "tem_dadosbasicos == '1' & tem_documentacao == '0' & tem_exigencia.isna()",
+        "sem_desis_conc_imp": "1"
+    },
+    "iir_aguardarexig": {
+        "processador": "iir",
+        "valor": "tem_exigencia == '1' & tem_documentacao == '0' & vencim_exigencia >= @hoje",
+        "sem_desis_conc_imp": "1"
+    },
+    "iir_exigvencida": {
+        "processador": "iir",
+        "valor": "tem_exigencia == '1' & tem_documentacao == '0' & vencim_exigencia < @hoje",
+        "sem_desis_conc_imp": "1"
+    },
+    "iir_geracaosub": {
+        "processador": "iir",
+        "valor": "tem_documentacao == '1' & tem_subtarefa.isna() & msgerro_criacaosub.isna()",
+        "sem_desis_conc_imp": "1"
+    },
+    "iir_analisepm": {
+        "processador": "iir",
+        "valor": "tem_subtarefa == '1' & pm_realizada.isna()",
+        "sem_desis_conc_imp": "1"
+    },
+    "iir_exigenciapm": {
+        "processador": "iir",
+        "valor": "pm_exigencia == '1' & tem_exigencia.isna()",
+        "sem_desis_conc_imp": "1"
+    },
+    "iir_exignc_aguardapm": {
+        "processador": "iir",
+        "valor": "pm_exigencia == '1' & exig_naocumprida == '1'",
+        "sem_desis_conc_imp": "1"
+    },
+    "iir_atualizaben": {
+        "processador": "iir",
+        "valor": "pm_realizada == '1' & atualizacao_despachada.isna() & resultado in ['iir_deferido']",
+        "sem_desis_conc_imp": "1"
+    },
+    "iir_subcomerro": {
+        "processador": "iir",
+        "valor": "tem_subtarefa.isna() & msgerro_criacaosub.notna()",
         "sem_desis_conc_imp": "1"
     }
 }

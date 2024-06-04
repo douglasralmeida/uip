@@ -100,21 +100,21 @@
     "deferir": {
         "desc": "Exibe a lista de tarefas pendentes de deferimento no Prisma.",
         "processador": "ben",
-        "colunas": "protocolo;beneficio",
+        "colunas": "protocolo;beneficio;resultado",
         "ordenacao": "der",
         "ordem_crescente": "True"
     },
     "indeferir": {
         "desc": "Exibe a lista de tarefas pendentes de indeferimento no Prisma.",
         "processador": "ben",
-        "colunas": "protocolo;beneficio",
+        "colunas": "protocolo;beneficio;resultado",
         "ordenacao": "der",
         "ordem_crescente": "True"
     },
     "indeferirinac": {
         "desc": "Exibe a lista de tarefas pendente de indeferimento por acumulação não permitida.",
         "processador": "ben",
-        "colunas": "protocolo;beneficio",
+        "colunas": "protocolo;beneficio;resultado",
         "ordenacao": "der",
         "ordem_crescente": "True"
     },
@@ -135,6 +135,13 @@
     "semnit": {
         "desc": "Exibe a lista de tarefas com dados cadastrais coletados e sem NIT.",
         "processador": "todos",
+        "colunas": "protocolo",
+        "ordenacao": "der",
+        "ordem_crescente": "True"
+    },
+    "iir_apmf": {
+        "desc": "Exibe a lista de tarefas pendentes de análise da PMF.",
+        "processador": "iir",
         "colunas": "protocolo",
         "ordenacao": "der",
         "ordem_crescente": "True"
