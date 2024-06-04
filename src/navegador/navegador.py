@@ -21,7 +21,7 @@ class Navegador:
         self.tarefa = ''
 
         #Desabilita certas opções para agilizar automação
-        self.modo_rapido = True
+        self.modo_rapido = False
 
         #Flag a ser utilizado quando as condições de sistema
         #estiverem ruins.
@@ -156,6 +156,7 @@ class Navegador:
         #Aguardar e trocar para a guia do arquivo PDF
         WebDriverWait(drv, 20).until(EC.number_of_windows_to_be(2))        
         drv.switch_to.window(drv.window_handles[1])
+        time.sleep(1)
         
         #Salvar o PDF
         drv.execute_script('window.print();')
