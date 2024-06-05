@@ -22,7 +22,7 @@ class TarefaIsencaoIR(Tarefa):
 
     def alterar_exigpm(self, exigencia_pm: TipoBooleano) -> None:
         """Alterar o campo pm em exigência."""
-        self.base_dados.alterar_atributo(self.pos, 'pm_exigencia', exigencia_pm.valor)
+        self.base_dados.alterar_atributo(self.pos, 'pm_exigencia', exigencia_pm.valor) 
 
     def alterar_arquivopdfpm(self, arquivopdfpm: bool) -> None:
         if arquivopdfpm:

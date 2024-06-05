@@ -311,7 +311,8 @@ class ProcessadorIsencaoIR(Processador):
                 # >tarefa tem impedimento
                 subtarefa = t.obter_subtarefa()
                 exigencia = t.obter_exigencia()
-                if not subtarefa.tem or t.subtarefa_concluida().e_verdadeiro or exigencia.tem_exigencia().e_verdadeiro or t.tem_impedimento().e_verdadeiro:
+                pm_exigencia = t.tem_exig_pm()
+                if not subtarefa.tem or t.subtarefa_concluida().e_verdadeiro or pm_exigencia.e_verdadeiro or exigencia.tem_exigencia().e_verdadeiro or t.tem_impedimento().e_verdadeiro:
                     continue
                 lista_tarefas.append(t)
         print(f"{len(lista_tarefas)} tarefa(s) pendente(s) de processamento.")
@@ -323,7 +324,7 @@ class ProcessadorIsencaoIR(Processador):
     def analisar_pm(self, tarefa: TarefaIsencaoIR) -> bool:
         TEXTO_CONCLUIDA = 'Concluída'
         TEXTO_CANCELADA = 'Cancelada'
-        TEXTO_EXIGENCIA = 'Exigencia'
+        TEXTO_EXIGENCIA = 'Exigência'
 
         buffer_linha = ''
         necessario_fechartarefa = False
@@ -359,8 +360,8 @@ class ProcessadorIsencaoIR(Processador):
 
                     #Se a subtarefa encontrada estiver concluída, analisa o relatorio,
                     #envia o protocolo para habilitação de NB no Prisma
-                    if statussub in [TEXTO_CONCLUIDA, TEXTO_CANCELADA]:
-                        buffer_linha += 'cancelada/concluída. '
+                    if statussub == TEXTO_CONCLUIDA:
+                        buffer_linha += 'concluída. '
                         print(buffer_linha, end='\r')
                         resultado_id = self.processar_relatorio_pm(protocolo)
                         if resultado_id is None:
@@ -387,6 +388,8 @@ class ProcessadorIsencaoIR(Processador):
                         print(buffer_linha + ' em exigência.')
                         tarefa.alterar_exigpm(TipoBooleano(True))
                         self.salvar_emarquivo()
+                    elif statussub == TEXTO_CANCELADA:
+                        print(buffer_linha + ' cancelada.')
                     else:
                         print(buffer_linha + ' não concluída.')
             if not subtarefa_encontrada:

@@ -370,7 +370,6 @@ class Get(Navegador):
     def coletar_subtarefas(self, tarefa: str, nome_servico: str, gerarpdf: bool) -> list[tuple[str, bool]]:
         """Coleta no. da subtarefa, seu status e gera relatorio da PM."""
         TEXTO_CONCLUIDA = 'Concluída'
-        TEXTO_CANCELADA = 'Cancelada'
         numero_sub = ''
         subconcluida = False
         resultado = []
@@ -389,9 +388,9 @@ class Get(Navegador):
                 if len(campos[0].find_elements(By.TAG_NAME, "span")) > 0:
                     if campos[1].find_element(By.TAG_NAME, "span").text == nome_servico:
                         numero_sub = campos[0].find_element(By.TAG_NAME, "span").text
-                        subconcluida = campos[2].find_element(By.TAG_NAME, "span").text == TEXTO_CONCLUIDA
-                        resultado.append((numero_sub.strip(), subconcluida))
-                        if subconcluida and gerarpdf:
+                        status_sub = campos[2].find_element(By.TAG_NAME, "span").text
+                        resultado.append((numero_sub.strip(), status_sub.strip()))
+                        if status_sub == TEXTO_CONCLUIDA and gerarpdf:
                             botao = campos[3].find_element(By.ID, f'formDetalharTarefa:detalheTarefaTabView:dtblSubtarefasPericias:{item_id}:cmdLinkLaudoPericia')
                             botao.click()
                             self.aguardar_telaprocessamento()                        
