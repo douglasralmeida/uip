@@ -136,12 +136,12 @@
     },
     "iir_analisepm": {
         "processador": "iir",
-        "valor": "tem_subtarefa == '1' & pm_realizada.isna()",
+        "valor": "tem_exigencia == '0' & tem_subtarefa == '1' & subtarefaconcluida.isna() & pm_exigencia.isna()",
         "sem_desis_conc_imp": "1"
     },
     "iir_exigenciapm": {
         "processador": "iir",
-        "valor": "pm_exigencia == '1' & tem_exigencia.isna()",
+        "valor": "pm_exigencia == '1' & (tem_exigencia.isna() | tem_exigencia == '0') & subtarefaconcluida.isna()",
         "sem_desis_conc_imp": "1"
     },
     "iir_exignc_aguardapm": {
