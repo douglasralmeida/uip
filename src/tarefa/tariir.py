@@ -3,6 +3,7 @@
 
 import pandas as pd
 from basedados import TipoBooleano, TipoTexto, TipoInteiro, TipoData
+from pericia import PericiaMedica
 from subtarefa import Subtarefa
 from tarefa import Tarefa
 
@@ -46,6 +47,17 @@ class TarefaIsencaoIR(Tarefa):
 
     def concluir_subtarefa(self) -> None:
         self.base_dados.alterar_atributo(self.pos, "subtarefaconcluida", "1")
+
+    def obter_pericia(self) -> PericiaMedica:
+        exigencia = TipoBooleano(self.base_dados.obter_atributo(self.pos, "pm_exigencia"))
+        realizada = TipoBooleano(self.base_dados.obter_atributo(self.pos, "pm_realizada"))
+        pericia = PericiaMedica(realizada, realizada)
+        if exigencia.e_verdadeiro:
+            pericia.marcar_emexigencia()
+        if realizada.e_verdadeiro:
+            pericia.marcar_realizada()
+
+        return pericia
 
     def obter_subtarefa(self) -> Subtarefa:
         """Retorna o número da subtarefa."""

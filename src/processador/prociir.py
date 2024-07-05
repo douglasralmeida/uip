@@ -61,7 +61,7 @@ class ProcessadorIsencaoIR(Processador):
         #TODO Checar depois
         self.criarsub_modolinha = False
 
-        self.id = 'iri'
+        self.id = 'iir'
         
         self.id_subtarefa = 'pm_iir'
 
@@ -78,6 +78,7 @@ class ProcessadorIsencaoIR(Processador):
 
         #Tag para benefício
         self.tags.append('man')
+        self.tags.append('iir')
 
     def __str__(self) -> str:
         resultado = super().__str__()
@@ -93,7 +94,7 @@ class ProcessadorIsencaoIR(Processador):
         resultado += f"Com erro na geração de subtarefa: {self.obter_info('iir_subcomerro')} tarefa(s).\n"
 
         resultado += f"Pendentes de análise da PMF: {self.obter_info('iir_analisepm')} tarefa(s).\n"
-        #resultado += f"Pendentes de abertura de exigência feita pela PMF: {self.obter_info('sub_aguardapm')} tarefa(s).\n"
+        resultado += f"Pendentes de abertura de exigência feita pela PMF: {self.obter_info('iir_exigenciapm')} tarefa(s).\n"
         #resultado += f"Pendentes de atualização do benefício: {self.obter_info('atualizaben')} tarefa(s).\n"
         #resultado += f"Com exigência não cumprida aguardando análise da PMF: {self.obter_info('atualizaben')} tarefa(s).\n"
 
@@ -307,12 +308,13 @@ class ProcessadorIsencaoIR(Processador):
                 #Não irá processar PM se:
                 # >não gerou subtarefa
                 # >subtarefa está concluída
+                # >pm está em exigência
                 # >está em exigência
                 # >tarefa tem impedimento
                 subtarefa = t.obter_subtarefa()
                 exigencia = t.obter_exigencia()
-                pm_exigencia = t.tem_exig_pm()
-                if not subtarefa.tem or t.subtarefa_concluida().e_verdadeiro or pm_exigencia.e_verdadeiro or exigencia.tem_exigencia().e_verdadeiro or t.tem_impedimento().e_verdadeiro:
+                pericia = t.obter_pericia()
+                if not subtarefa.tem or t.subtarefa_concluida().e_verdadeiro or pericia.realizada().e_verdadeiro or pericia.em_exigencia().e_verdadeiro or exigencia.tem_exigencia().e_verdadeiro or t.tem_impedimento().e_verdadeiro:
                     continue
                 lista_tarefas.append(t)
         print(f"{len(lista_tarefas)} tarefa(s) pendente(s) de processamento.")
@@ -339,6 +341,8 @@ class ProcessadorIsencaoIR(Processador):
         print(buffer_linha, end='\r')
         
         if get.pesquisar_tarefa(protocolo):
+            subtarefa_encontrada = False
+
             #Verifica se tarefa está cancelada/concluída
             if self.processar_status(tarefa):
                 print(buffer_linha + 'Tarefa cancelada/concluída. PM não analisada.')
